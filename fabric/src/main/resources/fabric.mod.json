@@ -1,0 +1,12 @@
+{
+  "id": "lwl",
+  "version": "0.0.1",
+  "schemaVersion": 1,
+
+  "name": "LWL",
+  "description": "Lexize's Widgets Library",
+
+  "mixins": [
+    "lwl.mixin.json"
+  ]
+}

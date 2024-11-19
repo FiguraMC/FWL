@@ -1,0 +1,44 @@
+plugins {
+    id "dev.architectury.loom" version "1.5-SNAPSHOT" apply false
+    id "architectury-plugin" version "3.4-SNAPSHOT"
+}
+
+subprojects {
+    apply plugin: "dev.architectury.loom"
+
+    loom {
+        silentMojangMappingsLicense()
+    }
+
+    repositories {
+        maven { url 'https://maven.terraformersmc.com/releases/' }
+        maven { url 'https://api.modrinth.com/maven' }
+        maven { url 'https://maven.quiltmc.org/repository/release/' }
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+    }
+}
+
+
+allprojects {
+    apply plugin: "java"
+    apply plugin: "architectury-plugin"
+
+    java_version = rootProject.java_version
+    archivesBaseName = rootProject.archives_base_name
+    version = rootProject.mod_version
+    group = rootProject.maven_group
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+        options.release = Integer.valueOf(java_version)
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        withSourcesJar()
+    }
+}

@@ -1,0 +1,203 @@
+package org.lexize.lwl.themes;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
+import org.joml.Matrix4f;
+import org.lexize.lwl.widgets.descriptors.*;
+
+public abstract class LWLTheme {
+    public abstract void renderButton(GuiGraphics graphics, float delta, ButtonDescriptor button);
+    public abstract void renderCheckbox(GuiGraphics graphics, float delta, CheckboxDescriptor checkbox);
+    public abstract void renderRadioButton(GuiGraphics graphics, float delta, RadioButtonDescriptor button);
+    public abstract void renderScrollBar(GuiGraphics graphics, float delta, ScrollBarDescriptor scrollBar);
+    public abstract void renderSlider(GuiGraphics graphics, float delta, SliderDescriptor slider);
+    public abstract void renderBorder(GuiGraphics graphics, BorderDescriptor border);
+    public abstract void renderSplitter(GuiGraphics graphics, SplitterDescriptor splitter);
+    public abstract void renderIcon(GuiGraphics graphics, IconDescriptor icon);
+
+    public float renderText(GuiGraphics graphics, Component text, float x, float y, float z, float scale, int color) {
+        PoseStack stack = graphics.pose();
+        Font font = Minecraft.getInstance().font;
+        stack.pushPose();
+        stack.scale(scale, scale, scale);
+        stack.translate(x, y, z);
+        int w = graphics.drawString(font, text, 0, 0, color);
+        stack.popPose();
+        return w * scale;
+    }
+
+    public static void renderLine(GuiGraphics graphics, int x0, int y0, int x1, int y1, int color) {
+        int startX = Math.min(x0, x1);
+        int startY = Math.min(y0, y1);
+        int endX = Math.max(x0, x1);
+        int endY = Math.max(y0, y1);
+        int xDif = endX - startX;
+        int yDif = endY - startY;
+        if (xDif == 0) {
+            graphics.fill(startX, startY, startX, endY, color);
+        }
+        else if (yDif == 0) {
+            graphics.fill(startX, startY, endX, startY, color);
+        }
+        else {
+            if (xDif > yDif) renderLineH(graphics, x0, y0, x1, y1, color);
+            else renderLineV(graphics, x0, y0, x1, y1, color);
+        }
+    }
+
+    private static void renderLineH(GuiGraphics graphics, int x0, int y0, int x1, int y1, int color) {
+        // TODO
+    }
+
+    private static void renderLineV(GuiGraphics graphics, int x0, int y0, int x1, int y1, int color) {
+        // TODO
+    }
+
+    public static int[] findArcMaxXs(int r) {
+        int x = 0;
+        int y = r;
+        int[] maxX = new int[r];
+        while (x < y) {
+            float yMid = y - 0.5f;
+            float p = (x * x) + (yMid * yMid);
+            if (p >= r * r) {
+                y--;
+            }
+            int bDist = r - y;
+            int i = r - x;
+            maxX[bDist] = x;
+            if (i < r) maxX[i] = y;
+            x++;
+        }
+        return maxX;
+    }
+
+    private static int[] diffArray(int[] src) {
+        int[] diffs = new int[src.length];
+        for (int i = 0; i < src.length; i++) {
+            int prev = i == 0 ? 0 : src[i-1];
+            diffs[i] = src[i] - prev;
+        }
+        return diffs;
+    }
+
+    public static void renderArc(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, ArcOrient sideX, ArcOrient sideY, boolean filled, int color) {
+        int r = (int) (radius * scaling);
+        int[] xs = diffArray(findArcMaxXs(r));
+        if (filled) renderArcFilled(graphics, sX, sY, z, scaling, r, sideX, sideY, color, xs);
+        else renderArcHollow(graphics, sX, sY, z, scaling, sideX, sideY, color, xs);
+    }
+
+    public static void renderArcDotted(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, ArcOrient sideX, ArcOrient sideY, int color) {
+        int r = (int) (radius * scaling);
+        int[] xs = diffArray(findArcMaxXs(r));
+        renderArcDotted(graphics, sX, sY, z, scaling, sideX, sideY, color, xs);
+    }
+
+    private static void renderArcHollow(GuiGraphics graphics, float sX, float sY, float z, float scaling, ArcOrient sideX, ArcOrient sideY, int color, int[] xs) {
+        float xMul = (sideX == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
+        float yMul = (sideY == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
+        int xOffset = 0;
+        for (int y = 0; y < xs.length; y++) {
+            int x = xs[y];
+            float x0 = (xOffset - (x == 0 ? 1 : 0)) * xMul;
+            float y0 = y * yMul;
+            float x1 = (xOffset + x) * xMul;
+            float y1 = (y + 1) * yMul;
+            fill(graphics, sX + x0, sY + y0, sX + x1, sY + y1, z, color);
+            xOffset += x;
+        }
+    }
+
+    private static void renderArcFilled(GuiGraphics graphics, float sX, float sY, float z, float scaling, int r, ArcOrient sideX, ArcOrient sideY, int color, int[] xs) {
+        float xMul = (sideX == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
+        float yMul = (sideY == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
+        int xOffset = 0;
+        for (int y = 0; y < xs.length; y++) {
+            int x = xs[y];
+            if (x != 0) {
+                float x0 = xOffset * xMul;
+                float y0 = r * yMul;
+                float x1 = (xOffset + x) * xMul;
+                float y1 = y * yMul;
+                fill(graphics, sX + x0, sY + y0, sX + x1, sY + y1, z, color);
+            }
+            xOffset += x;
+        }
+    }
+
+    private static void renderArcDotted(GuiGraphics graphics, float sX, float sY, float z, float scaling, ArcOrient sideX, ArcOrient sideY, int color, int[] xs) {
+        float xMul = (sideX == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
+        float yMul = (sideY == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
+        boolean draw = true;
+        int xOffset = 0;
+        for (int y = 0; y < xs.length; y++) {
+            int xDif = xs[y];
+            for (int x = 0; x == 0 || x < xDif; x++) {
+                if (draw) {
+                    int aX = xOffset + x - (xDif == 0 ? 1 : 0);
+                    float x0 = aX * xMul;
+                    float y0 = y * yMul;
+                    float x1 = (aX + 1) * xMul;
+                    float y1 = (y + 1) * yMul;
+                    fill(graphics, sX + x0, sY + y0, sX + x1, sY + y1, z, color);
+                }
+                draw = !draw;
+            }
+            xOffset += xDif;
+        }
+    }
+
+    public enum ArcOrient {
+        POSITIVE,
+        NEGATIVE
+    }
+
+    public static void fill(GuiGraphics graphics, float x0, float y0, float x1, float y1, float z, int color) {
+        VertexConsumer consumer = graphics.bufferSource().getBuffer(RenderType.gui());
+        Matrix4f mat = graphics.pose().last().pose();
+        float minX = Math.min(x0, x1);
+        float minY = Math.min(y0, y1);
+        float maxX = Math.max(x0, x1);
+        float maxY = Math.max(y0, y1);
+
+        float a = (float) FastColor.ARGB32.alpha(color) / 255.0F;
+        float r = (float) FastColor.ARGB32.red(color) / 255.0F;
+        float g = (float) FastColor.ARGB32.green(color) / 255.0F;
+        float b = (float) FastColor.ARGB32.blue(color) / 255.0F;
+
+        consumer.vertex(mat, maxX, maxY, z).color(r,g,b,a).endVertex();
+        consumer.vertex(mat, maxX, minY, z).color(r,g,b,a).endVertex();
+        consumer.vertex(mat, minX, minY, z).color(r,g,b,a).endVertex();
+        consumer.vertex(mat, minX, maxY, z).color(r,g,b,a).endVertex();
+    }
+
+    protected static float getScaling() {
+        return (float) Minecraft.getInstance().getWindow().getGuiScale();
+    }
+
+    public abstract int defaultBorderRadius();
+    public abstract BorderDescriptor.CornerType defaultCornerType();
+
+    public abstract Integer getColor(ResourceLocation type);
+    public Integer getColor(ResourceLocation type, WidgetState state) {
+        Integer color = getColor(type);
+        return color != null ? applyStateModifier(color, state) : null;
+    }
+    public abstract int applyStateModifier(int color, WidgetState state);
+    public int getColorOrDefault(ResourceLocation type, int fallback) {
+        Integer color = getColor(type);
+        return color != null ? color : fallback;
+    }
+
+    public int getColorOrDefault(ResourceLocation type, int fallback, WidgetState state) {
+        return applyStateModifier(getColorOrDefault(type, fallback), state);
+    }
+}
