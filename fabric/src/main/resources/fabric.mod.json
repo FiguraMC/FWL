@@ -6,6 +6,10 @@
   "name": "LWL",
   "description": "Lexize's Widgets Library",
 
+  "entrypoints": {
+    "modmenu": [ "org.lexize.lwl.fabric.compat.ModMenuCompat" ]
+  },
+
   "mixins": [
     "lwl.mixin.json"
   ]

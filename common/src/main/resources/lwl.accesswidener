@@ -1,3 +1,6 @@
 accessWidener v2 named
 
 accessible method net/minecraft/client/gui/GuiGraphics flushIfUnmanaged ()V
+
+accessible field net/minecraft/client/gui/screens/Screen narratables Ljava/util/List;
+accessible field net/minecraft/client/gui/screens/Screen children Ljava/util/List;

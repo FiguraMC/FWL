@@ -2,8 +2,5 @@
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "required": false,
-  "package": "org.lexize.lwl.mixin",
-  "client": [
-    "GuiMixin"
-  ]
+  "package": "org.lexize.lwl.mixin"
 }

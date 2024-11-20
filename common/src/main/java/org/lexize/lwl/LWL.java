@@ -1,8 +1,7 @@
 package org.lexize.lwl;
 
-import org.lexize.lwl.themes.LWLTheme;
+import org.lexize.lwl.gui.themes.LWLTheme;
 
-import java.util.Arrays;
 import java.util.Stack;
 
 public class LWL {
