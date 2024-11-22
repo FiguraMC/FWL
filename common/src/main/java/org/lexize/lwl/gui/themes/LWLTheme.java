@@ -11,6 +11,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import org.joml.Matrix4f;
 import org.lexize.lwl.gui.widgets.descriptors.*;
+import org.lexize.lwl.gui.widgets.descriptors.button.CheckboxDescriptor;
+import org.lexize.lwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
+import org.lexize.lwl.gui.widgets.descriptors.button.ButtonDescriptor;
 
 public abstract class LWLTheme {
     public abstract void renderButton(GuiGraphics graphics, float delta, ButtonDescriptor button);
@@ -99,24 +102,32 @@ public abstract class LWLTheme {
     }
 
     public static void renderArc(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, float thickness, ArcOrient sideX, ArcOrient sideY, int color) {
+        renderArc(graphics, sX, sY, z, radius, scaling, thickness, sideX, sideY, new StaticColor(color));
+    }
+
+    public static void renderArc(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, float thickness, ArcOrient sideX, ArcOrient sideY, ColorProvider color) {
         int r = (int) (radius * scaling);
         int[] xs = diffArray(findArcMaxXs(r));
         renderArcHollow(graphics, sX, sY, z, scaling, thickness, sideX, sideY, color, xs);
     }
 
     public static void renderArcFilled(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, ArcOrient sideX, ArcOrient sideY, int color) {
+        renderArcFilled(graphics, sX, sY, z, radius, scaling, sideX, sideY, new StaticColor(color));
+    }
+
+    public static void renderArcFilled(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, ArcOrient sideX, ArcOrient sideY, ColorProvider color) {
         int r = (int) (radius * scaling);
         int[] xs = diffArray(findArcMaxXs(r));
         renderArcFilled(graphics, sX, sY, z, scaling, r, sideX, sideY, color, xs);
     }
 
-    public static void renderArcDotted(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, float thickness, ArcOrient sideX, ArcOrient sideY, int color) {
+    public static void renderArcDotted(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, float thickness, ArcOrient sideX, ArcOrient sideY, ColorProvider color) {
         int r = (int) (radius * scaling);
         int[] xs = diffArray(findArcMaxXs(r));
         renderArcDotted(graphics, sX, sY, z, scaling, thickness, sideX, sideY, color, xs);
     }
 
-    private static void renderArcHollow(GuiGraphics graphics, float sX, float sY, float z, float scaling, float thickness, ArcOrient sideX, ArcOrient sideY, int color, int[] xs) {
+    private static void renderArcHollow(GuiGraphics graphics, float sX, float sY, float z, float scaling, float thickness, ArcOrient sideX, ArcOrient sideY, ColorProvider color, int[] xs) {
         float xMul = (sideX == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
         float yMul = (sideY == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
         int xOffset = 0;
@@ -132,7 +143,7 @@ public abstract class LWLTheme {
         }
     }
 
-    private static void renderArcFilled(GuiGraphics graphics, float sX, float sY, float z, float scaling, int r, ArcOrient sideX, ArcOrient sideY, int color, int[] xs) {
+    private static void renderArcFilled(GuiGraphics graphics, float sX, float sY, float z, float scaling, int r, ArcOrient sideX, ArcOrient sideY, ColorProvider color, int[] xs) {
         float xMul = (sideX == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
         float yMul = (sideY == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
         int xOffset = 0;
@@ -149,7 +160,7 @@ public abstract class LWLTheme {
         }
     }
 
-    private static void renderArcDotted(GuiGraphics graphics, float sX, float sY, float z, float scaling, float thickness, ArcOrient sideX, ArcOrient sideY, int color, int[] xs) {
+    private static void renderArcDotted(GuiGraphics graphics, float sX, float sY, float z, float scaling, float thickness, ArcOrient sideX, ArcOrient sideY, ColorProvider color, int[] xs) {
         float xMul = (sideX == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
         float yMul = (sideY == ArcOrient.NEGATIVE ? -1 : 1) / scaling;
         boolean draw = true;
@@ -171,9 +182,40 @@ public abstract class LWLTheme {
         }
     }
 
+    protected void renderRoundBorder(GuiGraphics graphics, int color, float x0, float y0, float x1, float y1, float rad, float scaling, float thickness) {
+        renderRoundBorder(graphics, new StaticColor(color), x0, y0, x1, y1, rad, scaling, thickness);
+    }
+
+    public void renderRoundBorder(GuiGraphics graphics, ColorProvider color, float x0, float y0, float x1, float y1, float rad, float scaling, float thickness) {
+        float lh = thickness / scaling; // Line height
+
+        fill(graphics, x0 + rad, y0, x1 - rad, y0 + lh, 0, color); // Top-middle
+        fill(graphics, x0 + rad, y1 - lh, x1 - rad, y1, 0, color); // Bottom-middle
+        fill(graphics, x0, y0 + rad, x0 + lh, y1 - rad, 0, color); // Left-center
+        fill(graphics, x1 - lh, y0 + rad, x1, y1 - rad, 0, color); // Right-center
+        renderArc(graphics, x0 + rad, y0, 0, rad, scaling, thickness, ArcOrient.NEGATIVE, ArcOrient.POSITIVE, color); // Top-left corner
+        renderArc(graphics, x1 - rad, y0, 0, rad, scaling, thickness, ArcOrient.POSITIVE, ArcOrient.POSITIVE, color); // Top-right corner
+        renderArc(graphics, x0 + rad, y1, 0, rad, scaling, thickness, ArcOrient.NEGATIVE, ArcOrient.NEGATIVE, color); // Bottom-left corner
+        renderArc(graphics, x1 - rad, y1, 0, rad, scaling, thickness, ArcOrient.POSITIVE, ArcOrient.NEGATIVE, color); // Bottom-right corner
+    }
+
     public enum ArcOrient {
         POSITIVE,
         NEGATIVE
+    }
+
+    public static void fill(GuiGraphics graphics, float x0, float y0, float x1, float y1, float z, ColorProvider color) {
+        VertexConsumer consumer = graphics.bufferSource().getBuffer(RenderType.gui());
+        Matrix4f mat = graphics.pose().last().pose();
+        float minX = Math.min(x0, x1);
+        float minY = Math.min(y0, y1);
+        float maxX = Math.max(x0, x1);
+        float maxY = Math.max(y0, y1);
+
+        consumer.vertex(mat, maxX, maxY, z).color(color.get(maxX, maxY)).endVertex();
+        consumer.vertex(mat, maxX, minY, z).color(color.get(maxX, minY)).endVertex();
+        consumer.vertex(mat, minX, minY, z).color(color.get(minX, minY)).endVertex();
+        consumer.vertex(mat, minX, maxY, z).color(color.get(minX, maxY)).endVertex();
     }
 
     public static void fill(GuiGraphics graphics, float x0, float y0, float x1, float y1, float z, int color) {
@@ -189,10 +231,10 @@ public abstract class LWLTheme {
         float g = (float) FastColor.ARGB32.green(color) / 255.0F;
         float b = (float) FastColor.ARGB32.blue(color) / 255.0F;
 
-        consumer.vertex(mat, maxX, maxY, z).color(r,g,b,a).endVertex();
-        consumer.vertex(mat, maxX, minY, z).color(r,g,b,a).endVertex();
-        consumer.vertex(mat, minX, minY, z).color(r,g,b,a).endVertex();
-        consumer.vertex(mat, minX, maxY, z).color(r,g,b,a).endVertex();
+        consumer.vertex(mat, maxX, maxY, z).color(r, g, b, a).endVertex();
+        consumer.vertex(mat, maxX, minY, z).color(r, g, b, a).endVertex();
+        consumer.vertex(mat, minX, minY, z).color(r, g, b, a).endVertex();
+        consumer.vertex(mat, minX, maxY, z).color(r, g, b, a).endVertex();
     }
 
     protected static float getScaling() {
@@ -214,5 +256,22 @@ public abstract class LWLTheme {
     public int getColorOrDefault(int fallback, String... path) {
         Integer color = getColor(path);
         return color != null ? color : fallback;
+    }
+
+    public interface ColorProvider {
+        int get(float x, float y);
+    }
+
+    public static class StaticColor implements ColorProvider {
+        private final int color;
+
+        public StaticColor(int color) {
+            this.color = color;
+        }
+
+        @Override
+        public int get(float x, float y) {
+            return color;
+        }
     }
 }

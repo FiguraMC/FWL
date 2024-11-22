@@ -1,20 +1,23 @@
-package org.lexize.lwl.gui.widgets;
+package org.lexize.lwl.gui.widgets.button;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.joml.Vector2f;
 import org.lexize.lwl.LWL;
-import org.lexize.lwl.gui.widgets.descriptors.ButtonDescriptor;
+import org.lexize.lwl.gui.themes.LWLTheme;
+import org.lexize.lwl.gui.widgets.LWLWidget;
+import org.lexize.lwl.gui.widgets.descriptors.button.CheckboxDescriptor;
+import org.lexize.lwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
 import org.lwjgl.glfw.GLFW;
 
-public abstract class Button implements LWLWidget {
+public class RadioButton implements LWLWidget {
     private boolean keyboardClick;
     private int clicked = -1;
-    protected final ButtonDescriptor desc;
-    private OnClick callback;
+    private final RadioButtonDescriptor desc;
+    private ChangeCallback callback;
 
-    public Button(float x, float y, float width, float height) {
-        desc = new ButtonDescriptor(x, y, width, height);
+    public RadioButton(float x, float y, float width, float height, boolean active) {
+        this.desc = new RadioButtonDescriptor(x,y,width,height,active);
     }
 
     @Override
@@ -35,23 +38,32 @@ public abstract class Button implements LWLWidget {
         return !desc.disabled();
     }
 
-    public OnClick callback() {
+    public RadioButton setCallback(ChangeCallback callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    public ChangeCallback callback() {
         return callback;
     }
 
-    public Button setCallback(OnClick callback) {
-        this.callback = callback;
-        return this;
+    public boolean checked() {
+        return desc.active();
+    }
+
+    public void setChecked(boolean active) {
+        if (active != desc.active()) {
+            desc.setActive(true);
+            if (callback != null) callback.onValueChange(true);
+        }
     }
 
     @Override
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         desc.setHovered(desc.mouseIn(mouseX, mouseY));
-        LWL.peekTheme().renderButton(graphics, delta, desc);
-        renderButton(graphics, mouseX, mouseY, delta);
+        LWLTheme theme = LWL.peekTheme();
+        theme.renderRadioButton(graphics, delta, desc);
     }
-
-    public abstract void renderButton(GuiGraphics graphics, float mouseX, float mouseY, float delta);
 
     @Override
     public void tick() {
@@ -78,11 +90,7 @@ public abstract class Button implements LWLWidget {
         if (keyboardClick && clicked == keyCode) {
             desc.setClicked(false);
             clicked = -1;
-            if (!desc.disabled() && callback != null) {
-                int button = modifiers == GLFW.GLFW_MOD_SHIFT ? GLFW.GLFW_MOUSE_BUTTON_RIGHT : GLFW.GLFW_MOUSE_BUTTON_LEFT;
-                float x = desc.x() + (desc.width() / 2), y = desc.y() + (desc.height() / 2);
-                callback.onClick(x, y, button);
-            }
+            if (!desc.disabled()) setChecked(true);
             keyboardClick = false;
             return true;
         }
@@ -110,7 +118,7 @@ public abstract class Button implements LWLWidget {
         if (!desc.disabled() && !keyboardClick && clicked == button) {
             desc.setClicked(false);
             clicked = -1;
-            if (desc.mouseIn(x, y) && callback != null) callback.onClick(x, y, button);
+            if (desc.mouseIn(x, y)) setChecked(true);
             return true;
         }
         return false;
@@ -121,7 +129,7 @@ public abstract class Button implements LWLWidget {
         return desc.getRectangle();
     }
 
-    public interface OnClick {
-        void onClick(float x, float y, int button);
+    public interface ChangeCallback {
+        void onValueChange(boolean checked);
     }
 }

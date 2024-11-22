@@ -1,4 +1,4 @@
-package org.lexize.lwl.gui.widgets.descriptors;
+package org.lexize.lwl.gui.widgets.descriptors.button;
 
 import net.minecraft.resources.ResourceLocation;
 

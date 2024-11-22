@@ -1,21 +1,21 @@
-package org.lexize.lwl.gui.widgets;
+package org.lexize.lwl.gui.widgets.button;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.joml.Vector2f;
 import org.lexize.lwl.LWL;
-import org.lexize.lwl.gui.themes.LWLTheme;
-import org.lexize.lwl.gui.widgets.descriptors.CheckboxDescriptor;
+import org.lexize.lwl.gui.widgets.LWLWidget;
+import org.lexize.lwl.gui.widgets.descriptors.button.ButtonDescriptor;
 import org.lwjgl.glfw.GLFW;
 
-public class Checkbox implements LWLWidget {
+public abstract class Button implements LWLWidget {
     private boolean keyboardClick;
     private int clicked = -1;
-    private final CheckboxDescriptor desc;
-    private ChangeCallback callback;
+    protected final ButtonDescriptor desc;
+    private OnClick callback;
 
-    public Checkbox(float x, float y, float width, float height, boolean checked) {
-        this.desc = new CheckboxDescriptor(x,y,width,height,checked);
+    public Button(float x, float y, float width, float height) {
+        desc = new ButtonDescriptor(x, y, width, height);
     }
 
     @Override
@@ -36,21 +36,23 @@ public class Checkbox implements LWLWidget {
         return !desc.disabled();
     }
 
-    public Checkbox setCallback(ChangeCallback callback) {
-        this.callback = callback;
-        return this;
+    public OnClick callback() {
+        return callback;
     }
 
-    public ChangeCallback callback() {
-        return callback;
+    public Button setCallback(OnClick callback) {
+        this.callback = callback;
+        return this;
     }
 
     @Override
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         desc.setHovered(desc.mouseIn(mouseX, mouseY));
-        LWLTheme theme = LWL.peekTheme();
-        theme.renderCheckbox(graphics, delta, desc);
+        LWL.peekTheme().renderButton(graphics, delta, desc);
+        renderButton(graphics, mouseX, mouseY, delta);
     }
+
+    public abstract void renderButton(GuiGraphics graphics, float mouseX, float mouseY, float delta);
 
     @Override
     public void tick() {
@@ -77,9 +79,10 @@ public class Checkbox implements LWLWidget {
         if (keyboardClick && clicked == keyCode) {
             desc.setClicked(false);
             clicked = -1;
-            if (!desc.disabled()) {
-                desc.setChecked(!desc.checked());
-                if (callback != null) callback.onValueChange(desc.checked());
+            if (!desc.disabled() && callback != null) {
+                int button = modifiers == GLFW.GLFW_MOD_SHIFT ? GLFW.GLFW_MOUSE_BUTTON_RIGHT : GLFW.GLFW_MOUSE_BUTTON_LEFT;
+                float x = desc.x() + (desc.width() / 2), y = desc.y() + (desc.height() / 2);
+                callback.onClick(x, y, button);
             }
             keyboardClick = false;
             return true;
@@ -108,10 +111,7 @@ public class Checkbox implements LWLWidget {
         if (!desc.disabled() && !keyboardClick && clicked == button) {
             desc.setClicked(false);
             clicked = -1;
-            if (desc.mouseIn(x, y)) {
-                desc.setChecked(!desc.checked());
-                if (callback != null) callback.onValueChange(desc.checked());
-            }
+            if (desc.mouseIn(x, y) && callback != null) callback.onClick(x, y, button);
             return true;
         }
         return false;
@@ -122,7 +122,7 @@ public class Checkbox implements LWLWidget {
         return desc.getRectangle();
     }
 
-    public interface ChangeCallback {
-        void onValueChange(boolean checked);
+    public interface OnClick {
+        void onClick(float x, float y, int button);
     }
 }

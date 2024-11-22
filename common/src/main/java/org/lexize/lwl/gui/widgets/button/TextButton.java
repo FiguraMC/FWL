@@ -1,15 +1,12 @@
-package org.lexize.lwl.gui.widgets;
+package org.lexize.lwl.gui.widgets.button;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
 import org.lexize.lwl.LWL;
-import org.lexize.lwl.gui.themes.ColorTypes;
 import org.lexize.lwl.gui.themes.LWLTheme;
-import org.lexize.lwl.gui.widgets.descriptors.ButtonTypes;
+import org.lexize.lwl.gui.widgets.descriptors.button.ButtonTypes;
 
 public class TextButton extends Button implements NarratableEntry {
     private Component message;
