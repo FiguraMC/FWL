@@ -10,4 +10,4 @@ pluginManagement {
 include("common")
 include("fabric")
 
-rootProject.name = 'lwl'
+rootProject.name = 'fwl'

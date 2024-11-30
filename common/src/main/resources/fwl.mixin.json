@@ -1,0 +1,6 @@
+{
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "required": false,
+  "package": "org.figuramc.fwl.mixin"
+}

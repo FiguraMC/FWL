@@ -1,16 +1,18 @@
 {
-  "id": "lwl",
+  "id": "fwl",
   "version": "0.0.1",
   "schemaVersion": 1,
 
-  "name": "LWL",
-  "description": "Lexize's Widgets Library",
+  "name": "FWL",
+  "description": "Figura Widgets Library",
 
   "entrypoints": {
-    "modmenu": [ "org.lexize.lwl.fabric.compat.ModMenuCompat" ]
+    "modmenu": [
+      "org.figuramc.fwl.fabric.compat.ModMenuCompat"
+    ]
   },
 
   "mixins": [
-    "lwl.mixin.json"
+    "fwl.mixin.json"
   ]
 }
