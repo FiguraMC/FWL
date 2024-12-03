@@ -13,12 +13,6 @@ public class RadioButtonDescriptor extends ClickableDescriptor {
         this.active.setInc(active);
     }
 
-    public RadioButtonDescriptor(float x, float y, float width, float height, boolean active, @Nullable Vector2f clickPos) {
-        super(x, y, width, height, clickPos);
-        this.active = new BiTickCounter(active ? Integer.MAX_VALUE : Integer.MIN_VALUE);
-        this.active.setInc(active);
-    }
-
     public RadioButtonDescriptor setActive(boolean active) {
         if (this.active.inc() != active) {
             this.active.reset();

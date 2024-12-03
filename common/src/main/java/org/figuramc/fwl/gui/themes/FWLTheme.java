@@ -11,7 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import org.figuramc.fwl.gui.widgets.descriptors.*;
 import org.joml.Matrix4f;
-import org.lexize.lwl.gui.widgets.descriptors.*;
 import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
@@ -47,31 +46,34 @@ public abstract class FWLTheme {
         return font.split(text, (int) (maxWidth / scale)).size() * font.lineHeight * scale;
     }
 
-    public static void renderLine(GuiGraphics graphics, int x0, int y0, int x1, int y1, int color) {
-        int startX = Math.min(x0, x1);
-        int startY = Math.min(y0, y1);
-        int endX = Math.max(x0, x1);
-        int endY = Math.max(y0, y1);
-        int xDif = endX - startX;
-        int yDif = endY - startY;
-        if (xDif == 0) {
-            graphics.fill(startX, startY, startX, endY, color);
-        }
-        else if (yDif == 0) {
-            graphics.fill(startX, startY, endX, startY, color);
-        }
-        else {
-            if (xDif > yDif) renderLineH(graphics, x0, y0, x1, y1, color);
-            else renderLineV(graphics, x0, y0, x1, y1, color);
-        }
+    public static void renderLine(GuiGraphics graphics, float x0, float y0, float x1, float y1, float z, float scaling, int color) {
+        renderLine(graphics, x0, y0, x1, y1, z, scaling, new StaticColor(color));
     }
 
-    private static void renderLineH(GuiGraphics graphics, int x0, int y0, int x1, int y1, int color) {
-        // TODO
+    public static void renderLine(GuiGraphics graphics, float x0, float y0, float x1, float y1, float z, float scaling, ColorProvider color) {
+        float xDif = Math.abs(x1 - x0);
+        float yDif = Math.abs(y1 - y0);
+        float lineWidth = 1f / scaling;
+        if (xDif == 0) fill(graphics, x0, y0, x0 + lineWidth, y1, z, color);
+        else if (yDif == 0) fill(graphics, x0, y1, x1, y1 + lineWidth , z, color);
+        else renderLineDiagonal(graphics, x0, y0, x1, y1, z, scaling, color);
     }
 
-    private static void renderLineV(GuiGraphics graphics, int x0, int y0, int x1, int y1, int color) {
-        // TODO
+    private static void renderLineDiagonal(GuiGraphics graphics, float x0, float y0, float x1, float y1, float z, float scaling, ColorProvider color) {
+        float width = x1 - x0;
+        float height = y1 - y0;
+        float steps = Math.abs(Math.min(Math.abs(width), Math.abs(height)) * scaling);
+        float xStep = (width / steps);
+        float yStep = (height / steps);
+        float cX = x0;
+        float cY = y0;
+        for (int i = 0; i < steps; i++) {
+            float nX = cX + xStep;
+            float nY = cY + yStep;
+            fill(graphics, cX, cY, nX, nY, z, color);
+            cX = nX;
+            cY = nY;
+        }
     }
 
     public static int[] findArcMaxXs(int r) {
@@ -238,7 +240,7 @@ public abstract class FWLTheme {
         consumer.vertex(mat, minX, maxY, z).color(r, g, b, a).endVertex();
     }
 
-    protected static float getScaling() {
+    public static float getWindowScaling() {
         return (float) Minecraft.getInstance().getWindow().getGuiScale();
     }
 

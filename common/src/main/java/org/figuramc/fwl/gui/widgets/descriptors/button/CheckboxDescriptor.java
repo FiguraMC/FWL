@@ -15,12 +15,6 @@ public class CheckboxDescriptor extends ClickableDescriptor {
         this.checked.setInc(checked);
     }
 
-    public CheckboxDescriptor(float x, float y, float width, float height, boolean checked, @Nullable Vector2f clickPos) {
-        super(x,y,width,height,clickPos);
-        this.checked = new BiTickCounter(checked ? Integer.MAX_VALUE : Integer.MIN_VALUE);
-        this.checked.setInc(checked);
-    }
-
 
     public CheckboxDescriptor setChecked(boolean checked) {
         if (this.checked.inc() != checked) {

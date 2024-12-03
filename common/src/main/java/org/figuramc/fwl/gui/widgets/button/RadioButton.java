@@ -60,6 +60,7 @@ public class RadioButton implements FWLWidget {
     @Override
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         desc.setHovered(desc.mouseIn(mouseX, mouseY));
+        desc.setHoverPos(mouseX, mouseY);
         FWLTheme theme = FWL.peekTheme();
         theme.renderRadioButton(graphics, delta, desc);
     }
@@ -77,7 +78,7 @@ public class RadioButton implements FWLWidget {
                 keyboardClick = true;
                 desc.setClicked(true);
                 float x = desc.x() + (desc.width() / 2), y = desc.y() + (desc.height() / 2);
-                desc.setClickPos(new Vector2f(x, y));
+                desc.setClickPos(x, y);
                 return true;
             }
         }
@@ -103,7 +104,7 @@ public class RadioButton implements FWLWidget {
             if (!desc.disabled() && !keyboardClick && clicked == -1) {
                 clicked = button;
                 desc.setClicked(true);
-                desc.setClickPos(new Vector2f(x, y));
+                desc.setClickPos(x, y);
             }
             return true;
         }

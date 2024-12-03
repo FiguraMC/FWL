@@ -8,7 +8,6 @@ import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ClickableDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
 import org.figuramc.fwl.utils.ColorUtils;
-import org.lexize.lwl.gui.widgets.descriptors.*;
 import org.figuramc.fwl.utils.TreePathMap;
 
 import static net.minecraft.util.FastColor.ARGB32;
@@ -18,7 +17,7 @@ public class FWLBreeze extends FWLTheme {
     private static final TreePathMap<Integer> BREEZE_COLORS = new TreePathMap<>() {{
         add(ColorTypes.BUTTON, 0xFF3A3A3A);
 
-        add(ColorTypes.PRIMARY, 0xFF14539E);
+        add(ColorTypes.PRIMARY, 0xFF3A3A3A);
         add(ColorTypes.SECONDARY, 0xFF14539E);
         add(ColorTypes.SUCCESS, 0xFF25AA61);
 
@@ -44,12 +43,12 @@ public class FWLBreeze extends FWLTheme {
         // Getting button color by its type, and then getting gradient for it. Breeze theme doesn't check for namespace
         int buttonColor = applyStateModifier(theme.getColorOrDefault(button.type(), 0xFFFFFFFF), button);
 
-        int borderColor = theme.getColorOrDefault(button.focused() ? ColorTypes.PRIMARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int borderColor = theme.getColorOrDefault(button.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
 
         float x1 = x+width;
         float y1 = y+height;
 
-        float sc = getScaling();
+        float sc = getWindowScaling();
         float thickness = 3;
 
         // Button background
@@ -69,14 +68,14 @@ public class FWLBreeze extends FWLTheme {
         float rad = Math.min(3, Math.min(checkbox.width(), checkbox.height()) / 2);
 
         // Getting button color by its type, and then getting gradient for it. Breeze theme doesn't check for namespace
-        int buttonColor = applyStateModifier(theme.getColorOrDefault(checkbox.checked() ? ColorTypes.PRIMARY : ColorTypes.BUTTON, 0xFFFFFFFF), checkbox);
+        int buttonColor = applyStateModifier(theme.getColorOrDefault(checkbox.checked() ? ColorTypes.SECONDARY : ColorTypes.BUTTON, 0xFFFFFFFF), checkbox);
 
-        int borderColor = theme.getColorOrDefault(checkbox.focused() ? ColorTypes.PRIMARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int borderColor = theme.getColorOrDefault(checkbox.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
 
         float x1 = x+width;
         float y1 = y+height;
 
-        float sc = getScaling();
+        float sc = getWindowScaling();
         float thickness = 3;
 
         // Button background
@@ -97,14 +96,14 @@ public class FWLBreeze extends FWLTheme {
 
 
         // Getting button color by its type, and then getting gradient for it. Breeze theme doesn't check for namespace
-        int buttonColor = applyStateModifier(theme.getColorOrDefault(radioButton.active() ? ColorTypes.PRIMARY : ColorTypes.BUTTON, 0xFFFFFFFF), radioButton);
+        int buttonColor = applyStateModifier(theme.getColorOrDefault(radioButton.active() ? ColorTypes.SECONDARY : ColorTypes.BUTTON, 0xFFFFFFFF), radioButton);
 
-        int borderColor = theme.getColorOrDefault(radioButton.focused() ? ColorTypes.PRIMARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int borderColor = theme.getColorOrDefault(radioButton.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
 
         float x1 = x+width;
         float y1 = y+height;
 
-        float sc = getScaling();
+        float sc = getWindowScaling();
         float thickness = 3;
 
         // Button background
@@ -126,7 +125,43 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public void renderScrollBar(GuiGraphics graphics, float delta, ScrollBarDescriptor scrollBar) {
+        // Get current theme. Needed for combined themes compatibility. Used for getting colors for the scroll bar.
+        FWLTheme theme = FWL.peekTheme();
 
+        float x = scrollBar.x(), y = scrollBar.y(), width = scrollBar.width(), height = scrollBar.height();
+        float inX = x + 2, inY = y + 2, inWidth = width - 4, inHeight = height - 4;
+        float rad = Math.min(3, Math.min(width, height) / 2);
+        float barRad = Math.min(inWidth, inHeight) / 2;
+        float barX, barY, barWidth, barHeight;
+
+        if (scrollBar.orientation() == Orientation.VERTICAL) {
+            barX = inX;
+            barWidth = inWidth;
+            barHeight = Math.max(barWidth, inHeight * scrollBar.coveredPartSize());
+            float maxY = inHeight - barHeight;
+            barY = inY + (maxY * scrollBar.progress());
+        }
+        else {
+            barY = inY;
+            barHeight = inHeight;
+            barWidth = Math.max(barHeight, inWidth * scrollBar.coveredPartSize());
+            float maxX = inWidth - barWidth;
+            barX = inX + (maxX * scrollBar.progress());
+        }
+
+        float x1 = x + width, y1 = y + height;
+        float barX1 = barX + barWidth, barY1 = barY + barHeight;
+
+        float sc = getWindowScaling();
+        float thickness = 3;
+
+        int bgColor = theme.getColorOrDefault(ColorTypes.PRIMARY, 0xFFFFFFFF);
+        int barColor = applyStateModifier(getColorOrDefault(ColorTypes.SECONDARY, 0xFFFFFFFF), scrollBar);
+        int borderColor = theme.getColorOrDefault(scrollBar.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+
+        renderRoundBg(graphics, bgColor, x, y, x1, y1, rad, sc);
+        renderRoundBg(graphics, new StaticColor(barColor), barX, barY, barX1, barY1, barRad, sc);
+        renderRoundBorder(graphics, borderColor, x, y, x1, y1, rad, sc, thickness);
     }
 
     @Override
@@ -150,15 +185,17 @@ public class FWLBreeze extends FWLTheme {
     }
 
     private void renderRoundBg(GuiGraphics graphics, int color, float x0, float y0, float x1, float y1, float rad, float scaling) {
-        BreezeGradient gradient = getBreezeColorGradient(color, x0, y0, x1, y1);
+        renderRoundBg(graphics, getBreezeColorGradient(color, x0, y0, x1, y1), x0, y0, x1, y1, rad, scaling);
+    }
 
-        fill(graphics, x0 + rad, y0, x1 - rad, y1, 0, gradient); // Middle
-        fill(graphics, x0, y0 + rad, x0 + rad, y1 - rad, 0, gradient); // Left center
-        fill(graphics, x1 - rad, y0 + rad, x1, y1 - rad, 0, gradient); // Right center
-        renderArcFilled(graphics, x0 + rad, y0, 0, rad, scaling, ArcOrient.NEGATIVE, ArcOrient.POSITIVE, gradient); // Top-left corner
-        renderArcFilled(graphics, x1 - rad, y0, 0, rad, scaling, ArcOrient.POSITIVE, ArcOrient.POSITIVE, gradient); // Top-right corner
-        renderArcFilled(graphics, x0 + rad, y1, 0, rad, scaling, ArcOrient.NEGATIVE, ArcOrient.NEGATIVE, gradient); // Bottom-left corner
-        renderArcFilled(graphics, x1 - rad, y1, 0, rad, scaling, ArcOrient.POSITIVE, ArcOrient.NEGATIVE, gradient); // Bottom-right corner
+    private void renderRoundBg(GuiGraphics graphics, ColorProvider color, float x0, float y0, float x1, float y1, float rad, float scaling) {
+        fill(graphics, x0 + rad, y0, x1 - rad, y1, 0, color); // Middle
+        fill(graphics, x0, y0 + rad, x0 + rad, y1 - rad, 0, color); // Left center
+        fill(graphics, x1 - rad, y0 + rad, x1, y1 - rad, 0, color); // Right center
+        renderArcFilled(graphics, x0 + rad, y0, 0, rad, scaling, ArcOrient.NEGATIVE, ArcOrient.POSITIVE, color); // Top-left corner
+        renderArcFilled(graphics, x1 - rad, y0, 0, rad, scaling, ArcOrient.POSITIVE, ArcOrient.POSITIVE, color); // Top-right corner
+        renderArcFilled(graphics, x0 + rad, y1, 0, rad, scaling, ArcOrient.NEGATIVE, ArcOrient.NEGATIVE, color); // Bottom-left corner
+        renderArcFilled(graphics, x1 - rad, y1, 0, rad, scaling, ArcOrient.POSITIVE, ArcOrient.NEGATIVE, color); // Bottom-right corner
     }
 
     @Override

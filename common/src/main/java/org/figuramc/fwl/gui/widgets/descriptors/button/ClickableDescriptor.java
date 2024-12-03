@@ -8,22 +8,18 @@ import org.joml.Vector2f;
 
 public abstract class ClickableDescriptor implements WidgetDescriptor {
     private float x, y, width, height;
-    private @Nullable Vector2f clickPos;
+    private final Vector2f clickPos = new Vector2f();
+    private final Vector2f hoverPos = new Vector2f();
     private final BiTickCounter hovered = new BiTickCounter(Integer.MIN_VALUE);
     private final BiTickCounter focused = new BiTickCounter(Integer.MIN_VALUE);
     private final BiTickCounter clicked = new BiTickCounter(Integer.MIN_VALUE);
     private final BiTickCounter disabled = new BiTickCounter(Integer.MIN_VALUE);
 
     public ClickableDescriptor(float x, float y, float width, float height) {
-        this(x,y,width,height, null);
-    }
-
-    public ClickableDescriptor(float x, float y, float width, float height, @Nullable Vector2f clickPos) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.clickPos = clickPos;
     }
 
     public ClickableDescriptor setFocused(boolean focused) {
@@ -130,9 +126,12 @@ public abstract class ClickableDescriptor implements WidgetDescriptor {
         return clickPos;
     }
 
-    public ClickableDescriptor setClickPos(@Nullable Vector2f clickPos) {
-        this.clickPos = clickPos;
-        return this;
+    public void setClickPos(float x, float y) {
+        this.clickPos.set(x, y);
+    }
+
+    public void setHoverPos(float x, float y) {
+        this.hoverPos.set(x, y);
     }
 
     public void tick() {

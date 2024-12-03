@@ -15,12 +15,13 @@ import org.figuramc.fwl.gui.widgets.VanillaRenderer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.figuramc.fwl.utils.ArrayListUtils.sortedAdd;
+
 public abstract class FWLScreen extends Screen {
     private final Screen prevScreen;
 
     private final ArrayList<Renderable> renderableWidgets = new ArrayList<>();
-    private final ArrayList<Tickable> tickableWidgets = new ArrayList<>();
-    private GuiEventListener focusedChild;
+    private final ArrayList<FWLWidget> children = new ArrayList<>();
 
     protected FWLScreen(Component title, Screen prevScreen) {
         super(title);
@@ -28,47 +29,34 @@ public abstract class FWLScreen extends Screen {
     }
 
     public <T extends FWLWidget> void addWidget(T widget) {
-        renderableWidgets.add(widget);
-        children.add(widget);
+        sortedAdd(children, widget, FWLWidget::compareInteractionPriority);
         narratables.add(widget);
-        tickableWidgets.add(widget);
     }
 
-    public void addRenderableWidget(Renderable widget) {
-        renderableWidgets.add(widget);
+    public void addRenderableOnly(Renderable widget) {
+        sortedAdd(renderableWidgets, widget, Renderable::compareRenderPriority);
     }
 
-    public void addTickableWidget(Tickable widget) {
-        tickableWidgets.add(widget);
-    }
-
-    public void addInteractableWidget(GuiEventListener widget) {
-        children.add(widget);
+    public <T extends FWLWidget> void addRenderableWidget(T widget) {
+        addWidget(widget);
+        addRenderableOnly(widget);
     }
 
     @Override
     protected <T extends net.minecraft.client.gui.components.Renderable> T addRenderableOnly(T drawable) {
-        renderableWidgets.add(new VanillaRenderer(drawable));
+        addRenderableOnly(new VanillaRenderer(drawable));
         return drawable;
-    }
-
-    @Override
-    protected <T extends GuiEventListener & net.minecraft.client.gui.components.Renderable & NarratableEntry> T addRenderableWidget(T drawableElement) {
-        renderableWidgets.add(new VanillaRenderer(drawableElement));
-        children.add(drawableElement);
-        return drawableElement;
     }
 
     @Override
     protected void init() {
         renderableWidgets.clear();
         children.clear();
-        tickableWidgets.clear();
     }
 
     @Override
     public void tick() {
-        tickableWidgets.forEach(Tickable::tick);
+        children.forEach(Tickable::tick);
     }
 
     @Override
@@ -129,6 +117,11 @@ public abstract class FWLScreen extends Screen {
             if (widget.keyPressed(keyCode, scanCode, modifiers)) return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        for (GuiEventListener widget: children) widget.mouseMoved(mouseX, mouseY);
     }
 
     @Override

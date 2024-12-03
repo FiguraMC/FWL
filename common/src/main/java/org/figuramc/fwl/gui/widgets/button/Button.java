@@ -48,6 +48,7 @@ public abstract class Button implements FWLWidget {
     @Override
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         desc.setHovered(desc.mouseIn(mouseX, mouseY));
+        desc.setHoverPos(mouseX, mouseY);
         FWL.peekTheme().renderButton(graphics, delta, desc);
         renderButton(graphics, mouseX, mouseY, delta);
     }
@@ -67,7 +68,7 @@ public abstract class Button implements FWLWidget {
                 keyboardClick = true;
                 desc.setClicked(true);
                 float x = desc.x() + (desc.width() / 2), y = desc.y() + (desc.height() / 2);
-                desc.setClickPos(new Vector2f(x, y));
+                desc.setClickPos(x, y);
                 return true;
             }
         }
@@ -97,7 +98,7 @@ public abstract class Button implements FWLWidget {
             if (!desc.disabled() && !keyboardClick && clicked == -1) {
                 clicked = button;
                 desc.setClicked(true);
-                desc.setClickPos(new Vector2f(x, y));
+                desc.setClickPos(x, y);
             }
             return true;
         }

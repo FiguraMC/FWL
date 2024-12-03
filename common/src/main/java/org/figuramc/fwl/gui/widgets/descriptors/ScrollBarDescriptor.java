@@ -1,63 +1,27 @@
 package org.figuramc.fwl.gui.widgets.descriptors;
 
+import org.figuramc.fwl.gui.widgets.descriptors.button.ClickableDescriptor;
+import org.figuramc.fwl.utils.BiTickCounter;
 import org.jetbrains.annotations.Nullable;
 
-public class ScrollBarDescriptor {
-    private float x, y, width, height;
+public class ScrollBarDescriptor extends ClickableDescriptor {
     private float progress;
     private Orientation orientation;
-    private WidgetState state;
-    private int stateTicks;
+    private float coveredPartSize;
 
-    public ScrollBarDescriptor(float x, float y, float width, float height, float progress) {
-        this(x,y,width,height,progress, null, null, 0);
+    public ScrollBarDescriptor(float x, float y, float width, float height, float coveredPartSize) {
+        this(x, y, width, height, coveredPartSize, 0,null);
     }
 
-    public ScrollBarDescriptor(float x, float y, float width, float height, float progress, @Nullable Orientation orientation, @Nullable WidgetState state, int stateTicks) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    public ScrollBarDescriptor(float x, float y, float width, float height, float coveredPartSize, float progress) {
+        this(x, y, width, height, coveredPartSize, progress,null);
+    }
+
+    public ScrollBarDescriptor(float x, float y, float width, float height, float coveredPartSize, float progress, @Nullable Orientation orientation) {
+        super(x, y, width, height);
         this.progress = progress;
         this.orientation = orientation != null ? orientation : Orientation.VERTICAL;
-        this.state = state != null ? state : WidgetState.DEFAULT;
-        this.stateTicks = stateTicks;
-    }
-
-    public float x() {
-        return x;
-    }
-
-    public ScrollBarDescriptor setX(float x) {
-        this.x = x;
-        return this;
-    }
-
-    public float y() {
-        return y;
-    }
-
-    public ScrollBarDescriptor setY(float y) {
-        this.y = y;
-        return this;
-    }
-
-    public float width() {
-        return width;
-    }
-
-    public ScrollBarDescriptor setWidth(float width) {
-        this.width = width;
-        return this;
-    }
-
-    public float height() {
-        return height;
-    }
-
-    public ScrollBarDescriptor setHeight(float height) {
-        this.height = height;
-        return this;
+        this.coveredPartSize = coveredPartSize;
     }
 
     public float progress() {
@@ -78,21 +42,12 @@ public class ScrollBarDescriptor {
         return this;
     }
 
-    public WidgetState state() {
-        return state;
+    public float coveredPartSize() {
+        return coveredPartSize;
     }
 
-    public ScrollBarDescriptor setState(WidgetState state) {
-        this.state = state;
-        return this;
-    }
-
-    public int stateTicks() {
-        return stateTicks;
-    }
-
-    public ScrollBarDescriptor setStateTicks(int stateTicks) {
-        this.stateTicks = stateTicks;
+    public ScrollBarDescriptor setCoveredPartSize(float coveredPartSize) {
+        this.coveredPartSize = coveredPartSize;
         return this;
     }
 }

@@ -8,11 +8,11 @@ public class ButtonDescriptor extends ClickableDescriptor {
     private ResourceLocation type;
 
     public ButtonDescriptor(float x, float y, float width, float height) {
-        this(x, y, width, height, null, null);
+        this(x, y, width, height, null);
     }
 
-    public ButtonDescriptor(float x, float y, float width, float height, @Nullable Vector2f clickPos, @Nullable ResourceLocation type) {
-        super(x, y, width, height, clickPos);
+    public ButtonDescriptor(float x, float y, float width, float height, @Nullable ResourceLocation type) {
+        super(x, y, width, height);
         this.type = type != null ? type : ButtonTypes.DEFAULT;
     }
 
