@@ -5,6 +5,8 @@ import org.figuramc.fwl.utils.BiTickCounter;
 import org.jetbrains.annotations.Nullable;
 
 public class ScrollBarDescriptor extends ClickableDescriptor {
+    public static final String WIDGET_TYPE = "scrollbar";
+
     private float progress;
     private Orientation orientation;
     private float coveredPartSize;
@@ -49,5 +51,10 @@ public class ScrollBarDescriptor extends ClickableDescriptor {
     public ScrollBarDescriptor setCoveredPartSize(float coveredPartSize) {
         this.coveredPartSize = coveredPartSize;
         return this;
+    }
+
+    @Override
+    public String widgetType() {
+        return WIDGET_TYPE;
     }
 }

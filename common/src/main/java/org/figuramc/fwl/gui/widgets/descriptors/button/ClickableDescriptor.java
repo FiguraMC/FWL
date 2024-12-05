@@ -1,12 +1,12 @@
 package org.figuramc.fwl.gui.widgets.descriptors.button;
 
-import net.minecraft.client.gui.navigation.ScreenRectangle;
-import org.figuramc.fwl.gui.widgets.descriptors.WidgetDescriptor;
+import org.figuramc.fwl.gui.widgets.descriptors.FWLDescriptor;
 import org.figuramc.fwl.utils.BiTickCounter;
+import org.figuramc.fwl.utils.Rectangle;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
-public abstract class ClickableDescriptor implements WidgetDescriptor {
+public abstract class ClickableDescriptor implements FWLDescriptor {
     private float x, y, width, height;
     private final Vector2f clickPos = new Vector2f();
     private final Vector2f hoverPos = new Vector2f();
@@ -146,7 +146,8 @@ public abstract class ClickableDescriptor implements WidgetDescriptor {
                 y >= this.y && y <= this.y + height;
     }
 
-    public ScreenRectangle getRectangle() {
-        return new ScreenRectangle((int) x, (int) y, (int) width, (int) height);
+    @Override
+    public Rectangle boundaries() {
+        return new Rectangle(x, y, width, height);
     }
 }

@@ -2,7 +2,6 @@ package org.figuramc.fwl.gui.widgets.button;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import org.joml.Vector2f;
 import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
@@ -126,7 +125,7 @@ public class RadioButton implements FWLWidget {
 
     @Override
     public ScreenRectangle getRectangle() {
-        return desc.getRectangle();
+        return desc.screenRectangle();
     }
 
     public interface ChangeCallback {

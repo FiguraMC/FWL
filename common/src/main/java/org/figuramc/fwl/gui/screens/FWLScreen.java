@@ -70,9 +70,8 @@ public abstract class FWLScreen extends Screen {
 
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         renderBackground(graphics);
-        for (Renderable widget: renderableWidgets) {
+        for (Renderable widget: renderableWidgets)
             widget.render(graphics, mouseX, mouseY, delta);
-        }
     }
 
     @Override

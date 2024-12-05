@@ -5,6 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
 public class ButtonDescriptor extends ClickableDescriptor {
+    public static final String WIDGET_TYPE = "button";
+
     private ResourceLocation type;
 
     public ButtonDescriptor(float x, float y, float width, float height) {
@@ -23,5 +25,10 @@ public class ButtonDescriptor extends ClickableDescriptor {
     public ButtonDescriptor setType(ResourceLocation type) {
         this.type = type;
         return this;
+    }
+
+    @Override
+    public String widgetType() {
+        return WIDGET_TYPE;
     }
 }

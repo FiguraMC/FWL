@@ -5,6 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
 public class RadioButtonDescriptor extends ClickableDescriptor {
+    public static final String WIDGET_TYPE = "radiobutton";
+
     private final BiTickCounter active;
 
     public RadioButtonDescriptor(float x, float y, float width, float height, boolean active) {
@@ -32,5 +34,10 @@ public class RadioButtonDescriptor extends ClickableDescriptor {
     public void tick() {
         super.tick();
         active.tick();
+    }
+
+    @Override
+    public String widgetType() {
+        return WIDGET_TYPE;
     }
 }

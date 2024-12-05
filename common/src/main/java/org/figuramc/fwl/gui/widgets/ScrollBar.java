@@ -14,6 +14,7 @@ public class ScrollBar implements FWLWidget {
     private float contentSize;
     private float progress;
     private float scrollStep = 50;
+    private Callback callback;
 
     public ScrollBar(float x, float y, float width, float height, float visibleAreaSize, float contentSize, float progress, Orientation barOrientation) {
         this.visibleAreaSize = visibleAreaSize;
@@ -32,6 +33,15 @@ public class ScrollBar implements FWLWidget {
     @Override
     public boolean isFocused() {
         return desc.focused();
+    }
+
+    public Callback callback() {
+        return callback;
+    }
+
+    public ScrollBar setCallback(Callback callback) {
+        this.callback = callback;
+        return this;
     }
 
     public float visibleAreaSize() {
@@ -72,8 +82,12 @@ public class ScrollBar implements FWLWidget {
     }
 
     public ScrollBar setProgress(float progress) {
+        float prev = this.progress;
         this.progress = clamp(progress, 0, scrollableArea());
-        desc.setProgress(progressPercentage());
+        if (prev != progress) {
+            if (callback != null) callback.onValueChange(this.progress);
+            desc.setProgress(progressPercentage());
+        }
         return this;
     }
 
@@ -159,5 +173,9 @@ public class ScrollBar implements FWLWidget {
             return true;
         }
         return false;
+    }
+
+    public interface Callback {
+        void onValueChange(float value);
     }
 }

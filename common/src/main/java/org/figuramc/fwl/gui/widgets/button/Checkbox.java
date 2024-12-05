@@ -4,7 +4,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
-import org.joml.Vector2f;
 import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
 import org.lwjgl.glfw.GLFW;
@@ -126,7 +125,7 @@ public class Checkbox implements FWLWidget {
 
     @Override
     public ScreenRectangle getRectangle() {
-        return desc.getRectangle();
+        return desc.screenRectangle();
     }
 
     public interface ChangeCallback {

@@ -5,6 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
 public class CheckboxDescriptor extends ClickableDescriptor {
+    public static final String WIDGET_TYPE = "checkbox";
+
     private float x, y, width, height;
     private @Nullable Vector2f clickPos;
     private final BiTickCounter checked;
@@ -35,5 +37,10 @@ public class CheckboxDescriptor extends ClickableDescriptor {
     public void tick() {
         super.tick();
         checked.tick();
+    }
+
+    @Override
+    public String widgetType() {
+        return WIDGET_TYPE;
     }
 }

@@ -170,32 +170,31 @@ public class FWLBreeze extends FWLTheme {
     }
 
     @Override
-    public void renderBorder(GuiGraphics graphics, BorderDescriptor border) {
-
-    }
-
-    @Override
-    public void renderSplitter(GuiGraphics graphics, SplitterDescriptor splitter) {
-
-    }
-
-    @Override
     public void renderIcon(GuiGraphics graphics, IconDescriptor icon) {
 
     }
 
-    private void renderRoundBg(GuiGraphics graphics, int color, float x0, float y0, float x1, float y1, float rad, float scaling) {
-        renderRoundBg(graphics, getBreezeColorGradient(color, x0, y0, x1, y1), x0, y0, x1, y1, rad, scaling);
+    @Override
+    public void renderPane(GuiGraphics graphics, float delta, float x, float y, float width, float height) {
+        // Get current theme. Needed for combined themes compatibility. Used for getting color.
+        FWLTheme theme = FWL.peekTheme();
+
+        // Border
+        float rad = Math.min(3, Math.min(width, height) / 2);
+        float sc = getWindowScaling();
+        float thickness = 2;
+
+        int color = theme.getColorOrDefault(ColorTypes.PRIMARY, 0xFFFFFFFF); // Getting pane color. Breeze theme doesn't check for namespace
+        int border = theme.getColorOrDefault(ColorTypes.BORDER, 0xFFFFFFFF); // Getting border color. Breeze theme doesn't check for namespace
+
+        float x1 = x + width, y1 = y + height;
+
+        renderRoundBg(graphics, color, x, y, x1, y1, rad, sc);
+        renderRoundBorder(graphics, border, x, y, x1, y1, rad, sc, thickness);
     }
 
-    private void renderRoundBg(GuiGraphics graphics, ColorProvider color, float x0, float y0, float x1, float y1, float rad, float scaling) {
-        fill(graphics, x0 + rad, y0, x1 - rad, y1, 0, color); // Middle
-        fill(graphics, x0, y0 + rad, x0 + rad, y1 - rad, 0, color); // Left center
-        fill(graphics, x1 - rad, y0 + rad, x1, y1 - rad, 0, color); // Right center
-        renderArcFilled(graphics, x0 + rad, y0, 0, rad, scaling, ArcOrient.NEGATIVE, ArcOrient.POSITIVE, color); // Top-left corner
-        renderArcFilled(graphics, x1 - rad, y0, 0, rad, scaling, ArcOrient.POSITIVE, ArcOrient.POSITIVE, color); // Top-right corner
-        renderArcFilled(graphics, x0 + rad, y1, 0, rad, scaling, ArcOrient.NEGATIVE, ArcOrient.NEGATIVE, color); // Bottom-left corner
-        renderArcFilled(graphics, x1 - rad, y1, 0, rad, scaling, ArcOrient.POSITIVE, ArcOrient.NEGATIVE, color); // Bottom-right corner
+    private void renderRoundBg(GuiGraphics graphics, int color, float x0, float y0, float x1, float y1, float rad, float scaling) {
+        renderRoundBg(graphics, getBreezeColorGradient(color, x0, y0, x1, y1), x0, y0, x1, y1, rad, scaling);
     }
 
     @Override

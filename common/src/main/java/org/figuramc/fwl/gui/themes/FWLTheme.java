@@ -21,9 +21,8 @@ public abstract class FWLTheme {
     public abstract void renderRadioButton(GuiGraphics graphics, float delta, RadioButtonDescriptor button);
     public abstract void renderScrollBar(GuiGraphics graphics, float delta, ScrollBarDescriptor scrollBar);
     public abstract void renderSlider(GuiGraphics graphics, float delta, SliderDescriptor slider);
-    public abstract void renderBorder(GuiGraphics graphics, BorderDescriptor border);
-    public abstract void renderSplitter(GuiGraphics graphics, SplitterDescriptor splitter);
     public abstract void renderIcon(GuiGraphics graphics, IconDescriptor icon);
+    public abstract void renderPane(GuiGraphics graphics, float delta, float x0, float y0, float x1, float y1);
 
     public float renderText(GuiGraphics graphics, Component text, float x, float y, float z, float scale, int color) {
         PoseStack stack = graphics.pose();
@@ -240,6 +239,16 @@ public abstract class FWLTheme {
         consumer.vertex(mat, minX, maxY, z).color(r, g, b, a).endVertex();
     }
 
+    public void renderRoundBg(GuiGraphics graphics, ColorProvider color, float x0, float y0, float x1, float y1, float rad, float scaling) {
+        fill(graphics, x0 + rad, y0, x1 - rad, y1, 0, color); // Middle
+        fill(graphics, x0, y0 + rad, x0 + rad, y1 - rad, 0, color); // Left center
+        fill(graphics, x1 - rad, y0 + rad, x1, y1 - rad, 0, color); // Right center
+        renderArcFilled(graphics, x0 + rad, y0, 0, rad, scaling, ArcOrient.NEGATIVE, ArcOrient.POSITIVE, color); // Top-left corner
+        renderArcFilled(graphics, x1 - rad, y0, 0, rad, scaling, ArcOrient.POSITIVE, ArcOrient.POSITIVE, color); // Top-right corner
+        renderArcFilled(graphics, x0 + rad, y1, 0, rad, scaling, ArcOrient.NEGATIVE, ArcOrient.NEGATIVE, color); // Bottom-left corner
+        renderArcFilled(graphics, x1 - rad, y1, 0, rad, scaling, ArcOrient.POSITIVE, ArcOrient.NEGATIVE, color); // Bottom-right corner
+    }
+
     public static float getWindowScaling() {
         return (float) Minecraft.getInstance().getWindow().getGuiScale();
     }
@@ -263,6 +272,10 @@ public abstract class FWLTheme {
 
     public interface ColorProvider {
         int get(float x, float y);
+    }
+
+    public interface DescriptorRenderer<T extends FWLDescriptor> {
+        void render(GuiGraphics graphics, float delta, T desc);
     }
 
     public static class StaticColor implements ColorProvider {
