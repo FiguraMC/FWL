@@ -11,6 +11,7 @@ import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.Renderable;
 import org.figuramc.fwl.gui.widgets.Tickable;
 import org.figuramc.fwl.gui.widgets.VanillaRenderer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,8 @@ public abstract class FWLScreen extends Screen {
 
     private final ArrayList<Renderable> renderableWidgets = new ArrayList<>();
     private final ArrayList<FWLWidget> children = new ArrayList<>();
+
+    private GuiEventListener focused;
 
     protected FWLScreen(Component title, Screen prevScreen) {
         super(title);
@@ -137,6 +140,15 @@ public abstract class FWLScreen extends Screen {
             if (widget.charTyped(chr, modifiers)) return true;
         }
         return super.charTyped(chr, modifiers);
+    }
+
+    @Override
+    public void setFocused(@Nullable GuiEventListener child) {
+        if (focused != child) {
+            if (focused != null) focused.setFocused(false);
+            if (child != null) child.setFocused(true);
+            focused = child;
+        }
     }
 
     @Override

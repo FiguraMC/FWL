@@ -79,10 +79,12 @@ public abstract class FWLTheme {
         int x = 0;
         int y = r;
         int[] maxX = new int[r];
+        int r2 = r * 3;
         while (x < y) {
-            float yMid = y - 0.5f;
-            float p = (x * x) + (yMid * yMid);
-            if (p >= r * r) {
+            int yMid2 = (y * 3) - 1;
+            int x2 = x * 3;
+            int p = (x2 * x2) + (yMid2 * yMid2);
+            if (p >= r2 * r2) {
                 y--;
             }
             int bDist = r - y;
@@ -108,7 +110,7 @@ public abstract class FWLTheme {
     }
 
     public static void renderArc(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, float thickness, ArcOrient sideX, ArcOrient sideY, ColorProvider color) {
-        int r = (int) (radius * scaling);
+        int r = Math.round(radius * scaling);
         int[] xs = diffArray(findArcMaxXs(r));
         renderArcHollow(graphics, sX, sY, z, scaling, thickness, sideX, sideY, color, xs);
     }
@@ -118,13 +120,13 @@ public abstract class FWLTheme {
     }
 
     public static void renderArcFilled(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, ArcOrient sideX, ArcOrient sideY, ColorProvider color) {
-        int r = (int) (radius * scaling);
+        int r = Math.round(radius * scaling);
         int[] xs = diffArray(findArcMaxXs(r));
         renderArcFilled(graphics, sX, sY, z, scaling, r, sideX, sideY, color, xs);
     }
 
     public static void renderArcDotted(GuiGraphics graphics, float sX, float sY, float z, float radius, float scaling, float thickness, ArcOrient sideX, ArcOrient sideY, ColorProvider color) {
-        int r = (int) (radius * scaling);
+        int r = Math.round(radius * scaling);
         int[] xs = diffArray(findArcMaxXs(r));
         renderArcDotted(graphics, sX, sY, z, scaling, thickness, sideX, sideY, color, xs);
     }

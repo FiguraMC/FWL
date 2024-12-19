@@ -14,7 +14,7 @@ public class Scissors {
      * More accurate scissors, that uses floats. NOT COMPATIBLE WITH SCISSORS FUNCTION IN GuiGraphics.
      */
     public static void enableScissors(GuiGraphics graphics, float x, float y, float width, float height) {
-        Rectangle scissor = new Rectangle(x, y, width, height);
+        Rectangle scissor = new Rectangle(x, y, width, height).transformed(graphics.pose().last().pose());
         if (!scissors.isEmpty()) {
             scissor = Rectangle.intersection(scissor, scissors.peek());
         }

@@ -57,7 +57,7 @@ public class FWLConfigScreen extends FWLScreen {
             float bX = 100 * (i % 2);
             float bY = 20 * (float)(i / 2);
             TextButton button = new TextButton(area1.x() + bX, area1.y() + bY, 100, 20, literal("Button %s".formatted(i)));
-            area1.children().add(button);
+            area1.addWidget(button);
         }
 
         button2.setEnabled(false);

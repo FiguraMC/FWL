@@ -2,6 +2,7 @@ package org.figuramc.fwl.gui.widgets.scrollable;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.utils.Scissors;
 import org.jetbrains.annotations.NotNull;
@@ -11,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScrollableArea extends ScrollableWidget {
-    private final ArrayList<FWLWidget> children = new ArrayList<>();
-
     private float x, y, width, height;
     private float offsetX, offsetY;
     private FWLWidget focused;
@@ -30,6 +29,11 @@ public class ScrollableArea extends ScrollableWidget {
         Scissors.enableScissors(graphics, x, y, width, height);
         super.render(graphics, mouseX, mouseY, delta);
         Scissors.disableScissors(graphics);
+    }
+
+    @Override
+    public void addWidget(FWLWidget widget) {
+        super.addWidget(widget);
     }
 
     @Override
@@ -53,11 +57,6 @@ public class ScrollableArea extends ScrollableWidget {
     }
 
     @Override
-    public @NotNull List<FWLWidget> children() {
-        return children;
-    }
-
-    @Override
     public boolean isDragging() {
         return dragging;
     }
@@ -65,16 +64,6 @@ public class ScrollableArea extends ScrollableWidget {
     @Override
     public void setDragging(boolean dragging) {
         this.dragging = dragging;
-    }
-
-    @Override
-    public void setFocused(FWLWidget widget) {
-        this.focused = widget;
-    }
-
-    @Override
-    public FWLWidget getFocused() {
-        return focused;
     }
 
     @Override
