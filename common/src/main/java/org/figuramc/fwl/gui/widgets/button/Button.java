@@ -5,6 +5,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
+import org.figuramc.fwl.utils.Rectangle;
 import org.lwjgl.glfw.GLFW;
 
 public abstract class Button implements FWLWidget {
@@ -120,6 +121,11 @@ public abstract class Button implements FWLWidget {
     @Override
     public ScreenRectangle getRectangle() {
         return desc.screenRectangle();
+    }
+
+    @Override
+    public Rectangle boundaries() {
+        return desc.boundaries();
     }
 
     public interface OnClick {

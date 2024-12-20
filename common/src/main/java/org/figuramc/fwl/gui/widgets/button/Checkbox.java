@@ -6,6 +6,7 @@ import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
+import org.figuramc.fwl.utils.Rectangle;
 import org.lwjgl.glfw.GLFW;
 
 public class Checkbox implements FWLWidget {
@@ -126,6 +127,11 @@ public class Checkbox implements FWLWidget {
     @Override
     public ScreenRectangle getRectangle() {
         return desc.screenRectangle();
+    }
+
+    @Override
+    public Rectangle boundaries() {
+        return desc.boundaries();
     }
 
     public interface ChangeCallback {

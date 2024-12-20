@@ -3,63 +3,96 @@ package org.figuramc.fwl.gui.screens;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.figuramc.fwl.gui.widgets.FWLWidget;
-import org.figuramc.fwl.gui.widgets.Renderable;
-import org.figuramc.fwl.gui.widgets.Tickable;
-import org.figuramc.fwl.gui.widgets.VanillaRenderer;
+import org.figuramc.fwl.gui.widgets.*;
+import org.figuramc.fwl.gui.widgets.containers.FWLContainerWidget;
+import org.figuramc.fwl.utils.Rectangle;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.figuramc.fwl.utils.ArrayListUtils.sortedAdd;
 
-public abstract class FWLScreen extends Screen {
+public abstract class FWLScreen extends Screen implements FWLContainerWidget {
     private final Screen prevScreen;
 
-    private final ArrayList<Renderable> renderableWidgets = new ArrayList<>();
-    private final ArrayList<FWLWidget> children = new ArrayList<>();
+    private final ArrayList<FWLWidget> renderableWidgets = new ArrayList<>();
+    private final ArrayList<FWLWidget> interactableWidgets = new ArrayList<>();
 
-    private GuiEventListener focused;
+    private FWLWidget focused;
+
+    // Widgets lock. In case if widgets is added/removed during any operation that requires iterating through main lists,
+    // they are being added to awaitingAdd/awaitingRemoved list, that is being cleared when after unlock.
+    private boolean lock;
+    private final ArrayList<FWLWidget> awaitingAdd = new ArrayList<>();
+    private final ArrayList<FWLWidget> awaitingRemove = new ArrayList<>();
 
     protected FWLScreen(Component title, Screen prevScreen) {
         super(title);
         this.prevScreen = prevScreen;
     }
 
-    public <T extends FWLWidget> void addWidget(T widget) {
-        sortedAdd(children, widget, FWLWidget::compareInteractionPriority);
-        narratables.add(widget);
+    @Override
+    public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
+        renderBackground(graphics);
+        FWLContainerWidget.super.render(graphics, mouseX, mouseY, delta);
     }
 
-    public void addRenderableOnly(Renderable widget) {
-        sortedAdd(renderableWidgets, widget, Renderable::compareRenderPriority);
+    public void addWidget(FWLWidget widget) {
+        if (lock) {
+            awaitingAdd.add(widget);
+            return;
+        }
+        sortedAdd(interactableWidgets, widget, FWLWidget::compareInteractionPriority);
+        sortedAdd(renderableWidgets, widget, FWLWidget::compareRenderPriority);
     }
 
-    public <T extends FWLWidget> void addRenderableWidget(T widget) {
-        addWidget(widget);
-        addRenderableOnly(widget);
+    public void removeWidget(FWLWidget widget) {
+        if (lock) {
+            awaitingRemove.add(widget);
+            return;
+        }
+        interactableWidgets.remove(widget);
+        renderableWidgets.remove(widget);
     }
 
     @Override
-    protected <T extends net.minecraft.client.gui.components.Renderable> T addRenderableOnly(T drawable) {
-        addRenderableOnly(new VanillaRenderer(drawable));
-        return drawable;
+    public void lock() {
+        lock = true;
+    }
+
+    @Override
+    public void unlock() {
+        lock = false;
+        for (FWLWidget widget: awaitingAdd) {
+            addWidget(widget);
+        }
+
+        for (FWLWidget widget: awaitingRemove) {
+            removeWidget(widget);
+        }
+
+        awaitingAdd.clear();
+        awaitingRemove.clear();
+    }
+
+    @Override
+    public Iterator<FWLWidget> interactableWidgets() {
+        return interactableWidgets.iterator();
+    }
+
+    @Override
+    public Iterator<FWLWidget> renderableWidgets() {
+        return renderableWidgets.iterator();
     }
 
     @Override
     protected void init() {
         renderableWidgets.clear();
-        children.clear();
-    }
-
-    @Override
-    public void tick() {
-        children.forEach(Tickable::tick);
+        interactableWidgets.clear();
     }
 
     @Override
@@ -71,79 +104,13 @@ public abstract class FWLScreen extends Screen {
         render(graphics, mX, mY, delta);
     }
 
-    public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-        renderBackground(graphics);
-        for (Renderable widget: renderableWidgets)
-            widget.render(graphics, mouseX, mouseY, delta);
+    @Nullable
+    @Override
+    public FWLWidget getFocused() {
+        return focused;
     }
 
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        for (GuiEventListener widget: children) {
-            if (widget.mouseClicked(mouseX, mouseY, button)) {
-                setFocused(widget);
-                return true;
-            }
-        }
-        setFocused(null);
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        for (GuiEventListener widget: children) {
-            if (widget.mouseReleased(mouseX, mouseY, button)) return true;
-        }
-        return super.mouseReleased(mouseX, mouseY, button);
-    }
-
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        for (GuiEventListener widget: children) {
-            if (widget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) return true;
-        }
-        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
-    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        for (GuiEventListener widget: children) {
-            if (widget.mouseScrolled(mouseX, mouseY, amount)) return true;
-        }
-        return super.mouseScrolled(mouseX, mouseY, amount);
-    }
-
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        for (GuiEventListener widget: children) {
-            if (widget.keyPressed(keyCode, scanCode, modifiers)) return true;
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
-    }
-
-    @Override
-    public void mouseMoved(double mouseX, double mouseY) {
-        for (GuiEventListener widget: children) widget.mouseMoved(mouseX, mouseY);
-    }
-
-    @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        for (GuiEventListener widget: children) {
-            if (widget.keyReleased(keyCode, scanCode, modifiers)) return true;
-        }
-        return super.keyReleased(keyCode, scanCode, modifiers);
-    }
-
-    @Override
-    public boolean charTyped(char chr, int modifiers) {
-        for (GuiEventListener widget: children) {
-            if (widget.charTyped(chr, modifiers)) return true;
-        }
-        return super.charTyped(chr, modifiers);
-    }
-
-    @Override
-    public void setFocused(@Nullable GuiEventListener child) {
+    public void setFocused(@Nullable FWLWidget child) {
         if (focused != child) {
             if (focused != null) focused.setFocused(false);
             if (child != null) child.setFocused(true);
@@ -152,12 +119,18 @@ public abstract class FWLScreen extends Screen {
     }
 
     @Override
-    public List<? extends GuiEventListener> children() {
-        return children;
+    public List<FWLWidget> children() {
+        return interactableWidgets;
     }
 
     @Override
     public void onClose() {
         minecraft.setScreen(prevScreen);
+    }
+
+
+    @Override
+    public Rectangle boundaries() {
+        return null;
     }
 }

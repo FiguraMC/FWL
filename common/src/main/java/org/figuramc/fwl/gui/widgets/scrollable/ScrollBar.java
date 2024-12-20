@@ -1,9 +1,12 @@
-package org.figuramc.fwl.gui.widgets;
+package org.figuramc.fwl.gui.widgets.scrollable;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.figuramc.fwl.FWL;
+import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.Orientation;
 import org.figuramc.fwl.gui.widgets.descriptors.ScrollBarDescriptor;
+import org.figuramc.fwl.utils.Rectangle;
 
 import static org.figuramc.fwl.utils.MathUtils.clamp;
 
@@ -168,11 +171,21 @@ public class ScrollBar implements FWLWidget {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        if (desc.orientation().allowScroll(hasShiftDown())) {
+        if (desc.orientation().allowScroll(FWLWidget.isShiftDown())) {
             setProgress(progress - ((float) amount * scrollStep));
             return true;
         }
         return false;
+    }
+
+    @Override
+    public ScreenRectangle getRectangle() {
+        return desc.screenRectangle();
+    }
+
+    @Override
+    public Rectangle boundaries() {
+        return desc.boundaries();
     }
 
     public interface Callback {

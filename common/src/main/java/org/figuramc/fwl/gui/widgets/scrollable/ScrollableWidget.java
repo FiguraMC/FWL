@@ -2,10 +2,10 @@ package org.figuramc.fwl.gui.widgets.scrollable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
-import org.figuramc.fwl.gui.widgets.FWLContainerWidget;
+import org.figuramc.fwl.gui.widgets.containers.AbstractFWLContainerWidget;
 import org.joml.Vector2d;
 
-public abstract class ScrollableWidget extends FWLContainerWidget {
+public abstract class ScrollableWidget extends AbstractFWLContainerWidget {
     public abstract float offsetX();
     public abstract float offsetY();
 

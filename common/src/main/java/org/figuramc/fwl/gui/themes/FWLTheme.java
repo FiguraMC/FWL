@@ -1,5 +1,7 @@
 package org.figuramc.fwl.gui.themes;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -10,21 +12,29 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import org.figuramc.fwl.gui.widgets.descriptors.*;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
 
 public abstract class FWLTheme {
+    public FWLTheme(@Nullable JsonObject preset) {
+
+    }
+
     public abstract void renderButton(GuiGraphics graphics, float delta, ButtonDescriptor button);
     public abstract void renderCheckbox(GuiGraphics graphics, float delta, CheckboxDescriptor checkbox);
     public abstract void renderRadioButton(GuiGraphics graphics, float delta, RadioButtonDescriptor button);
     public abstract void renderScrollBar(GuiGraphics graphics, float delta, ScrollBarDescriptor scrollBar);
     public abstract void renderSlider(GuiGraphics graphics, float delta, SliderDescriptor slider);
     public abstract void renderIcon(GuiGraphics graphics, IconDescriptor icon);
-    public abstract void renderPane(GuiGraphics graphics, float delta, float x0, float y0, float x1, float y1);
+    public abstract void renderPane(GuiGraphics graphics, float x0, float y0, float x1, float y1, ResourceLocation type);
 
-    public float renderText(GuiGraphics graphics, Component text, float x, float y, float z, float scale, int color) {
+    public abstract void applyPreset(@Nullable JsonObject preset);
+    public abstract JsonObject savePreset();
+
+    public static float renderText(GuiGraphics graphics, Component text, float x, float y, float z, float scale, int color) {
         PoseStack stack = graphics.pose();
         Font font = Minecraft.getInstance().font;
         stack.pushPose();

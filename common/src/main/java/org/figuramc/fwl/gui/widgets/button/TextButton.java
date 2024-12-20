@@ -51,6 +51,12 @@ public class TextButton extends Button implements NarratableEntry {
         return message;
     }
 
+    @Override
+    public TextButton setCallback(OnClick callback) {
+        super.setCallback(callback);
+        return this;
+    }
+
     public TextButton setMessage(Component message) {
         this.message = message;
         return this;

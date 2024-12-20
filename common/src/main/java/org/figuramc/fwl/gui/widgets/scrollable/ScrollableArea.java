@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.Scissors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -105,6 +106,11 @@ public class ScrollableArea extends ScrollableWidget {
     public ScrollableArea setHeight(float height) {
         this.height = height;
         return this;
+    }
+
+    @Override
+    public Rectangle boundaries() {
+        return new Rectangle(x, y, width, height);
     }
 
     @Override

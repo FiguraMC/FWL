@@ -55,4 +55,12 @@ public record Rectangle(float x, float y, float width, float height) {
         Vector3f pos2 = pose.transformPosition(right(), bottom(), 0.0f, new Vector3f());
         return new Rectangle(pos1.x, pos1.y, pos2.x - pos1.x, pos2.y - pos1.y);
     }
+
+    public boolean pointIn(float x, float y) {
+        return x >= left() && x <= right() && y >= top() && y <= bottom();
+    }
+
+    public boolean pointIn(double x, double y) {
+        return x >= left() && x <= right() && y >= top() && y <= bottom();
+    }
 }

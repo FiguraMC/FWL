@@ -1,6 +1,9 @@
 package org.figuramc.fwl.gui.themes;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.widgets.descriptors.*;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
@@ -9,27 +12,34 @@ import org.figuramc.fwl.gui.widgets.descriptors.button.ClickableDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
 import org.figuramc.fwl.utils.ColorUtils;
 import org.figuramc.fwl.utils.TreePathMap;
+import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.util.FastColor.ARGB32;
+import static org.figuramc.fwl.utils.JsonUtils.intOrDefault;
 
 
 public class FWLBreeze extends FWLTheme {
-    private static final TreePathMap<Integer> BREEZE_COLORS = new TreePathMap<>() {{
-        add(ColorTypes.BUTTON, 0xFF3A3A3A);
+    private TreePathMap<Integer> colors;
 
-        add(ColorTypes.PRIMARY, 0xFF3A3A3A);
-        add(ColorTypes.SECONDARY, 0xFF14539E);
-        add(ColorTypes.SUCCESS, 0xFF25AA61);
+    private int textColor;
+    private int textHintColor;
+    private int disabledTextColor;
 
-        add(ColorTypes.BORDER, 0xFF111111);
+    private int primaryColor;
+    private int accentColor;
+    private int successColor;
 
-        add(ColorTypes.TEXT, 0xFFFFFFFF);
-        add(ColorTypes.TEXT_DISABLED, 0xFF999999);
-        add(ColorTypes.TEXT_HINT, 0xFF999999);
+    private int borderColor;
 
-        add(ColorTypes.BUTTON_TEXT, 0xFFFFFFFF);
-        add(0xFF777777, ColorTypes.BUTTON_TEXT.getPath(), "disabled");
-    }};
+    public FWLBreeze() {
+        this(null);
+    }
+
+    public FWLBreeze(@Nullable JsonObject preset) {
+        super(preset);
+        applyPreset(preset);
+    }
+
 
     @Override
     public void renderButton(GuiGraphics graphics, float delta, ButtonDescriptor button) {
@@ -175,19 +185,19 @@ public class FWLBreeze extends FWLTheme {
     }
 
     @Override
-    public void renderPane(GuiGraphics graphics, float delta, float x, float y, float width, float height) {
+    public void renderPane(GuiGraphics graphics, float x, float y, float x1, float y1, ResourceLocation type) {
         // Get current theme. Needed for combined themes compatibility. Used for getting color.
         FWLTheme theme = FWL.peekTheme();
 
+        float width = x1 - x, height = y1 - y;
+
         // Border
-        float rad = Math.min(3, Math.min(width, height) / 2);
+        float rad = Math.min(1, Math.min(width, height) / 2);
         float sc = getWindowScaling();
         float thickness = 2;
 
         int color = theme.getColorOrDefault(ColorTypes.PRIMARY, 0xFFFFFFFF); // Getting pane color. Breeze theme doesn't check for namespace
         int border = theme.getColorOrDefault(ColorTypes.BORDER, 0xFFFFFFFF); // Getting border color. Breeze theme doesn't check for namespace
-
-        float x1 = x + width, y1 = y + height;
 
         renderRoundBg(graphics, color, x, y, x1, y1, rad, sc);
         renderRoundBorder(graphics, border, x, y, x1, y1, rad, sc, thickness);
@@ -210,7 +220,7 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public Integer getColor(String... path) {
-        return BREEZE_COLORS.get(path);
+        return colors.get(path);
     }
 
     public int applyStateModifier(int color, ClickableDescriptor state) {
@@ -248,6 +258,64 @@ public class FWLBreeze extends FWLTheme {
         return new BreezeGradient(y0, y1,
             r / 255f, g / 255f, b / 255f, a / 255f,
                 bR / 255f, bG / 255f, bB / 255f, a / 255f);
+    }
+
+    @Override
+    public void applyPreset(@Nullable JsonObject preset) {
+        if (preset != null) {
+            primaryColor = intOrDefault(preset, "color.primary", 0xFF3A3A3A);
+            accentColor = intOrDefault(preset, "color.accent", 0xFF14539E);
+            successColor = intOrDefault(preset, "color.success", 0xFF25AA61);
+
+            borderColor = intOrDefault(preset, "color.border", 0xFF111111);
+
+            textColor = intOrDefault(preset, "color.text", 0xFFFFFFFF);
+            textHintColor = intOrDefault(preset, "color.text.hint", 0xFFFFFFFF);
+            disabledTextColor = intOrDefault(preset, "color.text.disabled", 0xFF777777);
+        }
+        else {
+            primaryColor = 0xFF3A3A3A;
+            accentColor = 0xFF14539E;
+            successColor = 0xFF25AA61;
+
+            borderColor = 0xFF111111;
+
+            textColor = 0xFFFFFFFF;
+            textHintColor = 0xFF999999;
+            disabledTextColor = 0xFF777777;
+        }
+
+        colors = new TreePathMap<>() {{
+            add(ColorTypes.BUTTON, primaryColor);
+
+            add(ColorTypes.PRIMARY, primaryColor);
+            add(ColorTypes.SECONDARY, accentColor);
+            add(ColorTypes.SUCCESS, successColor);
+
+            add(ColorTypes.BORDER, borderColor);
+
+            add(ColorTypes.TEXT, textColor);
+            add(ColorTypes.TEXT_DISABLED, disabledTextColor);
+            add(ColorTypes.TEXT_HINT, textHintColor);
+
+            add(ColorTypes.BUTTON_TEXT, textColor);
+            add(disabledTextColor, ColorTypes.BUTTON_TEXT.getPath(), "disabled");
+        }};
+    }
+
+    @Override
+    public JsonObject savePreset() {
+        JsonObject preset = new JsonObject();
+        preset.addProperty("color.primary", primaryColor);
+        preset.addProperty("color.accent", accentColor);
+        preset.addProperty("color.success", successColor);
+
+        preset.addProperty("color.border", borderColor);
+
+        preset.addProperty("color.text", textColor);
+        preset.addProperty("color.text.hint", textHintColor);
+        preset.addProperty("color.text.disabled", disabledTextColor);
+        return preset;
     }
 
     private static class BreezeGradient implements ColorProvider {
