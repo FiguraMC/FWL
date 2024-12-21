@@ -1,5 +1,7 @@
-package org.figuramc.fwl.gui.widgets.descriptors;
+package org.figuramc.fwl.gui.widgets.descriptors.misc;
 
+import org.figuramc.fwl.gui.widgets.descriptors.Orientation;
+import org.figuramc.fwl.gui.widgets.descriptors.WidgetState;
 import org.jetbrains.annotations.Nullable;
 
 public class SliderDescriptor {

@@ -1,8 +1,8 @@
 package org.figuramc.fwl.gui.widgets.descriptors.button;
 
 import net.minecraft.resources.ResourceLocation;
+import org.figuramc.fwl.gui.widgets.descriptors.ClickableDescriptor;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector2f;
 
 public class ButtonDescriptor extends ClickableDescriptor {
     public static final String WIDGET_TYPE = "button";

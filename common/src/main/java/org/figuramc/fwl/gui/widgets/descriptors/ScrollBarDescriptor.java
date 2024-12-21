@@ -1,7 +1,5 @@
 package org.figuramc.fwl.gui.widgets.descriptors;
 
-import org.figuramc.fwl.gui.widgets.descriptors.button.ClickableDescriptor;
-import org.figuramc.fwl.utils.BiTickCounter;
 import org.jetbrains.annotations.Nullable;
 
 public class ScrollBarDescriptor extends ClickableDescriptor {

@@ -8,6 +8,7 @@ import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.themes.ColorTypes;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.gui.widgets.descriptors.input.TextInputDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.Scissors;
 import org.jetbrains.annotations.NotNull;
@@ -20,14 +21,12 @@ import static org.figuramc.fwl.utils.TextUtils.findCursorJumpBefore;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class TextInput implements FWLWidget {
-    private float x, y, width, height;
+    private final TextInputDescriptor desc;
 
     private int startCursorPos, endCursorPos;
     private String value;
-    private Component bakedText;
+    protected Component bakedText;
     private boolean immutable;
-
-    private boolean focused;
 
     private int cursorBlinkCounter = 0;
     private float textOffset = 0;
@@ -37,10 +36,7 @@ public class TextInput implements FWLWidget {
     }
 
     public TextInput(float x, float y, float width, float height, @NotNull String value) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        desc = new TextInputDescriptor(x, y, width, height);
         setValue(value);
     }
 
@@ -52,17 +48,17 @@ public class TextInput implements FWLWidget {
 
     @Override
     public Rectangle boundaries() {
-        return new Rectangle(x, y, width, height);
+        return desc.boundaries();
     }
 
     @Override
     public void setFocused(boolean focused) {
-        this.focused = focused;
+        desc.setFocused(focused);
     }
 
     @Override
     public boolean isFocused() {
-        return focused;
+        return desc.focused();
     }
 
     public TextInput setImmutable(boolean immutable) {
@@ -107,11 +103,13 @@ public class TextInput implements FWLWidget {
 
         FWLTheme theme = FWL.peekTheme();
 
-        FWLTheme.fill(graphics, x, y, x + width, y + height, 0, 0xff333333);
+        float x = desc.x(), y = desc.y(), width = desc.width(), height = desc.height();
+
+        theme.renderTextInput(graphics, delta, desc);
+
         float textYPos = y + ((height - font.lineHeight) / 2);
         float textX1 = x + 2;
         float textWidth = width - 4;
-        float textX2 = textX1 + textWidth;
 
         Scissors.enableScissors(graphics, textX1, y, textWidth, height);
 
@@ -134,7 +132,7 @@ public class TextInput implements FWLWidget {
         float cursorY1 = textYPos - 1;
         float cursorY2 = cursorY1 + font.lineHeight + 1;
 
-        boolean renderCursor = (Math.max(0, cursorBlinkCounter - 5) / 30 ) % 2 == 0;
+        boolean renderCursor = isFocused() && (Math.max(0, cursorBlinkCounter - 5) / 30 ) % 2 == 0;
 
         int cursorColor = 0xFFAAAAAA;
 
@@ -151,9 +149,9 @@ public class TextInput implements FWLWidget {
                 FWLTheme.fill(graphics, cursorX, cursorY1, cursorX + 1, cursorY2, 0, cursorColor);
             }
         }
-        FWLTheme.renderText(graphics, bakedText, textX1 + textOffset, textYPos, 0, 1, 0xFFFFFFFF);
-        Scissors.disableScissors(graphics);
         cursorBlinkCounter++;
+        FWLTheme.renderText(graphics, bakedText, textX1 + textOffset, textYPos, 0, 1, 0xFFFFFFFF, false);
+        Scissors.disableScissors(graphics);
     }
 
     @Override

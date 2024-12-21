@@ -24,7 +24,7 @@ public class TextButton extends Button implements NarratableEntry {
             float x = desc.x() + (desc.width() / 2) - (textWidth / 2);
             float y = desc.y() + (desc.height() / 2) - (theme.textHeight(graphics, message, 1, desc.width() - 2) / 2);
             int color = getTextColor(theme);
-            theme.renderText(graphics, message, x, y, 0, 1, color);
+            FWLTheme.renderText(graphics, message, x, y, 0, 1, color, false);
         }
     }
 

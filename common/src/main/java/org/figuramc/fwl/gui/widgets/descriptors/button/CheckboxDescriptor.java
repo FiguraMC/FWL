@@ -1,5 +1,6 @@
 package org.figuramc.fwl.gui.widgets.descriptors.button;
 
+import org.figuramc.fwl.gui.widgets.descriptors.ClickableDescriptor;
 import org.figuramc.fwl.utils.BiTickCounter;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;

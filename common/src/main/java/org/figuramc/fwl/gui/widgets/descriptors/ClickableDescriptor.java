@@ -1,6 +1,5 @@
-package org.figuramc.fwl.gui.widgets.descriptors.button;
+package org.figuramc.fwl.gui.widgets.descriptors;
 
-import org.figuramc.fwl.gui.widgets.descriptors.FWLDescriptor;
 import org.figuramc.fwl.utils.BiTickCounter;
 import org.figuramc.fwl.utils.Rectangle;
 import org.jetbrains.annotations.Nullable;

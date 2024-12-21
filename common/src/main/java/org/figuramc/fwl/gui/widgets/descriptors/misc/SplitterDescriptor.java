@@ -1,6 +1,8 @@
-package org.figuramc.fwl.gui.widgets.descriptors;
+package org.figuramc.fwl.gui.widgets.descriptors.misc;
 
 import org.figuramc.fwl.FWL;
+import org.figuramc.fwl.gui.widgets.descriptors.Orientation;
+import org.figuramc.fwl.gui.widgets.descriptors.PathStyle;
 import org.jetbrains.annotations.Nullable;
 
 public class SplitterDescriptor {
@@ -9,11 +11,11 @@ public class SplitterDescriptor {
     private PathStyle style;
 
     public SplitterDescriptor(float x, float y, float length) {
-        this(x, y, FWL.peekTheme().defaultBorderRadius(), length, null, null);
+        this(x, y, 0, length, null, null);
     }
 
     public SplitterDescriptor(float x, float y, float length, @Nullable Orientation orientation) {
-        this(x, y, FWL.peekTheme().defaultBorderRadius(), length, orientation, null);
+        this(x, y, 0, length, orientation, null);
     }
 
     public SplitterDescriptor(float x, float y, float thickness, float length) {

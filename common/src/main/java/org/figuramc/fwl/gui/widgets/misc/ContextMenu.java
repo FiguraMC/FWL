@@ -1,6 +1,5 @@
 package org.figuramc.fwl.gui.widgets.misc;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,6 +9,7 @@ import org.figuramc.fwl.gui.screens.FWLScreen;
 import org.figuramc.fwl.gui.themes.ColorTypes;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.gui.widgets.descriptors.misc.ContextMenuDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -20,55 +20,54 @@ import java.util.function.Function;
 import static org.figuramc.fwl.utils.MathUtils.wrapModulo;
 
 public class ContextMenu implements FWLWidget {
-    private FWLScreen parent;
-    private float x, y;
+    private final ContextMenuDescriptor desc;
+    private final FWLScreen parent;
     private final ArrayList<Entry> entries = new ArrayList<>();
-    private float width;
-    private float height;
-    private boolean focused;
     private int currentEntry = -1;
     private int priority;
 
     public ContextMenu(FWLScreen screen, float x, float y) {
         this.parent = screen;
-        this.x = x;
-        this.y = y;
+        this.desc = new ContextMenuDescriptor(x, y, 0, 0);
     }
 
     @Override
     public Rectangle boundaries() {
-        return new Rectangle(x, y, width + 8, height + 8);
+        return desc.boundaries();
     }
 
     @Override
     public void setFocused(boolean focused) {
-        this.focused = focused;
+        desc.setFocused(focused);
     }
 
     @Override
     public boolean isFocused() {
-        return focused;
+        return desc.focused();
     }
 
     public ContextMenu addEntry(Entry entry) {
         entries.add(entry);
-        updateSize();
+        update();
         return this;
     }
 
     public ContextMenu removeEntry(Entry entry) {
         entries.remove(entry);
-        updateSize();
+        update();
         return this;
     }
 
-    private void updateSize() {
+    private void update() {
         Font font = Minecraft.getInstance().font;
-        width = 0;
-        height = font.lineHeight * entries.size();
+        int width = 0;
+        int height = entryHeight() * entries.size();
         for (Entry entry: entries) {
             width = Math.max(width, font.width(entry.text()));
         }
+        desc.setWidth(width + 4);
+        desc.setHeight(height + 4);
+        desc.setEntriesCount(entries.size());
     }
 
     @Override
@@ -90,40 +89,28 @@ public class ContextMenu implements FWLWidget {
     @Override
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         FWLTheme theme = FWL.peekTheme();
-        Font font = Minecraft.getInstance().font;
 
-        int lineHeight = font.lineHeight;
+        int lineHeight = entryHeight();
 
-        int color = theme.getColor(ColorTypes.TEXT);
-        int accentColor = theme.getColor(ColorTypes.SECONDARY);
-        int borderColor = theme.getColor(ColorTypes.BORDER);
+        int color = theme.getColorOrDefault(ColorTypes.TEXT, 0xFFFFFFFF);
+        int accentColor = theme.getColorOrDefault(ColorTypes.SECONDARY, 0xFFFFAAAA);
 
-        float scaling = 2f / FWLTheme.getWindowScaling();
+        float x = desc.x(), y = desc.y(), width = desc.width();
 
-        float x1 = x;
-        float y1 = y;
-        float x2 = x + width + 4;
-        float y2 = y + height + 4;
-        PoseStack stack = graphics.pose();
-        stack.pushPose();
-        stack.translate(0, 0, 1);
-        theme.renderPane(graphics, x1, y1, x2, y2, null);
-        float textX1 = x1 + 2;
+        float x2 = x + width;
+
+        theme.renderContextMenu(graphics, delta, desc);
+        float textX1 = x + 2;
 
         int entriesCount = entries.size();
         for (int i = 0; i < entriesCount; i++) {
             Entry entry = entries.get(i);
             float textY = y + (i * lineHeight) + 2;
             int textColor;
-            if (currentEntry == i || (mouseX >= x1 && mouseX <= x2 && mouseY >= textY && mouseY <= textY + lineHeight)) textColor = accentColor;
+            if (currentEntry == i || (mouseX >= x && mouseX <= x2 && mouseY >= textY && mouseY <= textY + lineHeight)) textColor = accentColor;
             else textColor = color;
-            FWLTheme.renderText(graphics, entry.text(), textX1, textY, 0, 1, textColor);
-            if (i < entriesCount - 1) {
-                float lineY = textY + lineHeight - 1;
-                FWLTheme.fill(graphics, x1, lineY, x2, lineY + scaling, 0.0f, borderColor);
-            }
+            FWLTheme.renderText(graphics, entry.text(), textX1, textY, 0, 1, textColor, false);
         }
-        stack.popPose();
 
     }
 
@@ -173,8 +160,7 @@ public class ContextMenu implements FWLWidget {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         boolean keepOpen = false;
         if (isMouseOver(mouseX, mouseY)) {
-            Font font = Minecraft.getInstance().font;
-            int index = (int) (mouseY - (y + 2)) / font.lineHeight;
+            int index = (int) (mouseY - (desc.y() + 2)) / entryHeight();
             if (index < entries.size()) {
                 Entry entry = entries.get(index);
                 int modifiers = FWLWidget.getCurrentModifiers();
@@ -183,6 +169,10 @@ public class ContextMenu implements FWLWidget {
         }
         if (!keepOpen) parent.removeWidget(this);
         return true;
+    }
+
+    public static int entryHeight() {
+        return Minecraft.getInstance().font.lineHeight + 1;
     }
 
     public interface Entry {

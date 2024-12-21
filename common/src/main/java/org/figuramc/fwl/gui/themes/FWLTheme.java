@@ -1,6 +1,5 @@
 package org.figuramc.fwl.gui.themes;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -12,6 +11,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import org.figuramc.fwl.gui.widgets.descriptors.*;
+import org.figuramc.fwl.gui.widgets.descriptors.input.TextInputDescriptor;
+import org.figuramc.fwl.gui.widgets.descriptors.misc.ContextMenuDescriptor;
+import org.figuramc.fwl.gui.widgets.descriptors.misc.IconDescriptor;
+import org.figuramc.fwl.gui.widgets.descriptors.misc.SliderDescriptor;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
@@ -19,28 +22,27 @@ import org.figuramc.fwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
 
 public abstract class FWLTheme {
-    public FWLTheme(@Nullable JsonObject preset) {
-
-    }
-
     public abstract void renderButton(GuiGraphics graphics, float delta, ButtonDescriptor button);
     public abstract void renderCheckbox(GuiGraphics graphics, float delta, CheckboxDescriptor checkbox);
     public abstract void renderRadioButton(GuiGraphics graphics, float delta, RadioButtonDescriptor button);
     public abstract void renderScrollBar(GuiGraphics graphics, float delta, ScrollBarDescriptor scrollBar);
     public abstract void renderSlider(GuiGraphics graphics, float delta, SliderDescriptor slider);
+    public abstract void renderTextInput(GuiGraphics graphics, float delta, TextInputDescriptor textInput);
+    public abstract void renderContextMenu(GuiGraphics graphics, float delta, ContextMenuDescriptor menu);
+    public abstract void renderBounds(GuiGraphics graphics, float delta, BoundsDescriptor descriptor);
+    public abstract void fillBounds(GuiGraphics graphics, float delta, BoundsDescriptor descriptor);
     public abstract void renderIcon(GuiGraphics graphics, IconDescriptor icon);
-    public abstract void renderPane(GuiGraphics graphics, float x0, float y0, float x1, float y1, ResourceLocation type);
 
     public abstract void applyPreset(@Nullable JsonObject preset);
     public abstract JsonObject savePreset();
 
-    public static float renderText(GuiGraphics graphics, Component text, float x, float y, float z, float scale, int color) {
+    public static float renderText(GuiGraphics graphics, Component text, float x, float y, float z, float scale, int color, boolean shadow) {
         PoseStack stack = graphics.pose();
         Font font = Minecraft.getInstance().font;
         stack.pushPose();
         stack.scale(scale, scale, scale);
         stack.translate(x, y, z);
-        int w = graphics.drawString(font, text, 0, 0, color);
+        int w = graphics.drawString(font, text, 0, 0, color, shadow);
         stack.popPose();
         return w * scale;
     }
@@ -264,9 +266,6 @@ public abstract class FWLTheme {
     public static float getWindowScaling() {
         return (float) Minecraft.getInstance().getWindow().getGuiScale();
     }
-
-    public abstract int defaultBorderRadius();
-    public abstract BorderDescriptor.CornerType defaultCornerType();
 
     public abstract Integer getColor(String... path);
     public Integer getColor(ResourceLocation path) {

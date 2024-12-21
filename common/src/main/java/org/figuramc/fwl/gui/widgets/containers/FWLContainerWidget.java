@@ -48,7 +48,7 @@ public interface FWLContainerWidget extends FWLWidget, ContainerEventHandler {
         if (!isMouseOver(mouseX, mouseY)) return false;
         Vector2d mouse = getInteractionMousePos(mouseX, mouseY);
         lock();
-        Iterator<FWLWidget> widgets = renderableWidgets();
+        Iterator<FWLWidget> widgets = interactableWidgets();
         boolean result = false;
         while (widgets.hasNext()) {
             FWLWidget widget = widgets.next();
@@ -66,7 +66,7 @@ public interface FWLContainerWidget extends FWLWidget, ContainerEventHandler {
     default boolean mouseReleased(double mouseX, double mouseY, int button) {
         Vector2d mouse = getInteractionMousePos(mouseX, mouseY);
         lock();
-        Iterator<FWLWidget> widgets = renderableWidgets();
+        Iterator<FWLWidget> widgets = interactableWidgets();
         boolean result = false;
         while (widgets.hasNext()) {
             FWLWidget widget = widgets.next();
@@ -82,7 +82,7 @@ public interface FWLContainerWidget extends FWLWidget, ContainerEventHandler {
     default boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         lock();
         Vector2d mouse = getInteractionMousePos(mouseX, mouseY);
-        Iterator<FWLWidget> widgets = renderableWidgets();
+        Iterator<FWLWidget> widgets = interactableWidgets();
         boolean result = false;
         while (widgets.hasNext()) {
             FWLWidget widget = widgets.next();
@@ -99,7 +99,7 @@ public interface FWLContainerWidget extends FWLWidget, ContainerEventHandler {
         if (!isMouseOver(mouseX, mouseY)) return false;
         Vector2d mouse = getInteractionMousePos(mouseX, mouseY);
         lock();
-        Iterator<FWLWidget> widgets = renderableWidgets();
+        Iterator<FWLWidget> widgets = interactableWidgets();
         boolean result = false;
         while (widgets.hasNext()) {
             FWLWidget widget = widgets.next();
@@ -115,7 +115,7 @@ public interface FWLContainerWidget extends FWLWidget, ContainerEventHandler {
     default void mouseMoved(double mouseX, double mouseY) {
         lock();
         Vector2d mouse = getInteractionMousePos(mouseX, mouseY);
-        Iterator<FWLWidget> widgets = renderableWidgets();
+        Iterator<FWLWidget> widgets = interactableWidgets();
         while(widgets.hasNext()) widgets.next().mouseMoved(mouse.x, mouse.y);
         unlock();
     }
@@ -144,7 +144,7 @@ public interface FWLContainerWidget extends FWLWidget, ContainerEventHandler {
     @Override
     default void tick() {
         lock();
-        Iterator<FWLWidget> widgets = renderableWidgets();
+        Iterator<FWLWidget> widgets = interactableWidgets();
         while (widgets.hasNext()) widgets.next().tick();
         unlock();
     }

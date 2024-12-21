@@ -1,4 +1,4 @@
-package org.figuramc.fwl.gui.widgets.descriptors;
+package org.figuramc.fwl.gui.widgets.descriptors.misc;
 
 import net.minecraft.resources.ResourceLocation;
 
