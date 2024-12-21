@@ -8,6 +8,7 @@ import org.figuramc.fwl.gui.widgets.descriptors.Orientation;
 import org.figuramc.fwl.gui.widgets.descriptors.ScrollBarDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
 
+import static org.figuramc.fwl.FWL.fwl;
 import static org.figuramc.fwl.utils.MathUtils.clamp;
 
 public class ScrollBar implements FWLWidget {
@@ -110,7 +111,7 @@ public class ScrollBar implements FWLWidget {
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         desc.setHovered(desc.mouseIn(mouseX, mouseY));
         desc.setHoverPos(mouseX, mouseY);
-        FWL.peekTheme().renderScrollBar(graphics, delta, desc);
+        fwl().currentTheme().renderScrollBar(graphics, delta, desc);
     }
 
     @Override

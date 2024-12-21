@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
+import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.*;
 import org.figuramc.fwl.gui.widgets.descriptors.input.TextInputDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.misc.ContextMenuDescriptor;
@@ -20,6 +21,8 @@ import org.joml.Matrix4f;
 import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
+
+import java.util.Iterator;
 
 public abstract class FWLTheme {
     public abstract void renderButton(GuiGraphics graphics, float delta, ButtonDescriptor button);
@@ -35,6 +38,8 @@ public abstract class FWLTheme {
 
     public abstract void applyPreset(@Nullable JsonObject preset);
     public abstract JsonObject savePreset();
+
+    public abstract Iterator<FWLWidget> getSettingsWidgets(float areaWidth, float areaHeight);
 
     public static float renderText(GuiGraphics graphics, Component text, float x, float y, float z, float scale, int color, boolean shadow) {
         PoseStack stack = graphics.pose();

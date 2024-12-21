@@ -2,8 +2,8 @@ package org.figuramc.fwl.gui.themes;
 
 import com.google.gson.JsonObject;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
 import org.figuramc.fwl.FWL;
+import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.*;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
@@ -19,7 +19,11 @@ import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.TreePathMap;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
+import java.util.List;
+
 import static net.minecraft.util.FastColor.ARGB32;
+import static org.figuramc.fwl.FWL.fwl;
 import static org.figuramc.fwl.utils.JsonUtils.intOrDefault;
 import static org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor.Side;
 
@@ -48,17 +52,14 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public void renderButton(GuiGraphics graphics, float delta, ButtonDescriptor button) {
-        // Get current theme. Needed for combined themes compatibility. Used for getting colors for buttons.
-        FWLTheme theme = FWL.peekTheme();
-
         float x = button.x(), y = button.y(), width = button.width(), height = button.height();
         // Border radius
         float rad = Math.min(3, Math.min(button.width(), button.height()) / 2);
 
         // Getting button color by its type, and then getting gradient for it. Breeze theme doesn't check for namespace
-        int buttonColor = applyStateModifier(theme.getColorOrDefault(button.type(), 0xFFFFFFFF), button);
+        int buttonColor = applyStateModifier(getColorOrDefault(button.type(), 0xFFFFFFFF), button);
 
-        int borderColor = theme.getColorOrDefault(button.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int borderColor = getColorOrDefault(button.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
 
         float x1 = x+width;
         float y1 = y+height;
@@ -75,17 +76,14 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public void renderCheckbox(GuiGraphics graphics, float delta, CheckboxDescriptor checkbox) {
-        // Get current theme. Needed for combined themes compatibility. Used for getting colors for buttons.
-        FWLTheme theme = FWL.peekTheme();
-
         float x = checkbox.x(), y = checkbox.y(), width = checkbox.width(), height = checkbox.height();
         // Border radius
         float rad = Math.min(3, Math.min(checkbox.width(), checkbox.height()) / 2);
 
         // Getting button color by its type, and then getting gradient for it. Breeze theme doesn't check for namespace
-        int buttonColor = applyStateModifier(theme.getColorOrDefault(checkbox.checked() ? ColorTypes.SECONDARY : ColorTypes.BUTTON, 0xFFFFFFFF), checkbox);
+        int buttonColor = applyStateModifier(getColorOrDefault(checkbox.checked() ? ColorTypes.SECONDARY : ColorTypes.BUTTON, 0xFFFFFFFF), checkbox);
 
-        int borderColor = theme.getColorOrDefault(checkbox.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int borderColor = getColorOrDefault(checkbox.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
 
         float x1 = x+width;
         float y1 = y+height;
@@ -102,18 +100,15 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public void renderRadioButton(GuiGraphics graphics, float delta, RadioButtonDescriptor radioButton) {
-        // Get current theme. Needed for combined themes compatibility. Used for getting colors for buttons.
-        FWLTheme theme = FWL.peekTheme();
-
         float x = radioButton.x(), y = radioButton.y(), width = radioButton.width(), height = radioButton.height();
         // Border radius
         float rad = Math.min(radioButton.width(), radioButton.height()) / 2;
 
 
         // Getting button color by its type, and then getting gradient for it. Breeze theme doesn't check for namespace
-        int buttonColor = applyStateModifier(theme.getColorOrDefault(radioButton.active() ? ColorTypes.SECONDARY : ColorTypes.BUTTON, 0xFFFFFFFF), radioButton);
+        int buttonColor = applyStateModifier(getColorOrDefault(radioButton.active() ? ColorTypes.SECONDARY : ColorTypes.BUTTON, 0xFFFFFFFF), radioButton);
 
-        int borderColor = theme.getColorOrDefault(radioButton.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int borderColor = getColorOrDefault(radioButton.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
 
         float x1 = x+width;
         float y1 = y+height;
@@ -140,9 +135,6 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public void renderScrollBar(GuiGraphics graphics, float delta, ScrollBarDescriptor scrollBar) {
-        // Get current theme. Needed for combined themes compatibility. Used for getting colors for the scroll bar.
-        FWLTheme theme = FWL.peekTheme();
-
         float x = scrollBar.x(), y = scrollBar.y(), width = scrollBar.width(), height = scrollBar.height();
         float inX = x + 2, inY = y + 2, inWidth = width - 4, inHeight = height - 4;
         float rad = Math.min(3, Math.min(width, height) / 2);
@@ -170,9 +162,9 @@ public class FWLBreeze extends FWLTheme {
         float sc = getWindowScaling();
         float thickness = 3;
 
-        int bgColor = theme.getColorOrDefault(ColorTypes.PRIMARY, 0xFFFFFFFF);
+        int bgColor = getColorOrDefault(ColorTypes.PRIMARY, 0xFFFFFFFF);
         int barColor = applyStateModifier(getColorOrDefault(ColorTypes.SECONDARY, 0xFFFFFFFF), scrollBar);
-        int borderColor = theme.getColorOrDefault(scrollBar.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int borderColor = getColorOrDefault(scrollBar.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
 
         renderRoundBg(graphics, bgColor, x, y, x1, y1, rad, sc);
         renderRoundBg(graphics, new StaticColor(barColor), barX, barY, barX1, barY1, barRad, sc);
@@ -181,9 +173,6 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public void renderTextInput(GuiGraphics graphics, float delta, TextInputDescriptor input) {
-        // Get current theme. Needed for combined themes compatibility. Used for getting colors for the text input.
-        FWLTheme theme = FWL.peekTheme();
-
         float x = input.x(), y = input.y(), width = input.width(), height = input.height();
         float rad = Math.min(1, Math.min(width, height) / 2);
 
@@ -193,7 +182,7 @@ public class FWLBreeze extends FWLTheme {
         float sc = getWindowScaling();
 
         int bgColor = getColorOrDefault(ColorTypes.PRIMARY, 0xAAAAAAAA);
-        int borderColor = theme.getColorOrDefault(input.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int borderColor = getColorOrDefault(input.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
 
         float thickness = 2;
 
@@ -203,9 +192,6 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public void renderContextMenu(GuiGraphics graphics, float delta, ContextMenuDescriptor menu) {
-        // Get current theme. Needed for combined themes compatibility. Used for getting colors for the context menu.
-        FWLTheme theme = FWL.peekTheme();
-
         float x = menu.x(), y = menu.y(), width = menu.width(), height = menu.height();
         float rad = Math.min(1, Math.min(width, height) / 2);
 
@@ -215,7 +201,7 @@ public class FWLBreeze extends FWLTheme {
         float sc = getWindowScaling();
 
         int bgColor = getColorOrDefault(ColorTypes.PRIMARY, 0xAAAAAAAA);
-        int borderColor = theme.getColorOrDefault(ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int borderColor = getColorOrDefault(ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
 
         float thickness = 2;
 
@@ -229,8 +215,6 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public void renderBounds(GuiGraphics graphics, float delta, BoundsDescriptor bounds) {
-        FWLTheme theme = FWL.peekTheme();
-
         float x0 = bounds.x(), y0 = bounds.y(), width = bounds.width(), height = bounds.height();
         float rad = Math.min(2, Math.min(width, height) / 2);
 
@@ -239,7 +223,7 @@ public class FWLBreeze extends FWLTheme {
 
         float scaling = getWindowScaling();
         float thickness = 3;
-        int color = theme.getColorOrDefault(bounds.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int color = getColorOrDefault(bounds.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
         float lh = thickness / scaling; // Line height
 
         boolean topActive = bounds.isPresent(Side.TOP);
@@ -279,8 +263,6 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public void fillBounds(GuiGraphics graphics, float delta, BoundsDescriptor bounds) {
-        FWLTheme theme = FWL.peekTheme();
-
         Rectangle wBounds = bounds.widgetBounds();
 
         float x0 = bounds.x(), y0 = bounds.y(), width = bounds.width(), height = bounds.height();
@@ -290,7 +272,7 @@ public class FWLBreeze extends FWLTheme {
         float y1 = y0 + height;
 
         float scaling = getWindowScaling();
-        int bgColor = applyStateModifier(theme.getColorOrDefault(0xFFAAAAAA, bounds.widgetType()), bounds); // Getting border color. Breeze theme doesn't check for namespace
+        int bgColor = applyStateModifier(getColorOrDefault(0xFFAAAAAA, bounds.widgetType()), bounds); // Getting border color. Breeze theme doesn't check for namespace
         BreezeGradient color = getBreezeColorGradient(bgColor, wBounds.left(), wBounds.top(), wBounds.right(), wBounds.bottom());
 
         boolean topActive = bounds.isPresent(Side.TOP);
@@ -441,6 +423,12 @@ public class FWLBreeze extends FWLTheme {
         preset.addProperty("color.text.hint", textHintColor);
         preset.addProperty("color.text.disabled", disabledTextColor);
         return preset;
+    }
+
+    @Override
+    public Iterator<FWLWidget> getSettingsWidgets(float areaWidth, float areaHeight) {
+        List<FWLWidget> widgets = List.of();
+        return widgets.iterator();
     }
 
     private static class BreezeGradient implements ColorProvider {

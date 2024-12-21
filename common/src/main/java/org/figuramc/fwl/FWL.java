@@ -1,21 +1,36 @@
 package org.figuramc.fwl;
 
+import org.figuramc.fwl.gui.themes.FWLBreeze;
 import org.figuramc.fwl.gui.themes.FWLTheme;
+import org.figuramc.fwl.gui.themes.FWLThemeRepository;
 
 import java.util.Stack;
 
 public class FWL {
-    private static final Stack<FWLTheme> themeStack = new Stack<>();
+    private static FWL INSTANCE;
 
-    public static FWLTheme pushTheme(FWLTheme theme) {
-        return themeStack.push(theme);
+    private FWLTheme currentTheme = new FWLBreeze();
+    private final FWLThemeRepository themeRepository = new FWLThemeRepository();
+
+    protected final void init() {
+        if (INSTANCE != null) throw new IllegalStateException("FWL is already initialized");
+        INSTANCE = this;
     }
 
-    public static FWLTheme popTheme() {
-        return themeStack.pop();
+    public FWLThemeRepository themeRepository() {
+        return themeRepository;
     }
 
-    public static FWLTheme peekTheme() {
-        return themeStack.peek();
+    public static FWL fwl() {
+        return INSTANCE;
+    }
+
+    public <T extends FWLTheme> T setCurrentTheme(T theme) {
+        currentTheme = theme;
+        return theme;
+    }
+
+    public FWLTheme currentTheme() {
+        return currentTheme;
     }
 }

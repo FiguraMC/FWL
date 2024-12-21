@@ -9,6 +9,8 @@ import org.figuramc.fwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
 import org.lwjgl.glfw.GLFW;
 
+import static org.figuramc.fwl.FWL.fwl;
+
 public class RadioButton implements FWLWidget {
     private boolean keyboardClick;
     private int clicked = -1;
@@ -61,7 +63,7 @@ public class RadioButton implements FWLWidget {
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         desc.setHovered(desc.mouseIn(mouseX, mouseY));
         desc.setHoverPos(mouseX, mouseY);
-        FWLTheme theme = FWL.peekTheme();
+        FWLTheme theme = fwl().currentTheme();
         theme.renderRadioButton(graphics, delta, desc);
     }
 

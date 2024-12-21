@@ -8,6 +8,8 @@ import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
 import org.lwjgl.glfw.GLFW;
 
+import static org.figuramc.fwl.FWL.fwl;
+
 public abstract class Button implements FWLWidget {
     private boolean keyboardClick;
     private int clicked = -1;
@@ -49,7 +51,7 @@ public abstract class Button implements FWLWidget {
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         desc.setHovered(desc.mouseIn(mouseX, mouseY));
         desc.setHoverPos(mouseX, mouseY);
-        FWL.peekTheme().renderButton(graphics, delta, desc);
+        fwl().currentTheme().renderButton(graphics, delta, desc);
         renderButton(graphics, mouseX, mouseY, delta);
     }
 

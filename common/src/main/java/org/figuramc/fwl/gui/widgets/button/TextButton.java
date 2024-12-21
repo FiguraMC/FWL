@@ -9,6 +9,8 @@ import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonTypes;
 
+import static org.figuramc.fwl.FWL.fwl;
+
 public class TextButton extends Button implements NarratableEntry {
     private Component message;
     public TextButton(float x, float y, float width, float height, Component message) {
@@ -18,7 +20,7 @@ public class TextButton extends Button implements NarratableEntry {
 
     @Override
     public void renderButton(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-        FWLTheme theme = FWL.peekTheme();
+        FWLTheme theme = fwl().currentTheme();
         if (message != null) {
             float textWidth = theme.textWidth(graphics, message, 1);
             float x = desc.x() + (desc.width() / 2) - (textWidth / 2);

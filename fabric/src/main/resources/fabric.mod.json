@@ -7,6 +7,9 @@
   "description": "Figura Widgets Library",
 
   "entrypoints": {
+    "client": [
+      "org.figuramc.fwl.fabric.FWLFabric"
+    ],
     "modmenu": [
       "org.figuramc.fwl.fabric.compat.ModMenuCompat"
     ]

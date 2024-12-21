@@ -17,6 +17,7 @@ import org.figuramc.fwl.gui.widgets.scrollable.ScrollableArea;
 import org.figuramc.fwl.utils.Rectangle;
 
 import static net.minecraft.network.chat.Component.literal;
+import static org.figuramc.fwl.FWL.fwl;
 
 public class FWLConfigScreen extends FWLScreen {
     private FWLBreeze breeze = new FWLBreeze();
@@ -94,12 +95,5 @@ public class FWLConfigScreen extends FWLScreen {
         radio4.setEnabled(false);
 
         RadioButtonGroupHandler.createHandlersAndApply((i) -> System.out.printf("Current active radio button: %s%n", i), radio1, radio2);
-    }
-
-    @Override
-    public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-        FWL.pushTheme(breeze);
-        super.render(graphics, mouseX, mouseY, delta);
-        FWL.popTheme();
     }
 }

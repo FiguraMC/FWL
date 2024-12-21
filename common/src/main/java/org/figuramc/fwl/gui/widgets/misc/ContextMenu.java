@@ -17,6 +17,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.function.Function;
 
+import static org.figuramc.fwl.FWL.fwl;
 import static org.figuramc.fwl.utils.MathUtils.wrapModulo;
 
 public class ContextMenu implements FWLWidget {
@@ -88,7 +89,7 @@ public class ContextMenu implements FWLWidget {
 
     @Override
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-        FWLTheme theme = FWL.peekTheme();
+        FWLTheme theme = fwl().currentTheme();
 
         int lineHeight = entryHeight();
 

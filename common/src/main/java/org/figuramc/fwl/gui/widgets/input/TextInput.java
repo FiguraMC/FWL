@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import static org.figuramc.fwl.FWL.fwl;
 import static org.figuramc.fwl.utils.MathUtils.clamp;
 import static org.figuramc.fwl.utils.TextUtils.findCursorJumpAfter;
 import static org.figuramc.fwl.utils.TextUtils.findCursorJumpBefore;
@@ -101,7 +102,7 @@ public class TextInput implements FWLWidget {
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         Font font = Minecraft.getInstance().font;
 
-        FWLTheme theme = FWL.peekTheme();
+        FWLTheme theme = fwl().currentTheme();
 
         float x = desc.x(), y = desc.y(), width = desc.width(), height = desc.height();
 

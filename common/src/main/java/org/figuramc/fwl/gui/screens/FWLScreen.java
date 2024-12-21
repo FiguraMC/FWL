@@ -1,6 +1,7 @@
 package org.figuramc.fwl.gui.screens;
 
 import com.mojang.blaze3d.platform.Window;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
