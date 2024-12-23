@@ -14,6 +14,8 @@ import org.figuramc.fwl.gui.themes.FWLBreeze;
 import org.figuramc.fwl.gui.widgets.button.TextButton;
 import org.figuramc.fwl.gui.widgets.descriptors.Orientation;
 import org.figuramc.fwl.gui.widgets.scrollable.ScrollableArea;
+import org.figuramc.fwl.gui.widgets.tabs.SideViewSwitcher;
+import org.figuramc.fwl.gui.widgets.tabs.pages.SimplePage;
 import org.figuramc.fwl.utils.Rectangle;
 
 import static net.minecraft.network.chat.Component.literal;
@@ -27,6 +29,7 @@ public class FWLConfigScreen extends FWLScreen {
     private ScrollBar scrollBar1, scrollBar2;
     private ScrollableArea area1;
     private TextInput input1;
+    private SideViewSwitcher sideViewSwitcher;
 
     public FWLConfigScreen(Screen prevScreen) {
         super(Component.translatable("fwl.config_screen"), prevScreen);
@@ -87,6 +90,14 @@ public class FWLConfigScreen extends FWLScreen {
             TextButton button = new TextButton(area1.x() + bX, area1.y() + bY, 100, 20, literal("Button %s".formatted(i)));
             area1.addWidget(button);
         }
+
+        addWidget(sideViewSwitcher = new SideViewSwitcher(145, 70, 200, 100)
+                .addEntry(new SimplePage(literal("Page 1"), new TextButton(0, 0, 100, 20, literal("Button"))))
+                .addEntry(new SimplePage(literal("Page 2"), new Checkbox(0, 0, 10, 10, true)))
+                .addEntry(new SimplePage(literal("Page 3"), new TextInput(0, 0, 150, 20)))
+                .addEntry(new SimplePage(literal("Page 4"), null))
+                .setCollapsed(true)
+        );
 
         button2.setEnabled(false);
         checkbox3.setEnabled(false);

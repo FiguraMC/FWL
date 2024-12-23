@@ -6,13 +6,13 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
 public abstract class ClickableDescriptor implements FWLDescriptor {
-    private float x, y, width, height;
-    private final Vector2f clickPos = new Vector2f();
-    private final Vector2f hoverPos = new Vector2f();
-    private final BiTickCounter hovered = new BiTickCounter(Integer.MIN_VALUE);
-    private final BiTickCounter focused = new BiTickCounter(Integer.MIN_VALUE);
-    private final BiTickCounter clicked = new BiTickCounter(Integer.MIN_VALUE);
-    private final BiTickCounter disabled = new BiTickCounter(Integer.MIN_VALUE);
+    protected float x, y, width, height;
+    protected final Vector2f clickPos = new Vector2f();
+    protected final Vector2f hoverPos = new Vector2f();
+    protected final BiTickCounter hovered = new BiTickCounter(Integer.MIN_VALUE);
+    protected final BiTickCounter focused = new BiTickCounter(Integer.MIN_VALUE);
+    protected final BiTickCounter clicked = new BiTickCounter(Integer.MIN_VALUE);
+    protected final BiTickCounter disabled = new BiTickCounter(Integer.MIN_VALUE);
 
     public ClickableDescriptor(float x, float y, float width, float height) {
         this.x = x;

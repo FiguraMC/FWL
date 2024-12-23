@@ -134,4 +134,9 @@ public abstract class FWLScreen extends Screen implements FWLContainerWidget {
     public Rectangle boundaries() {
         return null;
     }
+
+    @Override
+    public void tick() {
+        FWLContainerWidget.super.tick();
+    }
 }

@@ -41,9 +41,30 @@ public class BoundsDescriptor extends ClickableDescriptor {
         return widgetType;
     }
 
-    private BoundsDescriptor setWidgetBounds(float x, float y, float width, float height) {
+    public BoundsDescriptor setWidgetBounds(float x, float y, float width, float height) {
         widgetBounds = new Rectangle(x, y, width, height);
         return this;
+    }
+
+    public BoundsDescriptor setWidgetBounds(Rectangle bounds) {
+        widgetBounds = bounds;
+        return this;
+    }
+
+    public BoundsDescriptor setBounds(float x, float y, float width, float height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        return setWidgetBounds(x, y, width, height);
+    }
+
+    public BoundsDescriptor setBounds(Rectangle bounds) {
+        this.x = bounds.x();
+        this.y = bounds.y();
+        this.width = bounds.width();
+        this.height = bounds.height();
+        return setWidgetBounds(bounds);
     }
 
     public Rectangle widgetBounds() {
@@ -68,7 +89,7 @@ public class BoundsDescriptor extends ClickableDescriptor {
         };
     }
 
-    public BoundsDescriptor setPresent(Side side, boolean state) {
+    public BoundsDescriptor setEnabled(Side side, boolean state) {
         switch (side) {
             case TOP -> top = state;
             case BOTTOM -> bottom = state;

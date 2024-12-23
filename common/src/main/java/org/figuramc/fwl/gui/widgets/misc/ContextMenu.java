@@ -4,13 +4,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.screens.FWLScreen;
 import org.figuramc.fwl.gui.themes.ColorTypes;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.misc.ContextMenuDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
+import org.figuramc.fwl.utils.RenderUtils;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -110,7 +110,7 @@ public class ContextMenu implements FWLWidget {
             int textColor;
             if (currentEntry == i || (mouseX >= x && mouseX <= x2 && mouseY >= textY && mouseY <= textY + lineHeight)) textColor = accentColor;
             else textColor = color;
-            FWLTheme.renderText(graphics, entry.text(), textX1, textY, 0, 1, textColor, false);
+            RenderUtils.renderText(graphics, entry.text(), textX1, textY, 0, 1, textColor, false);
         }
 
     }

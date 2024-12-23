@@ -12,7 +12,7 @@ import static org.figuramc.fwl.utils.ArrayListUtils.sortedAdd;
 
 public abstract class AbstractFWLContainerWidget implements FWLContainerWidget {
     private FWLWidget focused;
-
+    private boolean dragging;
 
     private final ArrayList<FWLWidget> interactableWidgets = new ArrayList<>();
     private final ArrayList<FWLWidget> renderableWidgets = new ArrayList<>();
@@ -53,6 +53,16 @@ public abstract class AbstractFWLContainerWidget implements FWLContainerWidget {
 
     public FWLWidget getFocused() {
         return focused;
+    }
+
+    @Override
+    public void setDragging(boolean dragging) {
+        this.dragging = dragging;
+    }
+
+    @Override
+    public boolean isDragging() {
+        return dragging;
     }
 
     public void addWidget(FWLWidget widget) {

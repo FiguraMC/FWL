@@ -4,18 +4,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.themes.ColorTypes;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.input.TextInputDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
+import org.figuramc.fwl.utils.RenderUtils;
 import org.figuramc.fwl.utils.Scissors;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 import static org.figuramc.fwl.FWL.fwl;
+import static org.figuramc.fwl.utils.RenderUtils.textWidth;
 import static org.figuramc.fwl.utils.MathUtils.clamp;
 import static org.figuramc.fwl.utils.TextUtils.findCursorJumpAfter;
 import static org.figuramc.fwl.utils.TextUtils.findCursorJumpBefore;
@@ -114,10 +115,10 @@ public class TextInput implements FWLWidget {
 
         Scissors.enableScissors(graphics, textX1, y, textWidth, height);
 
-        float selectionWidth = font.width(selectedText());
-        float selectionX1 = font.width(textBeforeSelection());
+        float selectionWidth = textWidth(selectedText(), 1);
+        float selectionX1 = textWidth(textBeforeSelection(), 1);
         float selectionX2 = selectionX1 + selectionWidth;
-        float contentWidth = font.width(value);
+        float contentWidth = textWidth(value, 1);
 
         float selectionX = startCursorPos > endCursorPos ? selectionX1 : selectionX2;
         float currentCursorX = (selectionX + textOffset);
@@ -133,30 +134,30 @@ public class TextInput implements FWLWidget {
         float cursorY1 = textYPos - 1;
         float cursorY2 = cursorY1 + font.lineHeight + 1;
 
-        boolean renderCursor = isFocused() && (Math.max(0, cursorBlinkCounter - 5) / 30 ) % 2 == 0;
+        boolean renderCursor = isFocused() && (Math.max(0, cursorBlinkCounter - 5) / 10) % 2 == 0;
 
         int cursorColor = 0xFFAAAAAA;
 
         if (startCursorPos == endCursorPos) {
-            if (renderCursor) FWLTheme.fill(graphics, cursorX1, cursorY1, cursorX1 + 1, cursorY2, 0, cursorColor);
+            if (renderCursor) RenderUtils.fill(graphics, cursorX1, cursorY1, cursorX1 + 1, cursorY2, 0, cursorColor);
         }
         else {
             int selectionColor = theme.getColor(ColorTypes.SECONDARY);
 
             float cursorX2 = cursorX1 + selectionWidth;
-            FWLTheme.fill(graphics, cursorX1, cursorY1, cursorX2, cursorY2, 0, selectionColor);
+            RenderUtils.fill(graphics, cursorX1, cursorY1, cursorX2, cursorY2, 0, selectionColor);
             if (renderCursor) {
                 float cursorX = startCursorPos > endCursorPos ? cursorX1 : cursorX2;
-                FWLTheme.fill(graphics, cursorX, cursorY1, cursorX + 1, cursorY2, 0, cursorColor);
+                RenderUtils.fill(graphics, cursorX, cursorY1, cursorX + 1, cursorY2, 0, cursorColor);
             }
         }
-        cursorBlinkCounter++;
-        FWLTheme.renderText(graphics, bakedText, textX1 + textOffset, textYPos, 0, 1, 0xFFFFFFFF, false);
+        RenderUtils.renderText(graphics, bakedText, textX1 + textOffset, textYPos, 0, 1, 0xFFFFFFFF, false);
         Scissors.disableScissors(graphics);
     }
 
     @Override
     public void tick() {
+        cursorBlinkCounter++;
     }
 
     @Override

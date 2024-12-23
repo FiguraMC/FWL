@@ -2,7 +2,6 @@ package org.figuramc.fwl.gui.themes;
 
 import com.google.gson.JsonObject;
 import net.minecraft.client.gui.GuiGraphics;
-import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.*;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
@@ -16,16 +15,14 @@ import org.figuramc.fwl.gui.widgets.descriptors.misc.SliderDescriptor;
 import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
 import org.figuramc.fwl.utils.ColorUtils;
 import org.figuramc.fwl.utils.Rectangle;
+import org.figuramc.fwl.utils.RenderUtils;
 import org.figuramc.fwl.utils.TreePathMap;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
-import java.util.List;
-
 import static net.minecraft.util.FastColor.ARGB32;
-import static org.figuramc.fwl.FWL.fwl;
 import static org.figuramc.fwl.utils.JsonUtils.intOrDefault;
 import static org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor.Side;
+import static org.figuramc.fwl.utils.RenderUtils.*;
 
 
 public class FWLBreeze extends FWLTheme {
@@ -167,7 +164,7 @@ public class FWLBreeze extends FWLTheme {
         int borderColor = getColorOrDefault(scrollBar.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
 
         renderRoundBg(graphics, bgColor, x, y, x1, y1, rad, sc);
-        renderRoundBg(graphics, new StaticColor(barColor), barX, barY, barX1, barY1, barRad, sc);
+        RenderUtils.renderRoundBg(graphics, new StaticColor(barColor), barX, barY, barX1, barY1, barRad, sc);
         renderRoundBorder(graphics, borderColor, x, y, x1, y1, rad, sc, thickness);
     }
 
@@ -272,7 +269,8 @@ public class FWLBreeze extends FWLTheme {
         float y1 = y0 + height;
 
         float scaling = getWindowScaling();
-        int bgColor = applyStateModifier(getColorOrDefault(0xFFAAAAAA, bounds.widgetType()), bounds); // Getting border color. Breeze theme doesn't check for namespace
+        int primary = getColorOrDefault(ColorTypes.PRIMARY, 0xFF777777);
+        int bgColor = applyStateModifier(getColorOrDefault(primary, bounds.widgetType()), bounds); // Getting border color. Breeze theme doesn't check for namespace
         BreezeGradient color = getBreezeColorGradient(bgColor, wBounds.left(), wBounds.top(), wBounds.right(), wBounds.bottom());
 
         boolean topActive = bounds.isPresent(Side.TOP);
@@ -322,7 +320,7 @@ public class FWLBreeze extends FWLTheme {
     }
 
     private void renderRoundBg(GuiGraphics graphics, int color, float x0, float y0, float x1, float y1, float rad, float scaling) {
-        renderRoundBg(graphics, getBreezeColorGradient(color, x0, y0, x1, y1), x0, y0, x1, y1, rad, scaling);
+        RenderUtils.renderRoundBg(graphics, getBreezeColorGradient(color, x0, y0, x1, y1), x0, y0, x1, y1, rad, scaling);
     }
 
     @Override
@@ -426,9 +424,8 @@ public class FWLBreeze extends FWLTheme {
     }
 
     @Override
-    public Iterator<FWLWidget> getSettingsWidgets(float areaWidth, float areaHeight) {
-        List<FWLWidget> widgets = List.of();
-        return widgets.iterator();
+    public FWLWidget settingsRootWidget(float areaWidth, float areaHeight) {
+        return null;
     }
 
     private static class BreezeGradient implements ColorProvider {

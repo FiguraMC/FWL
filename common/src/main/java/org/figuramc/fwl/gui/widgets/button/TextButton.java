@@ -5,11 +5,13 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonTypes;
+import org.figuramc.fwl.utils.RenderUtils;
 
 import static org.figuramc.fwl.FWL.fwl;
+import static org.figuramc.fwl.utils.RenderUtils.textHeight;
+import static org.figuramc.fwl.utils.RenderUtils.textWidth;
 
 public class TextButton extends Button implements NarratableEntry {
     private Component message;
@@ -22,11 +24,11 @@ public class TextButton extends Button implements NarratableEntry {
     public void renderButton(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         FWLTheme theme = fwl().currentTheme();
         if (message != null) {
-            float textWidth = theme.textWidth(graphics, message, 1);
+            float textWidth = textWidth(message, 1);
             float x = desc.x() + (desc.width() / 2) - (textWidth / 2);
-            float y = desc.y() + (desc.height() / 2) - (theme.textHeight(graphics, message, 1, desc.width() - 2) / 2);
+            float y = desc.y() + (desc.height() / 2) - (textHeight(message, 1, desc.width() - 2) / 2);
             int color = getTextColor(theme);
-            FWLTheme.renderText(graphics, message, x, y, 0, 1, color, false);
+            RenderUtils.renderText(graphics, message, x, y, 0, 1, color, false);
         }
     }
 

@@ -15,8 +15,6 @@ import java.util.List;
 public class ScrollableArea extends ScrollableWidget {
     private float x, y, width, height;
     private float offsetX, offsetY;
-    private FWLWidget focused;
-    private boolean dragging;
 
     public ScrollableArea(float x, float y, float width, float height) {
         this.x = x;
@@ -55,16 +53,6 @@ public class ScrollableArea extends ScrollableWidget {
     public ScrollableArea setOffsetY(float offsetY) {
         this.offsetY = offsetY;
         return this;
-    }
-
-    @Override
-    public boolean isDragging() {
-        return dragging;
-    }
-
-    @Override
-    public void setDragging(boolean dragging) {
-        this.dragging = dragging;
     }
 
     @Override

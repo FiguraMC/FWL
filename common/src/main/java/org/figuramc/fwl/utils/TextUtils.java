@@ -1,5 +1,7 @@
 package org.figuramc.fwl.utils;
 
+import net.minecraft.util.FormattedCharSequence;
+
 public class TextUtils {
     public static int findCursorJumpAfter(String str, int ind) {
         int len = str.length();
@@ -21,5 +23,15 @@ public class TextUtils {
             if (Character.isWhitespace(c)) return i;
         }
         return i;
+    }
+
+    public static FormattedCharSequence substr(FormattedCharSequence sequence, int beginIndex, int endIndex) {
+        return (sink) -> sequence.accept((index, style, codepoint) -> {
+            if (index >= beginIndex) {
+                if (index < endIndex) return sink.accept(index, style, codepoint);
+                else return false;
+            }
+            else return true;
+        });
     }
 }
