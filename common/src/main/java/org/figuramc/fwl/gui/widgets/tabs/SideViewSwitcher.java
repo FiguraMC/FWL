@@ -19,9 +19,7 @@ import static org.figuramc.fwl.utils.TextUtils.substr;
 
 
 public class SideViewSwitcher extends ViewSwitcher {
-    private int clickedEntry;
     private boolean collapsed;
-    private int textScrollTick;
     private boolean clicked;
 
     private float entryHeight = 12;
@@ -47,57 +45,70 @@ public class SideViewSwitcher extends ViewSwitcher {
         float x = x(), y = y(), height = height();
         float entryWidth = entryWidth(), entryHeight = entryHeight();
 
-        theme.fillBounds(graphics, delta, sideBarBounds);
-        theme.fillBounds(graphics, delta, pageBounds);
+        renderBackground(theme, graphics, delta);
 
         Scissors.enableScissors(graphics, x, y, entryWidth, height);
         for (int i = 0; i < entries.size(); i++) {
+
             float entryY = y + (entryHeight * i) + 8;
             PageEntry entry = pages.get(i);
             BoundsDescriptor desc = entries.get(i);
-            desc.setEnabled(Side.TOP, i == 0);
             float yAddition = i == 0 ? 1 : 0;
             Rectangle bounds = new Rectangle(x, entryY - yAddition, entryWidth, entryHeight + yAddition);
-            desc.setBounds(bounds);
             boolean hovered = bounds.pointIn(mouseX, mouseY);
+
+            desc.setEnabled(Side.TOP, i == 0);
+            desc.setBounds(bounds);
             desc.setHovered(hovered);
             desc.setHoverPos(mouseX, mouseY);
 
             theme.fillBounds(graphics, delta, desc);
             theme.renderBounds(graphics, delta, desc);
 
-            float iconX = x + 2, iconY = entryY + 1, iconSize = entryHeight - 4;
-
-            if (collapsed) {
-                renderIconOrFirstLetter(graphics, entry, iconX, iconY, iconSize, iconSize);
-            }
-            else {
-                boolean rendered = entry.renderIcon(graphics, iconX, iconY, iconSize, iconSize);
-                Component text = entry.getTitle();
-                float textScale = Math.min((entryHeight - 2) / lineHeight(), 1);
-                float textHeight = lineHeight() * textScale;
-                float textX = rendered ? iconX + iconSize + 1 : iconX;
-                float textY = entryY + (entryHeight - textHeight) / 2;
-                float maxTextWidth = (rendered ? entryWidth - (iconSize + 1) : entryWidth) - 4;
-                float textWidth = textWidth(text, textScale);
-                float widthDiff = textWidth - maxTextWidth;
-
-                Scissors.enableScissors(graphics, textX, entryY, maxTextWidth, entryHeight);
-                if (widthDiff <= 0 || !hovered) renderText(graphics, text, textX, textY, 0, textScale, 0xFFFFFFFF, false);
-                else {
-                    float scrollTicks = widthDiff / 2f;
-                    float scrollProgress = scrollProgress(scrollTicks + 15, scrollTicks, desc.hoveredTicks() + delta);
-                    float textXOffset = widthDiff * scrollProgress;
-                    renderText(graphics, text, textX - textXOffset, textY, 0, textScale, 0xFFFFFFFF, false);
-                }
-                Scissors.disableScissors(graphics);
-            }
+            renderIconAndText(graphics, entry, delta, entryY, entryWidth, hovered, desc.hoveredTicks());
         }
         Scissors.disableScissors(graphics);
-        theme.renderBounds(graphics, delta, sideBarBounds);
-        theme.renderBounds(graphics, delta, pageBounds);
+        renderBounds(theme, graphics, delta);
 
         super.render(graphics, mouseX, mouseY, delta);
+    }
+
+    private void renderBackground(FWLTheme theme, GuiGraphics graphics, float delta) {
+        theme.fillBounds(graphics, delta, sideBarBounds);
+        theme.fillBounds(graphics, delta, pageBounds);
+    }
+
+    private void renderBounds(FWLTheme theme, GuiGraphics graphics, float delta) {
+        theme.renderBounds(graphics, delta, sideBarBounds);
+        theme.renderBounds(graphics, delta, pageBounds);
+    }
+
+    private void renderIconAndText(GuiGraphics graphics, PageEntry entry, float delta, float entryY, float entryWidth, boolean hovered, int hoveredTicks) {
+        float iconX = x + 2, iconY = entryY + 1, iconSize = entryHeight - 4;
+        if (collapsed) {
+            renderIconOrFirstLetter(graphics, entry, iconX, iconY, iconSize, iconSize);
+        }
+        else {
+            boolean rendered = entry.renderIcon(graphics, iconX, iconY, iconSize, iconSize);
+            Component text = entry.getTitle();
+            float textScale = Math.min((entryHeight - 2) / lineHeight(), 1);
+            float textHeight = lineHeight() * textScale;
+            float textX = rendered ? iconX + iconSize + 1 : iconX;
+            float textY = entryY + (entryHeight - textHeight) / 2;
+            float maxTextWidth = (rendered ? entryWidth - (iconSize + 1) : entryWidth) - 4;
+            float textWidth = textWidth(text, textScale);
+            float widthDiff = textWidth - maxTextWidth;
+
+            Scissors.enableScissors(graphics, textX, entryY, maxTextWidth, entryHeight);
+            if (widthDiff <= 0 || !hovered) renderText(graphics, text, textX, textY, 0, textScale, 0xFFFFFFFF, false);
+            else {
+                float scrollTicks = widthDiff / 2f;
+                float scrollProgress = scrollProgress(scrollTicks + 15, scrollTicks, hoveredTicks + delta);
+                float textXOffset = widthDiff * scrollProgress;
+                renderText(graphics, text, textX - textXOffset, textY, 0, textScale, 0xFFFFFFFF, false);
+            }
+            Scissors.disableScissors(graphics);
+        }
     }
 
     private void renderIconOrFirstLetter(GuiGraphics graphics, PageEntry entry, float x, float y, float width, float height) {
