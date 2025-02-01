@@ -14,16 +14,21 @@ import org.figuramc.fwl.utils.Scissors;
 import java.util.ArrayList;
 
 import static org.figuramc.fwl.FWL.fwl;
+import static org.figuramc.fwl.utils.MathUtils.clamp;
 import static org.figuramc.fwl.utils.RenderUtils.*;
 import static org.figuramc.fwl.utils.TextUtils.substr;
 
 
 public class SideViewSwitcher extends ViewSwitcher {
+
     private boolean collapsed;
     private boolean clicked;
 
     private float entryHeight = 12;
     private float expandedWidth = 50;
+
+    private float scrollStep = 10;
+    private float tabListScroll;
 
     private final BoundsDescriptor pageBounds;
     private final BoundsDescriptor sideBarBounds;
@@ -47,10 +52,9 @@ public class SideViewSwitcher extends ViewSwitcher {
 
         renderBackground(theme, graphics, delta);
 
-        Scissors.enableScissors(graphics, x, y, entryWidth, height);
+        Scissors.enableScissors(graphics, x, y + 7, entryWidth, height - 7);
         for (int i = 0; i < entries.size(); i++) {
-
-            float entryY = y + (entryHeight * i) + 8;
+            float entryY = y + (entryHeight * i) + 8 - tabListScroll;
             PageEntry entry = pages.get(i);
             BoundsDescriptor desc = entries.get(i);
             float yAddition = i == 0 ? 1 : 0;
@@ -133,14 +137,18 @@ public class SideViewSwitcher extends ViewSwitcher {
 
     private int getEntryByY(float mouseY) {
         float minY = y + 8;
-        float relative = mouseY - minY;
+        float relative = mouseY - minY + tabListScroll;
         return (int)(relative / entryHeight());
     }
 
     private int getEntryByY(double mouseY) {
         float minY = y + 8;
-        double relative = mouseY - minY;
+        double relative = mouseY - minY + tabListScroll;
         return (int)(relative / entryHeight());
+    }
+
+    private float getMaxScroll() {
+        return Math.max((entryHeight * entries.size()) - (sideBarBounds.height() - 8), 0);
     }
 
     @Override
@@ -176,6 +184,15 @@ public class SideViewSwitcher extends ViewSwitcher {
             return true;
         }
         return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        if (sideBarBounds.boundaries().pointIn(mouseX, mouseY)) {
+            tabListScroll = (float) clamp(tabListScroll - (amount * scrollStep), 0, getMaxScroll());
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, amount);
     }
 
     @Override
@@ -230,6 +247,15 @@ public class SideViewSwitcher extends ViewSwitcher {
     public SideViewSwitcher setHeight(float height) {
         super.setHeight(height);
         updateBounds();
+        return this;
+    }
+
+    public float scrollStep() {
+        return scrollStep;
+    }
+
+    public SideViewSwitcher setScrollStep(float scrollStep) {
+        this.scrollStep = scrollStep;
         return this;
     }
 

@@ -133,7 +133,7 @@ public abstract class ViewSwitcher implements FWLWidget {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (mouseInPage(mouseX, mouseY)) {
-            page.mouseClicked(mouseX - pageXOffset() , mouseY - pageYOffset(), button);
+            if (page != null) page.mouseClicked(mouseX - pageXOffset() , mouseY - pageYOffset(), button);
             return true;
         }
         return false;
@@ -142,7 +142,7 @@ public abstract class ViewSwitcher implements FWLWidget {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (mouseInPage(mouseX, mouseY)) {
-            page.mouseReleased(mouseX - pageXOffset() , mouseY - pageYOffset(), button);
+            if (page != null) page.mouseReleased(mouseX - pageXOffset() , mouseY - pageYOffset(), button);
             return true;
         }
         return false;
@@ -151,7 +151,7 @@ public abstract class ViewSwitcher implements FWLWidget {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         if (mouseInPage(mouseX, mouseY)) {
-            page.mouseDragged(mouseX - pageXOffset() , mouseY - pageYOffset(), button, deltaX, deltaY);
+            if (page != null) page.mouseDragged(mouseX - pageXOffset() , mouseY - pageYOffset(), button, deltaX, deltaY);
             return true;
         }
         return false;
@@ -160,7 +160,7 @@ public abstract class ViewSwitcher implements FWLWidget {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         if (mouseInPage(mouseX, mouseY)) {
-            page.mouseScrolled(mouseX - pageXOffset() , mouseY - pageYOffset(), amount);
+            if (page != null) page.mouseScrolled(mouseX - pageXOffset() , mouseY - pageYOffset(), amount);
             return true;
         }
         return false;
