@@ -1,15 +1,14 @@
 package org.figuramc.fwl.gui.screens;
 
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.figuramc.fwl.gui.widgets.input.TextInput;
+import org.figuramc.fwl.gui.widgets.input.handlers.IntegerInputHandler;
 import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
 import org.figuramc.fwl.gui.widgets.scrollable.ScrollBar;
 import org.figuramc.fwl.gui.widgets.button.Checkbox;
 import org.figuramc.fwl.gui.widgets.button.RadioButton;
 import org.figuramc.fwl.gui.widgets.button.radio_button.RadioButtonGroupHandler;
-import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.themes.FWLBreeze;
 import org.figuramc.fwl.gui.widgets.button.TextButton;
 import org.figuramc.fwl.gui.widgets.descriptors.Orientation;
@@ -19,7 +18,6 @@ import org.figuramc.fwl.gui.widgets.tabs.pages.SimplePage;
 import org.figuramc.fwl.utils.Rectangle;
 
 import static net.minecraft.network.chat.Component.literal;
-import static org.figuramc.fwl.FWL.fwl;
 
 public class FWLConfigScreen extends FWLScreen {
     private FWLBreeze breeze = new FWLBreeze();
@@ -29,6 +27,7 @@ public class FWLConfigScreen extends FWLScreen {
     private ScrollBar scrollBar1, scrollBar2;
     private ScrollableArea area1;
     private TextInput input1;
+    private IntegerInputHandler inputHandler1;
     private SideViewSwitcher sideViewSwitcher;
 
     public FWLConfigScreen(Screen prevScreen) {
@@ -76,7 +75,11 @@ public class FWLConfigScreen extends FWLScreen {
                     setFocused(menu);
                 }
         ));
-        addWidget(input1 = new TextInput(225, 40, 125, 20, "This is a very long text that is for sure won't wit the text input width because this is done intentionally in order to test this thing"));
+        addWidget(
+                input1 = new TextInput(225, 40, 125, 20, "128")
+                        .setChangeCallback(inputHandler1 = new IntegerInputHandler().setValueConsumer(System.out::println))
+                        .setTextBaker(inputHandler1)
+        );
 
         addWidget(area1 = new ScrollableArea(10, 80, 100, 100));
         addWidget(scrollBar1 = new ScrollBar(110, 80, 10, 100, 100, 200, 0, Orientation.VERTICAL).setScrollStep(10));

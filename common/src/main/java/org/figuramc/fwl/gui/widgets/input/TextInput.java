@@ -30,6 +30,9 @@ public class TextInput implements FWLWidget {
     protected Component bakedText;
     private boolean immutable;
 
+    private Callback changeCallback;
+    private TextBaker textBaker;
+
     private int cursorBlinkCounter = 0;
     private float textOffset = 0;
 
@@ -43,8 +46,10 @@ public class TextInput implements FWLWidget {
     }
 
     public TextInput setValue(String value) {
+        boolean valueIsDifferent = !value.equals(this.value);
         this.value = Objects.requireNonNull(value, "Initial input value has to be not null");
-        bakedText = Component.literal(value);
+        if (changeCallback != null && valueIsDifferent) changeCallback.onValueChange(this.value);
+        bakedText = textBaker != null ? textBaker.getBakedText(value) : Component.literal(value);
         return this;
     }
 
@@ -96,6 +101,24 @@ public class TextInput implements FWLWidget {
         int dst = clamp(pos, 0, value.length());
         startCursorPos = endCursorPos = dst;
         cursorBlinkCounter = 0;
+        return this;
+    }
+
+    public Callback valueChangeCallback() {
+        return changeCallback;
+    }
+
+    public TextInput setChangeCallback(Callback changeCallback) {
+        this.changeCallback = changeCallback;
+        return this;
+    }
+
+    public TextBaker textBaker() {
+        return textBaker;
+    }
+
+    public TextInput setTextBaker(TextBaker textBaker) {
+        this.textBaker = textBaker;
         return this;
     }
 
@@ -153,6 +176,9 @@ public class TextInput implements FWLWidget {
         }
         RenderUtils.renderText(graphics, bakedText, textX1 + textOffset, textYPos, 0, 1, 0xFFFFFFFF, false);
         Scissors.disableScissors(graphics);
+        if (desc.boundaries().pointIn(mouseX, mouseY)) {
+            RenderUtils.renderTextTooltip(graphics, bakedText.getVisualOrderText(), textX1 + textOffset, textYPos, 1, mouseX, mouseY);
+        }
     }
 
     @Override
@@ -297,5 +323,13 @@ public class TextInput implements FWLWidget {
     private String textAfterSelection() {
         int cursor = Math.max(startCursorPos, endCursorPos);
         return value.substring(cursor);
+    }
+
+    public interface Callback {
+        void onValueChange(String value);
+    }
+
+    public interface TextBaker {
+        Component getBakedText(String value);
     }
 }

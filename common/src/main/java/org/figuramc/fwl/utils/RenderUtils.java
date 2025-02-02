@@ -7,7 +7,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.FormattedCharSequence;
 import org.joml.Matrix4f;
@@ -245,6 +246,10 @@ public class RenderUtils {
         return (float) Minecraft.getInstance().getWindow().getGuiScale();
     }
 
+    public static Font getFont() {
+        return Minecraft.getInstance().font;
+    }
+
     public static void renderRoundBorder(GuiGraphics graphics, int color, float x0, float y0, float x1, float y1, float rad, float scaling, float thickness) {
         renderRoundBorder(graphics, new StaticColor(color), x0, y0, x1, y1, rad, scaling, thickness);
     }
@@ -270,6 +275,22 @@ public class RenderUtils {
         renderArcFilled(graphics, x1 - rad, y0, 0, rad, scaling, ArcOrient.POSITIVE, ArcOrient.POSITIVE, color); // Top-right corner
         renderArcFilled(graphics, x0 + rad, y1, 0, rad, scaling, ArcOrient.NEGATIVE, ArcOrient.NEGATIVE, color); // Bottom-left corner
         renderArcFilled(graphics, x1 - rad, y1, 0, rad, scaling, ArcOrient.POSITIVE, ArcOrient.NEGATIVE, color); // Bottom-right corner
+    }
+
+    public static boolean renderTextTooltip(GuiGraphics graphics, FormattedCharSequence text, float textX, float textY, float textScale, float mouseX, float mouseY) {
+        final float TEXT_OFFSET = 4;
+        Style hoveredStyle = TextUtils.getHoveredStyle(getFont(), text, textX, textY, textScale, mouseX, mouseY);
+        HoverEvent event = hoveredStyle.getHoverEvent();
+        FormattedCharSequence tooltip = null;
+        if (event != null) {
+            Object value = event.getValue(event.getAction());
+            if (value instanceof Component component) tooltip = component.getVisualOrderText();
+        }
+        if (tooltip != null) {
+            renderText(graphics, tooltip, mouseX + TEXT_OFFSET, mouseY + TEXT_OFFSET, 0, 1f, 0xFFFFFFFF, false);
+            return true;
+        }
+        return false;
     }
 
     public enum ArcOrient {
