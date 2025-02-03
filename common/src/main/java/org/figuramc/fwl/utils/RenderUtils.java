@@ -301,15 +301,23 @@ public class RenderUtils {
     }
 
     public static void renderTooltip(GuiGraphics graphics, FormattedCharSequence tooltip, float x, float y, float textScale) {
+        renderTooltip(graphics, tooltip, x, y, 1, textScale);
+    }
+
+    public static void renderTooltip(GuiGraphics graphics, FormattedCharSequence tooltip, float x, float y, float z, float textScale) {
         final float TEXT_OFFSET = 4;
         FWLTheme theme = FWL.fwl().currentTheme();
         float textWidth = textWidth(tooltip, 1);
         float textHeight = textHeight(tooltip, 1, Integer.MAX_VALUE);
         BoundsDescriptor desc = new BoundsDescriptor(x, y, textWidth + (TEXT_OFFSET * 2), textHeight + (TEXT_OFFSET * 2));
         desc.setWidgetType("tooltip");
+        PoseStack stack = graphics.pose();
+        stack.pushPose();
+        stack.translate(0, 0, z);
         theme.fillBounds(graphics, 0, desc);
         theme.renderBounds(graphics, 0, desc);
         renderText(graphics, tooltip, x + TEXT_OFFSET, y + TEXT_OFFSET, 0, textScale, 0xFFFFFFFF, false);
+        stack.popPose();
     }
 
     public enum ArcOrient {

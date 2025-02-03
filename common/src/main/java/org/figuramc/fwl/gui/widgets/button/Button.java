@@ -2,10 +2,14 @@ package org.figuramc.fwl.gui.widgets.button;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.network.chat.Component;
 import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.gui.widgets.descriptors.ClickableDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
+import org.figuramc.fwl.utils.RenderUtils;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import static org.figuramc.fwl.FWL.fwl;
@@ -15,6 +19,8 @@ public abstract class Button implements FWLWidget {
     private int clicked = -1;
     protected final ButtonDescriptor desc;
     private OnClick callback;
+
+    private @Nullable Component tooltip;
 
     public Button(float x, float y, float width, float height) {
         desc = new ButtonDescriptor(x, y, width, height);
@@ -47,12 +53,59 @@ public abstract class Button implements FWLWidget {
         return this;
     }
 
+    public @Nullable Component tooltip() {
+        return tooltip;
+    }
+
+    public Button setTooltip(@Nullable Component tooltip) {
+        this.tooltip = tooltip;
+        return this;
+    }
+
+    public float x() {
+        return desc.x();
+    }
+
+    public Button setX(float x) {
+        desc.setX(x);
+        return this;
+    }
+
+    public float y() {
+        return desc.y();
+    }
+
+    public Button setY(float y) {
+        desc.setY(y);
+        return this;
+    }
+
+    public float width() {
+        return desc.width();
+    }
+
+    public Button setWidth(float width) {
+        desc.setWidth(width);
+        return this;
+    }
+
+    public float height() {
+        return desc.height();
+    }
+
+    public Button setHeight(float height) {
+        desc.setHeight(height);
+        return this;
+    }
+
     @Override
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-        desc.setHovered(desc.mouseIn(mouseX, mouseY));
-        desc.setHoverPos(mouseX, mouseY);
+        boolean hovered = desc.mouseIn(mouseX, mouseY);
+        desc.setHovered(hovered);
+        if (hovered) desc.setHoverPos(mouseX, mouseY);
         fwl().currentTheme().renderButton(graphics, delta, desc);
         renderButton(graphics, mouseX, mouseY, delta);
+        if (tooltip != null && hovered) RenderUtils.renderTooltip(graphics, tooltip.getVisualOrderText(), mouseX, mouseY, 1);
     }
 
     public abstract void renderButton(GuiGraphics graphics, float mouseX, float mouseY, float delta);

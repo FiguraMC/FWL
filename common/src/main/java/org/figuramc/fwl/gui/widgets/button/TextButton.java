@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonTypes;
 import org.figuramc.fwl.utils.RenderUtils;
+import org.jetbrains.annotations.Nullable;
 
 import static org.figuramc.fwl.FWL.fwl;
 import static org.figuramc.fwl.utils.RenderUtils.textHeight;
@@ -63,6 +64,36 @@ public class TextButton extends Button implements NarratableEntry {
 
     public TextButton setMessage(Component message) {
         this.message = message;
+        return this;
+    }
+
+    @Override
+    public TextButton setTooltip(@Nullable Component tooltip) {
+        super.setTooltip(tooltip);
+        return this;
+    }
+
+    @Override
+    public TextButton setX(float x) {
+        super.setX(x);
+        return this;
+    }
+
+    @Override
+    public TextButton setY(float y) {
+        super.setY(y);
+        return this;
+    }
+
+    @Override
+    public TextButton setWidth(float width) {
+        super.setWidth(width);
+        return this;
+    }
+
+    @Override
+    public TextButton setHeight(float height) {
+        super.setHeight(height);
         return this;
     }
 

@@ -18,7 +18,7 @@ public class Slider implements FWLWidget {
     private final SliderDescriptor desc;
 
     private Consumer<Float> callback;
-    private boolean update = true;
+    private boolean useCallback = true;
     private boolean updateOnMove = false;
 
     public Slider(float x, float y, float width, float height, float progress, @Nullable Orientation orientation) {
@@ -104,7 +104,7 @@ public class Slider implements FWLWidget {
 
     public Slider setProgress(float progress) {
         desc.setProgress(progress);
-        if (callback != null && update) callback.accept(progress);
+        if (callback != null && useCallback) callback.accept(progress);
         return this;
     }
 
@@ -121,12 +121,12 @@ public class Slider implements FWLWidget {
         return this;
     }
 
-    public boolean update() {
-        return update;
+    public boolean isUsingCallback() {
+        return useCallback;
     }
 
-    public Slider setUpdate(boolean update) {
-        this.update = update;
+    public Slider setUseCallback(boolean update) {
+        this.useCallback = update;
         return this;
     }
 

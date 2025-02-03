@@ -1,6 +1,12 @@
 {
   "fwl.config.theme_settings": "Theme Settings",
   "fwl.config.theme_settings.tooltip": "Settings of currently selected theme",
+  "fwl.config.theme_settings.reset": "Reset",
+  "fwl.config.theme_settings.reset.tooltip": "Resets current theme config to default one",
+  "fwl.config.theme_settings.cancel": "Cancel",
+  "fwl.config.theme_settings.cancel.tooltip": "Cancels changes made during current configuration session",
+  "fwl.config.theme_settings.save": "Save",
+  "fwl.config.theme_settings.save.tooltip": "Saves current config",
 
   "fwl.breeze.color.primary": "Primary Color",
   "fwl.breeze.color.accent": "Accent Color",

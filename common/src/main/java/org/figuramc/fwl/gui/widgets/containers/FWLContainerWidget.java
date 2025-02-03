@@ -3,6 +3,7 @@ package org.figuramc.fwl.gui.widgets.containers;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.gui.widgets.Update;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
@@ -10,7 +11,7 @@ import org.joml.Vector2d;
 import java.util.Iterator;
 import java.util.List;
 
-public interface FWLContainerWidget extends FWLWidget, ContainerEventHandler {
+public interface FWLContainerWidget extends FWLWidget, ContainerEventHandler, Update {
     void addWidget(FWLWidget widget);
     void removeWidget(FWLWidget widget);
 
@@ -146,6 +147,14 @@ public interface FWLContainerWidget extends FWLWidget, ContainerEventHandler {
         lock();
         Iterator<FWLWidget> widgets = interactableWidgets();
         while (widgets.hasNext()) widgets.next().tick();
+        unlock();
+    }
+
+    @Override
+    default void update() {
+        lock();
+        Iterator<FWLWidget> widgets = interactableWidgets();
+        while (widgets.hasNext()) if (widgets.next() instanceof Update upd) upd.update();
         unlock();
     }
 }

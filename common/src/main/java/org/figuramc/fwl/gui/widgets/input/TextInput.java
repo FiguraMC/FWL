@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import org.figuramc.fwl.gui.themes.ColorTypes;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.gui.widgets.Update;
 import org.figuramc.fwl.gui.widgets.descriptors.input.TextInputDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.RenderUtils;
@@ -14,6 +15,7 @@ import org.figuramc.fwl.utils.Scissors;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static org.figuramc.fwl.FWL.fwl;
 import static org.figuramc.fwl.utils.RenderUtils.textWidth;
@@ -22,7 +24,7 @@ import static org.figuramc.fwl.utils.TextUtils.findCursorJumpAfter;
 import static org.figuramc.fwl.utils.TextUtils.findCursorJumpBefore;
 import static org.lwjgl.glfw.GLFW.*;
 
-public class TextInput implements FWLWidget {
+public class TextInput implements FWLWidget, Update {
     private final TextInputDescriptor desc;
 
     private int startCursorPos, endCursorPos;
@@ -32,7 +34,8 @@ public class TextInput implements FWLWidget {
 
     private Callback changeCallback;
     private TextBaker textBaker;
-    private boolean update = true;
+    private Consumer<TextInput> updater;
+    private boolean useCallback = true;
 
     private int cursorBlinkCounter = 0;
     private float textOffset = 0;
@@ -49,7 +52,7 @@ public class TextInput implements FWLWidget {
     public TextInput setValue(String value) {
         boolean valueIsDifferent = !value.equals(this.value);
         this.value = Objects.requireNonNull(value, "Initial input value has to be not null");
-        if (changeCallback != null && valueIsDifferent && update) changeCallback.onValueChange(this.value);
+        if (changeCallback != null && valueIsDifferent && useCallback) changeCallback.onValueChange(this.value);
         bakedText = textBaker != null ? textBaker.getBakedText(value) : Component.literal(value);
         return this;
     }
@@ -123,12 +126,26 @@ public class TextInput implements FWLWidget {
         return this;
     }
 
-    public boolean update() {
-        return update;
+    public boolean useCallback() {
+        return useCallback;
     }
 
-    public TextInput setUpdate(boolean update) {
-        this.update = update;
+    public TextInput setUseCallback(boolean useCallback) {
+        this.useCallback = useCallback;
+        return this;
+    }
+
+    @Override
+    public void update() {
+        if (updater != null) updater.accept(this);
+    }
+
+    public Consumer<TextInput> updater() {
+        return updater;
+    }
+
+    public TextInput setUpdater(Consumer<TextInput> updater) {
+        this.updater = updater;
         return this;
     }
 
