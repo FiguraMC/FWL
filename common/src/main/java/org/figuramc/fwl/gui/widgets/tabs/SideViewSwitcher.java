@@ -9,6 +9,7 @@ import org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor.Side;
 import org.figuramc.fwl.gui.widgets.descriptors.ClickableDescriptor;
 import org.figuramc.fwl.gui.widgets.tabs.pages.PageEntry;
 import org.figuramc.fwl.utils.Rectangle;
+import org.figuramc.fwl.utils.RenderUtils;
 import org.figuramc.fwl.utils.Scissors;
 
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class SideViewSwitcher extends ViewSwitcher {
         renderBackground(theme, graphics, delta);
 
         Scissors.enableScissors(graphics, x, y + 7, entryWidth, height - 7);
+        Component tooltip = null;
         for (int i = 0; i < entries.size(); i++) {
             float entryY = y + (entryHeight * i) + 8 - tabListScroll;
             PageEntry entry = pages.get(i);
@@ -70,11 +72,16 @@ public class SideViewSwitcher extends ViewSwitcher {
             theme.renderBounds(graphics, delta, desc);
 
             renderIconAndText(graphics, entry, delta, entryY, entryWidth, hovered, desc.hoveredTicks());
+            if (hovered) {
+                tooltip = entry.getTooltip();
+            }
         }
         Scissors.disableScissors(graphics);
         renderBounds(theme, graphics, delta);
 
         super.render(graphics, mouseX, mouseY, delta);
+
+        if (tooltip != null) RenderUtils.renderTooltip(graphics, tooltip.getVisualOrderText(), mouseX, mouseY, 1);
     }
 
     private void renderBackground(FWLTheme theme, GuiGraphics graphics, float delta) {

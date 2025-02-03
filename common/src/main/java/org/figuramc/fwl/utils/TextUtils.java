@@ -5,8 +5,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TextUtils {
@@ -67,5 +67,14 @@ public class TextUtils {
             return true;
         });
         return returnStyle.get();
+    }
+
+    public static int lines(FormattedCharSequence text) {
+        AtomicInteger lines = new AtomicInteger(1);
+        text.accept((index, style, codepoint) -> {
+            if (codepoint == '\n') lines.incrementAndGet();
+            return true;
+        });
+        return lines.get();
     }
 }

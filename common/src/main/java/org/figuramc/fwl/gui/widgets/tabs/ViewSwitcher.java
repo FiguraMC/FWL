@@ -127,7 +127,7 @@ public abstract class ViewSwitcher implements FWLWidget {
 
     @Override
     public void mouseMoved(double mouseX, double mouseY) {
-        if (page != null) page.mouseMoved(mouseX, mouseY);
+        if (page != null) page.mouseMoved(mouseX - pageXOffset(), mouseY - pageYOffset());
     }
 
     @Override

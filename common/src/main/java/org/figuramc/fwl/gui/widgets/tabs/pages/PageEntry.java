@@ -10,8 +10,7 @@ import static org.figuramc.fwl.utils.RenderUtils.fill;
 
 public interface PageEntry {
     default boolean renderIcon(GuiGraphics graphics, float x, float y, float width, float height) {
-        fill(graphics, x, y, x + width, y + height, 0, 0xFFFFFFFF);
-        return true;
+        return false;
     }
 
     FWLWidget getPage(float width, float height);

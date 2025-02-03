@@ -27,6 +27,9 @@ dependencies {
 
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
 
+    include(modImplementation(fabricApi.module("fabric-api-base", rootProject.fabric_api)))
+    include(modImplementation(fabricApi.module("fabric-resource-loader-v0", rootProject.fabric_api)))
+
     modCompileOnly("maven.modrinth:modmenu:$modmenu")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }

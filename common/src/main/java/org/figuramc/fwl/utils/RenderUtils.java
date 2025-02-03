@@ -7,10 +7,14 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.FormattedCharSequence;
+import org.figuramc.fwl.FWL;
+import org.figuramc.fwl.gui.themes.FWLTheme;
+import org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor;
 import org.joml.Matrix4f;
 
 import static org.figuramc.fwl.utils.MathUtils.clamp;
@@ -66,6 +70,11 @@ public class RenderUtils {
     public static float textHeight(Component text, float scale, float maxWidth) {
         Font font = Minecraft.getInstance().font;
         return font.split(text, (int) (maxWidth / scale)).size() * font.lineHeight * scale;
+    }
+
+    public static float textHeight(FormattedCharSequence text, float scale, float maxWidth) {
+        Font font = Minecraft.getInstance().font;
+        return TextUtils.lines(text) * font.lineHeight * scale;
     }
 
     public static void renderLine(GuiGraphics graphics, float x0, float y0, float x1, float y1, float z, float scaling, int color) {
@@ -278,7 +287,6 @@ public class RenderUtils {
     }
 
     public static boolean renderTextTooltip(GuiGraphics graphics, FormattedCharSequence text, float textX, float textY, float textScale, float mouseX, float mouseY) {
-        final float TEXT_OFFSET = 4;
         Style hoveredStyle = TextUtils.getHoveredStyle(getFont(), text, textX, textY, textScale, mouseX, mouseY);
         HoverEvent event = hoveredStyle.getHoverEvent();
         FormattedCharSequence tooltip = null;
@@ -287,10 +295,21 @@ public class RenderUtils {
             if (value instanceof Component component) tooltip = component.getVisualOrderText();
         }
         if (tooltip != null) {
-            renderText(graphics, tooltip, mouseX + TEXT_OFFSET, mouseY + TEXT_OFFSET, 0, 1f, 0xFFFFFFFF, false);
-            return true;
+            renderTooltip(graphics, tooltip, mouseX, mouseY, 1);
         }
         return false;
+    }
+
+    public static void renderTooltip(GuiGraphics graphics, FormattedCharSequence tooltip, float x, float y, float textScale) {
+        final float TEXT_OFFSET = 4;
+        FWLTheme theme = FWL.fwl().currentTheme();
+        float textWidth = textWidth(tooltip, 1);
+        float textHeight = textHeight(tooltip, 1, Integer.MAX_VALUE);
+        BoundsDescriptor desc = new BoundsDescriptor(x, y, textWidth + (TEXT_OFFSET * 2), textHeight + (TEXT_OFFSET * 2));
+        desc.setWidgetType("tooltip");
+        theme.fillBounds(graphics, 0, desc);
+        theme.renderBounds(graphics, 0, desc);
+        renderText(graphics, tooltip, x + TEXT_OFFSET, y + TEXT_OFFSET, 0, textScale, 0xFFFFFFFF, false);
     }
 
     public enum ArcOrient {

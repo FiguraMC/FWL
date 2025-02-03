@@ -2,6 +2,9 @@ package org.figuramc.fwl.gui.themes;
 
 import com.google.gson.JsonObject;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import org.figuramc.fwl.gui.themes.configs.FWLAbstractConfig;
+import org.figuramc.fwl.gui.themes.configs.FWLBreezeConfig;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.*;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
@@ -9,23 +12,31 @@ import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.ClickableDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.input.TextInputDescriptor;
+import org.figuramc.fwl.gui.widgets.descriptors.input.SliderDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.misc.ContextMenuDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.misc.IconDescriptor;
-import org.figuramc.fwl.gui.widgets.descriptors.misc.SliderDescriptor;
+import org.figuramc.fwl.gui.widgets.input.Slider;
+import org.figuramc.fwl.gui.widgets.input.TextInput;
+import org.figuramc.fwl.gui.widgets.input.handlers.IntegerInputHandler;
 import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
-import org.figuramc.fwl.utils.ColorUtils;
-import org.figuramc.fwl.utils.Rectangle;
-import org.figuramc.fwl.utils.RenderUtils;
-import org.figuramc.fwl.utils.TreePathMap;
+import org.figuramc.fwl.utils.*;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
+import static net.minecraft.network.chat.Component.translatable;
 import static net.minecraft.util.FastColor.ARGB32;
 import static org.figuramc.fwl.utils.JsonUtils.intOrDefault;
 import static org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor.Side;
+import static org.figuramc.fwl.utils.MathUtils.lerp;
+import static org.figuramc.fwl.utils.MathUtils.rlerp;
 import static org.figuramc.fwl.utils.RenderUtils.*;
+import static org.figuramc.fwl.utils.Pair.of;
 
 
 public class FWLBreeze extends FWLTheme {
+
     private TreePathMap<Integer> colors;
 
     private int textColor;
@@ -37,6 +48,22 @@ public class FWLBreeze extends FWLTheme {
     private int successColor;
 
     private int borderColor;
+
+    private int borderRadius;
+
+    private final Pair<Component, FWLAbstractConfig.FieldConstructor<FWLBreeze>>[] CONSTRUCTORS = new Pair[] {
+            of(translatable("fwl.breeze.color.primary"), intField(b -> primaryColor, (b, v) -> b.primaryColor = v, 16)),
+            of(translatable("fwl.breeze.color.accent"), intField(b -> accentColor, (b, v) -> b.accentColor = v, 16)),
+            of(translatable("fwl.breeze.color.success"), intField(b -> successColor, (b, v) -> b.successColor = v, 16)),
+
+            of(translatable("fwl.breeze.color.border"), intField(b -> borderColor, (b, v) -> b.borderColor = v, 16)),
+
+            of(translatable("fwl.breeze.color.text"), intField(b -> textColor, (b, v) -> b.textColor = v, 16)),
+            of(translatable("fwl.breeze.color.text.hint"), intField(b -> textHintColor, (b, v) -> b.textHintColor = v, 16)),
+            of(translatable("fwl.breeze.color.text.disabled"), intField(b -> disabledTextColor, (b, v) -> b.disabledTextColor = v, 16)),
+
+            of(translatable("fwl.breeze.border.radius"), sliderField(b -> (float) borderRadius, (b, v) -> b.borderRadius = (int) (float) v, 0, 10, 10))
+    };
 
     public FWLBreeze() {
         this(null);
@@ -51,7 +78,7 @@ public class FWLBreeze extends FWLTheme {
     public void renderButton(GuiGraphics graphics, float delta, ButtonDescriptor button) {
         float x = button.x(), y = button.y(), width = button.width(), height = button.height();
         // Border radius
-        float rad = Math.min(3, Math.min(button.width(), button.height()) / 2);
+        float rad = Math.min(borderRadius * 1.5f, Math.min(button.width(), button.height()) / 2);
 
         // Getting button color by its type, and then getting gradient for it. Breeze theme doesn't check for namespace
         int buttonColor = applyStateModifier(getColorOrDefault(button.type(), 0xFFFFFFFF), button);
@@ -75,7 +102,7 @@ public class FWLBreeze extends FWLTheme {
     public void renderCheckbox(GuiGraphics graphics, float delta, CheckboxDescriptor checkbox) {
         float x = checkbox.x(), y = checkbox.y(), width = checkbox.width(), height = checkbox.height();
         // Border radius
-        float rad = Math.min(3, Math.min(checkbox.width(), checkbox.height()) / 2);
+        float rad = Math.min(borderRadius * 1.5f, Math.min(checkbox.width(), checkbox.height()) / 2);
 
         // Getting button color by its type, and then getting gradient for it. Breeze theme doesn't check for namespace
         int buttonColor = applyStateModifier(getColorOrDefault(checkbox.checked() ? ColorTypes.SECONDARY : ColorTypes.BUTTON, 0xFFFFFFFF), checkbox);
@@ -134,7 +161,7 @@ public class FWLBreeze extends FWLTheme {
     public void renderScrollBar(GuiGraphics graphics, float delta, ScrollBarDescriptor scrollBar) {
         float x = scrollBar.x(), y = scrollBar.y(), width = scrollBar.width(), height = scrollBar.height();
         float inX = x + 2, inY = y + 2, inWidth = width - 4, inHeight = height - 4;
-        float rad = Math.min(3, Math.min(width, height) / 2);
+        float rad = Math.min(borderRadius * 1.5f, Math.min(width, height) / 2);
         float barRad = Math.min(inWidth, inHeight) / 2;
         float barX, barY, barWidth, barHeight;
 
@@ -171,7 +198,7 @@ public class FWLBreeze extends FWLTheme {
     @Override
     public void renderTextInput(GuiGraphics graphics, float delta, TextInputDescriptor input) {
         float x = input.x(), y = input.y(), width = input.width(), height = input.height();
-        float rad = Math.min(1, Math.min(width, height) / 2);
+        float rad = Math.min(borderRadius / 2f, Math.min(width, height) / 2);
 
         float x1 = x + width;
         float y1 = y + height;
@@ -190,7 +217,7 @@ public class FWLBreeze extends FWLTheme {
     @Override
     public void renderContextMenu(GuiGraphics graphics, float delta, ContextMenuDescriptor menu) {
         float x = menu.x(), y = menu.y(), width = menu.width(), height = menu.height();
-        float rad = Math.min(1, Math.min(width, height) / 2);
+        float rad = Math.min(borderRadius / 2f, Math.min(width, height) / 2);
 
         float x1 = x + width;
         float y1 = y + height;
@@ -213,7 +240,7 @@ public class FWLBreeze extends FWLTheme {
     @Override
     public void renderBounds(GuiGraphics graphics, float delta, BoundsDescriptor bounds) {
         float x0 = bounds.x(), y0 = bounds.y(), width = bounds.width(), height = bounds.height();
-        float rad = Math.min(2, Math.min(width, height) / 2);
+        float rad = Math.min(borderRadius, Math.min(width, height) / 2);
 
         float x1 = x0 + width;
         float y1 = y0 + height;
@@ -263,7 +290,7 @@ public class FWLBreeze extends FWLTheme {
         Rectangle wBounds = bounds.widgetBounds();
 
         float x0 = bounds.x(), y0 = bounds.y(), width = bounds.width(), height = bounds.height();
-        float rad = Math.min(2, Math.min(width, height) / 2);
+        float rad = Math.min(borderRadius, Math.min(width, height) / 2);
 
         float x1 = x0 + width;
         float y1 = y0 + height;
@@ -311,7 +338,49 @@ public class FWLBreeze extends FWLTheme {
 
     @Override
     public void renderSlider(GuiGraphics graphics, float delta, SliderDescriptor slider) {
+        final float STEP_BAR_LENGTH_EXTENSION = 2;
+        float x = slider.x(), y = slider.y(), width = slider.width(), height = slider.height();
+        float x2 = x + width, y2 = y + height;
+        float barThickness = 2;
+        float sliderX, sliderY;
+        float sliderSize = Math.min(width, height);
+        float sliderRad = sliderSize / 2;
 
+        Orientation orient = slider.orientation();
+
+        float scaling = getWindowScaling();
+        int sliderColor = getColorOrDefault(ColorTypes.SECONDARY, 0xFF777777);
+        int sliderBorderColor = getColorOrDefault(slider.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
+        int barColor = getColorOrDefault(ColorTypes.BORDER, 0xFF111111);
+
+        int steps = slider.steps();
+
+        if (orient == Orientation.HORIZONTAL) {
+            sliderX = lerp(x, x2 - sliderSize, slider.progress());
+            sliderY = y;
+            float bY1 = y + (height - barThickness) / 2;
+            fill(graphics, x, bY1, x2, bY1 + barThickness, 0, barColor);
+
+            if (steps > 1) for (int i = 0; i < steps; i++) {
+                float progress = i / (float) (steps - 1);
+                float stepX = lerp(x + sliderRad, x2 - sliderRad, progress);
+                fill(graphics, stepX - 1, y - STEP_BAR_LENGTH_EXTENSION, stepX + 1, y2 + STEP_BAR_LENGTH_EXTENSION, 0, barColor);
+            }
+        }
+        else {
+            sliderX = x;
+            sliderY = lerp(y, y2 - sliderSize, slider.progress());
+            float bX1 = x + (width - barThickness) / 2;
+            fill(graphics, bX1, y, bX1 + barThickness, y2, 0, barColor);
+            if (steps > 1) for (int i = 0; i < steps; i++) {
+                float progress = i / (float) (steps - 1);
+                float stepY = lerp(y + sliderRad, y2 - sliderRad, progress);
+                fill(graphics, x - STEP_BAR_LENGTH_EXTENSION, stepY - 1, x2 + STEP_BAR_LENGTH_EXTENSION, stepY + 1, 0, barColor);
+            }
+        }
+
+        renderRoundBg(graphics, sliderColor, sliderX, sliderY, sliderX + sliderSize, sliderY + sliderSize, sliderRad, scaling);
+        renderRoundBorder(graphics, sliderBorderColor, sliderX, sliderY, sliderX + sliderSize, sliderY + sliderSize, sliderRad, scaling, 1);
     }
 
     @Override
@@ -365,31 +434,7 @@ public class FWLBreeze extends FWLTheme {
                 bR / 255f, bG / 255f, bB / 255f, a / 255f);
     }
 
-    @Override
-    public void applyPreset(@Nullable JsonObject preset) {
-        if (preset != null) {
-            primaryColor = intOrDefault(preset, "color.primary", 0xFF3A3A3A);
-            accentColor = intOrDefault(preset, "color.accent", 0xFF14539E);
-            successColor = intOrDefault(preset, "color.success", 0xFF25AA61);
-
-            borderColor = intOrDefault(preset, "color.border", 0xFF111111);
-
-            textColor = intOrDefault(preset, "color.text", 0xFFFFFFFF);
-            textHintColor = intOrDefault(preset, "color.text.hint", 0xFFFFFFFF);
-            disabledTextColor = intOrDefault(preset, "color.text.disabled", 0xFF777777);
-        }
-        else {
-            primaryColor = 0xFF3A3A3A;
-            accentColor = 0xFF3473BE;
-            successColor = 0xFF25AA61;
-
-            borderColor = 0xFF111111;
-
-            textColor = 0xFFFFFFFF;
-            textHintColor = 0xFF999999;
-            disabledTextColor = 0xFF777777;
-        }
-
+    public void applyValues() {
         colors = new TreePathMap<>() {{
             add(ColorTypes.BUTTON, primaryColor);
 
@@ -409,6 +454,37 @@ public class FWLBreeze extends FWLTheme {
     }
 
     @Override
+    public void applyPreset(@Nullable JsonObject preset) {
+        if (preset != null) {
+            primaryColor = intOrDefault(preset, "color.primary", 0xFF3A3A3A);
+            accentColor = intOrDefault(preset, "color.accent", 0xFF14539E);
+            successColor = intOrDefault(preset, "color.success", 0xFF25AA61);
+
+            borderColor = intOrDefault(preset, "color.border", 0xFF111111);
+
+            textColor = intOrDefault(preset, "color.text", 0xFFFFFFFF);
+            textHintColor = intOrDefault(preset, "color.text.hint", 0xFFFFFFFF);
+            disabledTextColor = intOrDefault(preset, "color.text.disabled", 0xFF777777);
+
+            borderRadius = intOrDefault(preset, "border.radius", 3);
+        }
+        else {
+            primaryColor = 0xFF3A3A3A;
+            accentColor = 0xFF3473BE;
+            successColor = 0xFF25AA61;
+
+            borderColor = 0xFF111111;
+
+            textColor = 0xFFFFFFFF;
+            textHintColor = 0xFF999999;
+            disabledTextColor = 0xFF777777;
+
+            borderRadius = 2;
+        }
+        applyValues();
+    }
+
+    @Override
     public JsonObject savePreset() {
         JsonObject preset = new JsonObject();
         preset.addProperty("color.primary", primaryColor);
@@ -420,12 +496,41 @@ public class FWLBreeze extends FWLTheme {
         preset.addProperty("color.text", textColor);
         preset.addProperty("color.text.hint", textHintColor);
         preset.addProperty("color.text.disabled", disabledTextColor);
+
+        preset.addProperty("border.radius", borderRadius);
         return preset;
     }
 
     @Override
     public FWLWidget settingsRootWidget(float areaWidth, float areaHeight) {
-        return null;
+        return new FWLBreezeConfig(this, areaWidth, areaHeight, CONSTRUCTORS);
+    }
+
+    private static FWLAbstractConfig.FieldConstructor<FWLBreeze> intField(Function<FWLBreeze, Integer> provider, BiConsumer<FWLBreeze, Integer> consumer, int radix) {
+        return intField(provider, consumer, radix, true);
+    }
+
+    private static FWLAbstractConfig.FieldConstructor<FWLBreeze> intField(Function<FWLBreeze, Integer> provider, BiConsumer<FWLBreeze, Integer> consumer, int radix, boolean unsigned) {
+        return (parent, x, y) -> {
+            int initialValue = provider.apply(parent);
+            TextInput intInput = new TextInput(x, y, 100, 20, unsigned ? Integer.toUnsignedString(initialValue, radix) : Integer.toString(initialValue, radix));
+            IntegerInputHandler handler = new IntegerInputHandler();
+            handler.setValueConsumer(i -> {
+                consumer.accept(parent, i);
+                parent.applyValues();
+            }).setRadix(radix).setUnsigned(unsigned);
+            intInput.setChangeCallback(handler).setTextBaker(handler);
+            return intInput;
+        };
+    }
+
+    private static FWLAbstractConfig.FieldConstructor<FWLBreeze> sliderField(Function<FWLBreeze, Float> provider, BiConsumer<FWLBreeze, Float> consumer, float min, float max, int steps) {
+        return (parent, x, y) -> {
+            float initialValue = provider.apply(parent);
+            Slider slider = new Slider(x, y, 100, 10, rlerp(min, max, initialValue)).setSteps(steps);
+            slider.setCallback(v -> consumer.accept(parent, lerp(min, max, v)));
+            return slider;
+        };
     }
 
     private static class BreezeGradient implements ColorProvider {

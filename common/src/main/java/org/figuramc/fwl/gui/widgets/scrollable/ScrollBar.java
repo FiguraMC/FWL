@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.gui.widgets.descriptors.ClickableDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.Orientation;
 import org.figuramc.fwl.gui.widgets.descriptors.ScrollBarDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
@@ -103,14 +104,50 @@ public class ScrollBar implements FWLWidget {
         desc.setCoveredPartSize(coveredPartSize());
     }
 
+    public ScrollBar setHeight(float height) {
+        desc.setHeight(height);
+        return this;
+    }
+
+    public float height() {
+        return desc.height();
+    }
+
+    public ScrollBar setWidth(float width) {
+        desc.setWidth(width);
+        return this;
+    }
+
+    public float width() {
+        return desc.width();
+    }
+
+    public ScrollBar setY(float y) {
+        desc.setY(y);
+        return this;
+    }
+
+    public float y() {
+        return desc.y();
+    }
+
+    public ScrollBar setX(float x) {
+        desc.setX(x);
+        return this;
+    }
+
+    public float x() {
+        return desc.x();
+    }
 
     private float scrollableArea() {
         return contentSize - visibleAreaSize;
     }
     @Override
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-        desc.setHovered(desc.mouseIn(mouseX, mouseY));
-        desc.setHoverPos(mouseX, mouseY);
+        boolean hovered = desc.mouseIn(mouseX, mouseY);
+        desc.setHovered(hovered);
+        if (hovered) desc.setHoverPos(mouseX, mouseY);
         fwl().currentTheme().renderScrollBar(graphics, delta, desc);
     }
 

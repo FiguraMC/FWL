@@ -1,7 +1,9 @@
 package org.figuramc.fwl.gui.widgets.containers;
 
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
 
 import java.util.ArrayList;
@@ -47,6 +49,15 @@ public abstract class AbstractFWLContainerWidget implements FWLContainerWidget {
         if (focused != widget) {
             if (focused != null) focused.setFocused(false);
             if (widget != null) widget.setFocused(true);
+            focused = widget;
+        }
+    }
+
+    @Override
+    public void setFocused(@Nullable GuiEventListener child) {
+        if (focused != child && child instanceof FWLWidget widget) {
+            if (focused != null) focused.setFocused(false);
+            widget.setFocused(true);
             focused = widget;
         }
     }

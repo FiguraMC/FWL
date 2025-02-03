@@ -1,0 +1,13 @@
+{
+  "fwl.config.theme_settings": "Theme Settings",
+  "fwl.config.theme_settings.tooltip": "Settings of currently selected theme",
+
+  "fwl.breeze.color.primary": "Primary Color",
+  "fwl.breeze.color.accent": "Accent Color",
+  "fwl.breeze.color.success": "Success Color",
+  "fwl.breeze.color.border": "Border Color",
+  "fwl.breeze.color.text": "Text Color",
+  "fwl.breeze.color.text.hint": "Text Hint Color",
+  "fwl.breeze.color.text.disabled": "Disabled Text Color",
+  "fwl.breeze.border.radius": "Border Radius"
+}

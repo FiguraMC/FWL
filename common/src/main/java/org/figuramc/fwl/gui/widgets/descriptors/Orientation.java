@@ -7,4 +7,8 @@ public enum Orientation {
     public boolean allowScroll(boolean shiftPressed) {
         return (this == HORIZONTAL) == shiftPressed;
     }
+
+    public <T> T switchBy(T horizontal, T vertical) {
+        return this == HORIZONTAL ? horizontal : vertical;
+    }
 }
