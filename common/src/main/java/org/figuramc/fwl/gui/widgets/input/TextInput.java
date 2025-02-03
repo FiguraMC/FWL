@@ -32,6 +32,7 @@ public class TextInput implements FWLWidget {
 
     private Callback changeCallback;
     private TextBaker textBaker;
+    private boolean update = true;
 
     private int cursorBlinkCounter = 0;
     private float textOffset = 0;
@@ -48,7 +49,7 @@ public class TextInput implements FWLWidget {
     public TextInput setValue(String value) {
         boolean valueIsDifferent = !value.equals(this.value);
         this.value = Objects.requireNonNull(value, "Initial input value has to be not null");
-        if (changeCallback != null && valueIsDifferent) changeCallback.onValueChange(this.value);
+        if (changeCallback != null && valueIsDifferent && update) changeCallback.onValueChange(this.value);
         bakedText = textBaker != null ? textBaker.getBakedText(value) : Component.literal(value);
         return this;
     }
@@ -119,6 +120,15 @@ public class TextInput implements FWLWidget {
 
     public TextInput setTextBaker(TextBaker textBaker) {
         this.textBaker = textBaker;
+        return this;
+    }
+
+    public boolean update() {
+        return update;
+    }
+
+    public TextInput setUpdate(boolean update) {
+        this.update = update;
         return this;
     }
 
@@ -310,18 +320,18 @@ public class TextInput implements FWLWidget {
     }
 
     private String selectedText() {
-        int cursor1 = Math.min(startCursorPos, endCursorPos);
-        int cursor2 = Math.max(startCursorPos, endCursorPos);
+        int cursor1 = clamp(Math.min(startCursorPos, endCursorPos), 0, value.length());
+        int cursor2 = clamp(Math.max(startCursorPos, endCursorPos), 0, value.length());
         return value.substring(cursor1, cursor2);
     }
 
     private String textBeforeSelection() {
-        int cursor = Math.min(startCursorPos, endCursorPos);
+        int cursor = clamp(Math.min(startCursorPos, endCursorPos), 0, value.length());
         return value.substring(0, cursor);
     }
 
     private String textAfterSelection() {
-        int cursor = Math.max(startCursorPos, endCursorPos);
+        int cursor = clamp(Math.max(startCursorPos, endCursorPos), 0, value.length());
         return value.substring(cursor);
     }
 

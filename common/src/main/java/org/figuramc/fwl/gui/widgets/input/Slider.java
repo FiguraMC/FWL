@@ -2,7 +2,6 @@ package org.figuramc.fwl.gui.widgets.input;
 
 import net.minecraft.client.gui.GuiGraphics;
 import org.figuramc.fwl.FWL;
-import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.Orientation;
 import org.figuramc.fwl.gui.widgets.descriptors.input.SliderDescriptor;
@@ -19,6 +18,8 @@ public class Slider implements FWLWidget {
     private final SliderDescriptor desc;
 
     private Consumer<Float> callback;
+    private boolean update = true;
+    private boolean updateOnMove = false;
 
     public Slider(float x, float y, float width, float height, float progress, @Nullable Orientation orientation) {
         desc = new SliderDescriptor(x, y, width, height, progress, orientation);
@@ -103,7 +104,7 @@ public class Slider implements FWLWidget {
 
     public Slider setProgress(float progress) {
         desc.setProgress(progress);
-        if (callback != null) callback.accept(progress);
+        if (callback != null && update) callback.accept(progress);
         return this;
     }
 
@@ -117,6 +118,24 @@ public class Slider implements FWLWidget {
 
     public Slider setCallback(Consumer<Float> callback) {
         this.callback = callback;
+        return this;
+    }
+
+    public boolean update() {
+        return update;
+    }
+
+    public Slider setUpdate(boolean update) {
+        this.update = update;
+        return this;
+    }
+
+    public boolean updateOnRender() {
+        return updateOnMove;
+    }
+
+    public Slider setUpdateOnMove(boolean updateOnMove) {
+        this.updateOnMove = updateOnMove;
         return this;
     }
 
@@ -150,7 +169,8 @@ public class Slider implements FWLWidget {
             float progress = roundToSteps(relativeProgress(mX, mY));
             desc.setClicked(true);
             desc.setClickPos(mX, mY);
-            desc.setProgress(progress);
+            if (updateOnMove) setProgress(progress);
+            else desc.setProgress(progress);
             return true;
         }
         return false;
@@ -161,7 +181,8 @@ public class Slider implements FWLWidget {
         float mX = (float) mouseX, mY = (float) mouseY;
         if (desc.clicked()) {
             float progress = roundToSteps(relativeProgress(mX, mY));
-            desc.setProgress(progress);
+            if (updateOnMove) setProgress(progress);
+            else desc.setProgress(progress);
         }
     }
 

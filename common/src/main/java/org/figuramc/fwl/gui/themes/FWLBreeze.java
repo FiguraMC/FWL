@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import org.figuramc.fwl.gui.themes.configs.FWLAbstractConfig;
 import org.figuramc.fwl.gui.themes.configs.FWLBreezeConfig;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.gui.widgets.containers.SimpleContainer;
 import org.figuramc.fwl.gui.widgets.descriptors.*;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
@@ -19,6 +20,7 @@ import org.figuramc.fwl.gui.widgets.input.Slider;
 import org.figuramc.fwl.gui.widgets.input.TextInput;
 import org.figuramc.fwl.gui.widgets.input.handlers.IntegerInputHandler;
 import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
+import org.figuramc.fwl.gui.widgets.misc.Label;
 import org.figuramc.fwl.utils.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +29,7 @@ import java.util.function.Function;
 
 import static net.minecraft.network.chat.Component.translatable;
 import static net.minecraft.util.FastColor.ARGB32;
+import static org.figuramc.fwl.utils.ColorUtils.argb;
 import static org.figuramc.fwl.utils.JsonUtils.intOrDefault;
 import static org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor.Side;
 import static org.figuramc.fwl.utils.MathUtils.lerp;
@@ -52,15 +55,15 @@ public class FWLBreeze extends FWLTheme {
     private int borderRadius;
 
     private final Pair<Component, FWLAbstractConfig.FieldConstructor<FWLBreeze>>[] CONSTRUCTORS = new Pair[] {
-            of(translatable("fwl.breeze.color.primary"), intField(b -> primaryColor, (b, v) -> b.primaryColor = v, 16)),
-            of(translatable("fwl.breeze.color.accent"), intField(b -> accentColor, (b, v) -> b.accentColor = v, 16)),
-            of(translatable("fwl.breeze.color.success"), intField(b -> successColor, (b, v) -> b.successColor = v, 16)),
+            of(translatable("fwl.breeze.color.primary"), colorPickerField(b -> primaryColor, (b, v) -> b.primaryColor = v, false)),
+            of(translatable("fwl.breeze.color.accent"), colorPickerField(b -> accentColor, (b, v) -> b.accentColor = v, false)),
+            of(translatable("fwl.breeze.color.success"), colorPickerField(b -> successColor, (b, v) -> b.successColor = v, false)),
 
-            of(translatable("fwl.breeze.color.border"), intField(b -> borderColor, (b, v) -> b.borderColor = v, 16)),
+            of(translatable("fwl.breeze.color.border"), colorPickerField(b -> borderColor, (b, v) -> b.borderColor = v, false)),
 
-            of(translatable("fwl.breeze.color.text"), intField(b -> textColor, (b, v) -> b.textColor = v, 16)),
-            of(translatable("fwl.breeze.color.text.hint"), intField(b -> textHintColor, (b, v) -> b.textHintColor = v, 16)),
-            of(translatable("fwl.breeze.color.text.disabled"), intField(b -> disabledTextColor, (b, v) -> b.disabledTextColor = v, 16)),
+            of(translatable("fwl.breeze.color.text"), colorPickerField(b -> textColor, (b, v) -> b.textColor = v, false)),
+            of(translatable("fwl.breeze.color.text.hint"), colorPickerField(b -> textHintColor, (b, v) -> b.textHintColor = v, false)),
+            of(translatable("fwl.breeze.color.text.disabled"), colorPickerField(b -> disabledTextColor, (b, v) -> b.disabledTextColor = v, false)),
 
             of(translatable("fwl.breeze.border.radius"), sliderField(b -> (float) borderRadius, (b, v) -> b.borderRadius = (int) (float) v, 0, 10, 10))
     };
@@ -402,9 +405,9 @@ public class FWLBreeze extends FWLTheme {
         int g = ARGB32.green(color);
         int b = ARGB32.blue(color);
         int a = ARGB32.alpha(color);
-        if (state.disabled()) return ColorUtils.argb(a, r - 30, g - 30, b - 30);
-        if (state.clicked()) return ColorUtils.argb(a, r - 20, g - 20, b - 20);
-        if (state.hovered()) return ColorUtils.argb(a, r - 10, g - 10, b - 10);
+        if (state.disabled()) return argb(a, r - 30, g - 30, b - 30);
+        if (state.clicked()) return argb(a, r - 20, g - 20, b - 20);
+        if (state.hovered()) return argb(a, r - 10, g - 10, b - 10);
         return color;
     }
 
@@ -413,9 +416,9 @@ public class FWLBreeze extends FWLTheme {
         int g = ARGB32.green(color);
         int b = ARGB32.blue(color);
         int a = ARGB32.alpha(color);
-        if (state.disabled()) return ColorUtils.argb(a, r - 30, g - 30, b - 30);
-        if (state.clicked()) return ColorUtils.argb(a, r - 20, g - 20, b - 20);
-        if (state.hovered()) return ColorUtils.argb(a, r - 10, g - 10, b - 10);
+        if (state.disabled()) return argb(a, r - 30, g - 30, b - 30);
+        if (state.clicked()) return argb(a, r - 20, g - 20, b - 20);
+        if (state.hovered()) return argb(a, r - 10, g - 10, b - 10);
         return color;
     }
 
@@ -533,6 +536,51 @@ public class FWLBreeze extends FWLTheme {
         };
     }
 
+    private static final String[] COLOR_COMPONENT_NAMES = new String[] {
+            "R", "G", "B", "A"
+    };
+
+    private static FWLAbstractConfig.FieldConstructor<FWLBreeze> colorPickerField(Function<FWLBreeze, Integer> provider, BiConsumer<FWLBreeze, Integer> consumer) {
+        return colorPickerField(provider, consumer, true);
+    }
+
+    private static FWLAbstractConfig.FieldConstructor<FWLBreeze> colorPickerField(Function<FWLBreeze, Integer> provider, BiConsumer<FWLBreeze, Integer> consumer, boolean alpha) {
+        return (parent, x, y) -> {
+            int initialValue = provider.apply(parent);
+            int[] components = new int[] {ARGB32.red(initialValue), ARGB32.green(initialValue), ARGB32.blue(initialValue), ARGB32.alpha(initialValue)};
+            int availableComponents = alpha ? 4 : 3;
+            float cY = y;
+
+            SimpleContainer container = new SimpleContainer();
+
+            for (int i = 0; i < availableComponents; i++) {
+                Label cLabel = new Label(x, cY, Component.literal(COLOR_COMPONENT_NAMES[i]));
+                Slider cSlider = new Slider(cLabel.boundaries().right() + 10, cY, 100, 10, components[i] / 255f).setUpdateOnMove(true);
+                TextInput cInput = new TextInput(cSlider.boundaries().right() + 10, cY, 50, 10, Integer.toString(components[i]));
+                int componentIndex = i;
+                cSlider.setCallback((v) -> {
+                   int c = (int) (v * 255);
+                   cInput.setValue(Integer.toString(c));
+                });
+                IntegerInputHandler cHandler = new IntegerInputHandler().setValueConsumer(v -> {
+                    if (v < 0 || v > 255) throw new RuntimeException("Component value has to be in range from 0 to 255");
+                    components[componentIndex] = v;
+                    int color = argb(components[3], components[0], components[1], components[2]);
+                    consumer.accept(parent, color);
+                    parent.applyValues();
+                    cSlider.setUpdate(false).setProgress(v / 255f).setUpdate(true);
+                });
+                cInput.setChangeCallback(cHandler).setTextBaker(cHandler);
+                container.addWidget(cLabel);
+                container.addWidget(cSlider);
+                container.addWidget(cInput);
+                cY += 10;
+            }
+
+            return container;
+        };
+    }
+
     private static class BreezeGradient implements ColorProvider {
         final float y0, y1;
         final float topR, topG, topB, topA;
@@ -559,7 +607,7 @@ public class FWLBreeze extends FWLTheme {
             int g = (int) ((topG + (progress * (bottomG - topG))) * 255);
             int b = (int) ((topB + (progress * (bottomB - topB))) * 255);
             int a = (int) ((topA + (progress * (bottomA - topA))) * 255);
-            return ColorUtils.argb(a, r, g, b);
+            return argb(a, r, g, b);
         }
     }
 }
