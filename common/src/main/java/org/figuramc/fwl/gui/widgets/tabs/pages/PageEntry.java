@@ -13,6 +13,8 @@ public interface PageEntry {
         return false;
     }
 
+    default void onClose() {}
+
     FWLWidget getPage(float width, float height);
 
     Component getTitle();

@@ -13,8 +13,8 @@
     "modmenu": [
       "org.figuramc.fwl.fabric.compat.ModMenuCompat"
     ],
-    "fwl_theme_registrars": [
-
+    "fwl_registrars": [
+      "org.figuramc.fwl.entries.fwl.StandardFWLThemeRegistrar"
     ]
   },
 

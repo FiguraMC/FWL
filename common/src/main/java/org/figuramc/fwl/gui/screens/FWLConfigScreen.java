@@ -1,7 +1,6 @@
 package org.figuramc.fwl.gui.screens;
 
 import com.google.gson.JsonObject;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.figuramc.fwl.FWL;
@@ -38,9 +37,11 @@ public class FWLConfigScreen extends FWLScreen {
     }
 
     private static class ThemeSettingsPageEntry implements PageEntry {
+        private ThemeSettingsPage page;
         @Override
         public FWLWidget getPage(float width, float height) {
-            return new ThemeSettingsPage(width, height);
+            page = new ThemeSettingsPage(width, height);
+            return page;
         }
 
         @Override
@@ -51,6 +52,11 @@ public class FWLConfigScreen extends FWLScreen {
         @Override
         public @Nullable Component getTooltip() {
             return Component.translatable("fwl.config.theme_settings.tooltip");
+        }
+
+        @Override
+        public void onClose() {
+            page.cancelChanges();
         }
     }
 
@@ -67,8 +73,8 @@ public class FWLConfigScreen extends FWLScreen {
         private final TextButton resetButton;
         private final TextButton cancelButton;
         private final TextButton saveButton;
-        private final JsonObject initialPreset;
         private final FWLTheme theme;
+        private JsonObject savedPreset;
 
         public ThemeSettingsPage(float width, float height) {
             this.width = width;
@@ -76,7 +82,7 @@ public class FWLConfigScreen extends FWLScreen {
 
             this.theme = FWL.fwl().currentTheme();
 
-            this.initialPreset = theme.savePreset();
+            this.savedPreset = theme.savePreset();
 
             float centerX = width / 2;
             float button1X = centerX - ((102 * 3) / 2f);
@@ -112,17 +118,28 @@ public class FWLConfigScreen extends FWLScreen {
         }
 
         private void resetButtonCallback(float x, float y, int button) {
-            theme.applyPreset(null);
-            if (themeSettings instanceof Update upd) upd.update();
+            if (button == 0) {
+                theme.applyPreset(null);
+                if (themeSettings instanceof Update upd) upd.update();
+            }
         }
 
         private void cancelButtonCallback(float x, float y, int button) {
-            theme.applyPreset(initialPreset);
-            if (themeSettings instanceof Update upd) upd.update();
+            if (button == 0) {
+                cancelChanges();
+                if (themeSettings instanceof Update upd) upd.update();
+            }
         }
 
         private void saveButtonCallback(float x, float y, int button) {
-            System.out.println("TODO");
+            if (button == 0) {
+                savedPreset = theme.savePreset();
+                FWL.fwl().saveCurrentThemeConfig();
+            }
+        }
+
+        private void cancelChanges() {
+            theme.applyPreset(savedPreset);
         }
     }
 }

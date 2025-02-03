@@ -45,6 +45,10 @@ public abstract class ViewSwitcher implements FWLWidget {
     private void updateActivePage(int index) {
         int ind = clamp(index, 0, pages.size() - 1);
         if (pageIndex != ind) {
+            if (pageIndex != -1) {
+                PageEntry prevPage = selectedPage();
+                if (prevPage != null) prevPage.onClose();
+            }
             pageIndex = ind;
             PageEntry entry = selectedPage();
             float width = pageWidth(), height = pageHeight();

@@ -9,6 +9,7 @@ import org.figuramc.fwl.gui.widgets.descriptors.input.TextInputDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.input.SliderDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.misc.ContextMenuDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.misc.IconDescriptor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.figuramc.fwl.gui.widgets.descriptors.button.CheckboxDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.RadioButtonDescriptor;
@@ -29,7 +30,9 @@ public abstract class FWLTheme {
 
     // CONFIGURATION
     public abstract void applyPreset(@Nullable JsonObject preset);
-    public abstract JsonObject savePreset();
+    public @NotNull JsonObject savePreset() {
+        return new JsonObject();
+    }
     public abstract @Nullable FWLWidget settingsRootWidget(float areaWidth, float areaHeight);
 
     public abstract Integer getColor(String... path);

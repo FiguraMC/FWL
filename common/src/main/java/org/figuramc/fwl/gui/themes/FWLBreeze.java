@@ -1,5 +1,6 @@
 package org.figuramc.fwl.gui.themes;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -22,6 +23,7 @@ import org.figuramc.fwl.gui.widgets.input.handlers.IntegerInputHandler;
 import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
 import org.figuramc.fwl.gui.widgets.misc.Label;
 import org.figuramc.fwl.utils.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -489,7 +491,7 @@ public class FWLBreeze extends FWLTheme {
     }
 
     @Override
-    public JsonObject savePreset() {
+    public @NotNull JsonObject savePreset() {
         JsonObject preset = new JsonObject();
         preset.addProperty("color.primary", primaryColor);
         preset.addProperty("color.accent", accentColor);

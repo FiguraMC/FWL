@@ -1,6 +1,7 @@
 package org.figuramc.fwl.gui.themes;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import org.figuramc.fwl.utils.Pair;
 import org.jetbrains.annotations.Nullable;
@@ -12,11 +13,12 @@ public class FWLThemeRepository {
     private final HashMap<ResourceLocation, ThemeFactory> factories = new HashMap<>();
 
     public interface ThemeFactory {
-        FWLTheme get(@Nullable JsonElement element);
+        FWLTheme get(@Nullable JsonObject element);
     }
 
     void registerTheme(ResourceLocation location, ThemeFactory factory) {
         if (factories.containsKey(location)) throw new IllegalArgumentException("Theme factory with ID %s already exists".formatted(location));
+        factories.put(location, factory);
     }
 
     void unregisterTheme(ResourceLocation location) {

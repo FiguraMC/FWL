@@ -1,6 +1,7 @@
 package org.figuramc.fwl.gui.themes;
 
 import net.minecraft.resources.ResourceLocation;
+import org.figuramc.fwl.FWL;
 
 public final class ThemeRepositoryAccess {
     private final String modId;
@@ -13,6 +14,7 @@ public final class ThemeRepositoryAccess {
 
     public void registerTheme(String themeId, FWLThemeRepository.ThemeFactory factory) {
         repository.registerTheme(getResLoc( themeId), factory);
+        FWL.fwl().LOGGER.info("Registered theme {} for mod {}", themeId, modId);
     }
 
     public void unregisterTheme(String themeId) {
