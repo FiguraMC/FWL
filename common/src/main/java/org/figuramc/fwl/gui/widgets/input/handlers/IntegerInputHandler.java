@@ -54,11 +54,7 @@ public class IntegerInputHandler implements TextInput.Callback, TextInput.TextBa
         } catch (NumberFormatException exception) {
             errorText = Component.literal("Unable to parse an integer");
         } catch (Exception e) {
-            StringBuilder exceptionMessageBuilder = new StringBuilder("Unexpected exception: ");
-            for (StackTraceElement element: e.getStackTrace()) {
-                exceptionMessageBuilder.append("   at ").append(element);
-            }
-            errorText = Component.literal(exceptionMessageBuilder.toString());
+            errorText = Component.literal("Unexpected exception: " + e.getMessage());
         }
     }
 

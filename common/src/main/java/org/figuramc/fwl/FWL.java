@@ -9,6 +9,7 @@ import org.figuramc.fwl.gui.themes.FWLThemeRepository;
 import org.figuramc.fwl.gui.themes.ThemeRepositoryAccess;
 import org.figuramc.fwl.utils.IOUtils;
 import org.figuramc.fwl.utils.Pair;
+import org.figuramc.fwl.utils.ResourceLocationSerializer;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +20,13 @@ import java.util.Set;
 
 public abstract class FWL {
     // ResLoc of the theme that will be used in case if config doesn't exist or for some reason theme field in it is empty or absent
-    private static final ResourceLocation DEFAULT_THEME = new ResourceLocation("fwl", "breeze");
+    public static final ResourceLocation DEFAULT_THEME = new ResourceLocation("fwl", "breeze");
     private static final Path CONFIG_FOLDER_PATH = Path.of("config/fwl");
 
     private static FWL INSTANCE;
 
-    private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson GSON = new GsonBuilder().setPrettyPrinting()
+            .registerTypeAdapter(ResourceLocation.class, new ResourceLocationSerializer()).create();
 
     private final FWLThemeRepository themeRepository = new FWLThemeRepository();
     public final Logger LOGGER = LoggerFactory.getLogger("FWL");
@@ -32,7 +34,6 @@ public abstract class FWL {
     private FWLConfig config;
 
     private FWLTheme currentTheme;
-    private ResourceLocation currentThemeResLoc = DEFAULT_THEME;
 
     protected final void init() {
         if (INSTANCE != null) throw new IllegalStateException("FWL is already initialized");
@@ -48,7 +49,7 @@ public abstract class FWL {
             registrar.registerThemes(access);
         }
 
-        setCurrentTheme(currentThemeResLoc);
+        setCurrentTheme(config.selectedTheme());
     }
 
     private boolean createConfigFolder() {
@@ -62,7 +63,23 @@ public abstract class FWL {
     }
 
     private FWLConfig readConfig() {
-        return null;
+        Path configFilePath = CONFIG_FOLDER_PATH.resolve("config.json");
+        File configFile = configFilePath.toFile();
+        String configContents = IOUtils.readString(configFile);
+        if (configContents != null) {
+            try {
+                return GSON.fromJson(configContents, FWLConfig.class);
+            } catch (JsonSyntaxException ignored) {}
+        }
+        return new FWLConfig();
+    }
+
+    public void saveConfig() {
+        Path configFilePath = CONFIG_FOLDER_PATH.resolve("config.json");
+        File configFile = configFilePath.toFile();
+        String configContents = GSON.toJson(config);
+        createConfigFolder();
+        IOUtils.writeString(configFile, configContents);
     }
 
     private Path getThemeConfig(ResourceLocation path) {
@@ -82,8 +99,8 @@ public abstract class FWL {
     }
 
     public void saveCurrentThemeConfig() {
-        createConfigFolder(currentThemeResLoc);
-        Path configPath = getThemeConfig(currentThemeResLoc);
+        createConfigFolder(config.selectedTheme());
+        Path configPath = getThemeConfig(config.selectedTheme());
         File configFile = configPath.toFile();
         JsonObject preset = currentTheme.savePreset();
         String configContents = GSON.toJson(preset);
@@ -105,8 +122,9 @@ public abstract class FWL {
     public FWLTheme setCurrentTheme(ResourceLocation theme) {
         FWLThemeRepository.ThemeFactory themeFactory = themeRepository.getThemeFactory(theme);
         if (themeFactory != null) {
-            currentThemeResLoc = theme;
+            config.setSelectedTheme(theme);
             currentTheme = themeFactory.get(readThemeConfig(theme));
+            saveConfig();
             return currentTheme;
         }
         else throw new RuntimeException("Unable to find theme %s in registrars from mod %s".formatted(theme.getPath(), theme.getNamespace()));

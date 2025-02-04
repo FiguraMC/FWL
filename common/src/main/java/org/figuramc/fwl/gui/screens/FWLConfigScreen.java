@@ -1,19 +1,31 @@
 package org.figuramc.fwl.gui.screens;
 
 import com.google.gson.JsonObject;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.figuramc.fwl.FWL;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
+import org.figuramc.fwl.config.FWLConfig;
 import org.figuramc.fwl.gui.themes.FWLTheme;
+import org.figuramc.fwl.gui.themes.FWLThemeRepository;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.Resizeable;
 import org.figuramc.fwl.gui.widgets.Update;
+import org.figuramc.fwl.gui.widgets.button.Checkbox;
 import org.figuramc.fwl.gui.widgets.button.TextButton;
 import org.figuramc.fwl.gui.widgets.containers.AbstractFWLContainerWidget;
+import org.figuramc.fwl.gui.widgets.containers.FWLContainerWidget;
+import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
+import org.figuramc.fwl.gui.widgets.misc.Label;
 import org.figuramc.fwl.gui.widgets.tabs.SideViewSwitcher;
 import org.figuramc.fwl.gui.widgets.tabs.pages.PageEntry;
 import org.figuramc.fwl.utils.Rectangle;
 import org.jetbrains.annotations.Nullable;
+
+import static org.figuramc.fwl.FWL.fwl;
+import static org.figuramc.fwl.utils.TextUtils.themeToTranslationString;
 
 public class FWLConfigScreen extends FWLScreen {
     private SideViewSwitcher configSwitcher;
@@ -32,8 +44,28 @@ public class FWLConfigScreen extends FWLScreen {
         configSwitcher = new SideViewSwitcher(0, 0, width, height)
                 .setEntryHeight(16)
                 .setExpandedWidth(100)
+                .addEntry(new FWLSettingsPageEntry())
                 .addEntry(new ThemeSettingsPageEntry());
         addWidget(configSwitcher);
+    }
+
+    private static class FWLSettingsPageEntry implements PageEntry {
+        private FWLSettingsPage page;
+        @Override
+        public FWLWidget getPage(float width, float height) {
+            page = new FWLSettingsPage(width, height);
+            return page;
+        }
+
+        @Override
+        public Component getTitle() {
+            return Component.translatable("fwl.config.settings");
+        }
+
+        @Override
+        public @Nullable Component getTooltip() {
+            return Component.translatable("fwl.config.settings.tooltip");
+        }
     }
 
     private static class ThemeSettingsPageEntry implements PageEntry {
@@ -60,6 +92,89 @@ public class FWLConfigScreen extends FWLScreen {
         }
     }
 
+    private static class FWLSettingsPage extends AbstractFWLContainerWidget implements Resizeable {
+        private float width, height;
+
+        private TextButton changeThemeButton;
+
+        @Override
+        public void resize(float width, float height) {
+            this.width = width;
+            this.height = height;
+        }
+
+        @Override
+        public Rectangle boundaries() {
+            return new Rectangle(0, 0, width, height);
+        }
+
+        public FWLSettingsPage(float width, float height) {
+            this.width = width;
+            this.height = height;
+            float currentY = 10;
+            currentY += createThemeDropdown(10, currentY) + 10;
+            currentY += createSuperSecretSettings(10, currentY) + 10;
+        }
+
+        private float createThemeDropdown(float x, float y) {
+            FWLConfig config = fwl().config();
+            Style labelStyle = Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("fwl.config.settings.selected_theme.tooltip")));
+            Label buttonLabel = new Label(x, y, Component.translatable("fwl.config.settings.selected_theme").withStyle(labelStyle));
+            changeThemeButton =
+                    new TextButton(buttonLabel.boundaries().right() + 10, y, 100, 20, Component.translatable(themeToTranslationString(config.selectedTheme())));
+            changeThemeButton.setCallback(this::changeThemeCallback);
+            addWidget(buttonLabel);
+            addWidget(changeThemeButton);
+            return 20;
+        }
+
+        private float createSuperSecretSettings(float x, float y) {
+            Style labelStyle = Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("fwl.config.settings.super_secret_toggle.tooltip")));
+            Label toggleLabel = new Label(x, y, Component.translatable("fwl.config.settings.super_secret_toggle").withStyle(labelStyle));
+            Checkbox checkbox = new Checkbox(toggleLabel.boundaries().right() + 10, y, 20, 20, false);
+            addWidget(toggleLabel);
+            addWidget(checkbox);
+            return 20;
+        }
+
+        private void changeThemeCallback(float x, float y, int button) {
+            if (button == 0) {
+                ContextMenu menu = new ContextMenu(this, x, y);
+                FWLThemeRepository themes = fwl().themeRepository();
+                themes.getRegisteredThemes().forEachRemaining(p -> {
+                    menu.addEntry(new ThemeSwitchEntry(p.a(), changeThemeButton));
+                });
+                menu.setInteractionPriority(1000).setRenderPriority(1000);
+                addWidget(menu);
+            }
+        }
+
+        private static class ThemeSwitchEntry implements ContextMenu.Entry {
+            private final ResourceLocation theme;
+            private final TextButton parentButton;
+            private final Component text;
+
+            private ThemeSwitchEntry(ResourceLocation theme, TextButton parentButton) {
+                this.theme = theme;
+                this.parentButton = parentButton;
+                text = Component.translatable(themeToTranslationString(theme));
+            }
+
+            @Override
+            public Component text() {
+                return text;
+            }
+
+            @Override
+            public boolean onInteraction(int modifiers) {
+                fwl().setCurrentTheme(theme);
+                fwl().saveConfig();
+                parentButton.setMessage(text);
+                return false;
+            }
+        }
+    }
+
     private static class ThemeSettingsPage extends AbstractFWLContainerWidget implements Resizeable {
         private static final Component RESET_BUTTON_COMPONENT = Component.translatable("fwl.config.theme_settings.reset");
         private static final Component RESET_BUTTON_COMPONENT_TOOLTIP = Component.translatable("fwl.config.theme_settings.reset.tooltip");
@@ -80,7 +195,7 @@ public class FWLConfigScreen extends FWLScreen {
             this.width = width;
             this.height = height;
 
-            this.theme = FWL.fwl().currentTheme();
+            this.theme = fwl().currentTheme();
 
             this.savedPreset = theme.savePreset();
 
@@ -106,6 +221,8 @@ public class FWLConfigScreen extends FWLScreen {
 
         @Override
         public void resize(float width, float height) {
+            this.width = width;
+            this.height = height;
             float centerX = width / 2;
             float button1X = centerX - ((102 * 3) / 2f);
             float button2X = button1X + 102;
@@ -134,7 +251,7 @@ public class FWLConfigScreen extends FWLScreen {
         private void saveButtonCallback(float x, float y, int button) {
             if (button == 0) {
                 savedPreset = theme.savePreset();
-                FWL.fwl().saveCurrentThemeConfig();
+                fwl().saveCurrentThemeConfig();
             }
         }
 

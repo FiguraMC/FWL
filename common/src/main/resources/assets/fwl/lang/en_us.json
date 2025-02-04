@@ -1,4 +1,12 @@
 {
+  "fwl.config.settings": "FWL Settings",
+  "fwl.config.settings.tooltip": "Settings related to FWL itself",
+
+  "fwl.config.settings.selected_theme": "Selected Theme",
+  "fwl.config.settings.selected_theme.tooltip": "Changes currently selected theme",
+  "fwl.config.settings.super_secret_toggle": "Super Secret Toggle",
+  "fwl.config.settings.super_secret_toggle.tooltip": "\uD83E\uDD2B",
+
   "fwl.config.theme_settings": "Theme Settings",
   "fwl.config.theme_settings.tooltip": "Settings of currently selected theme",
   "fwl.config.theme_settings.reset": "Reset",
@@ -7,6 +15,8 @@
   "fwl.config.theme_settings.cancel.tooltip": "Cancels changes made during current configuration session",
   "fwl.config.theme_settings.save": "Save",
   "fwl.config.theme_settings.save.tooltip": "Saves current config",
+
+  "fwl.theme.breeze": "Breeze",
 
   "fwl.breeze.color.primary": "Primary Color",
   "fwl.breeze.color.accent": "Accent Color",

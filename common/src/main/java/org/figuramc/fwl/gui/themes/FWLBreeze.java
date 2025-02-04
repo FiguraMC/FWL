@@ -355,7 +355,7 @@ public class FWLBreeze extends FWLTheme {
         Orientation orient = slider.orientation();
 
         float scaling = getWindowScaling();
-        int sliderColor = getColorOrDefault(ColorTypes.SECONDARY, 0xFF777777);
+        int sliderColor = applyStateModifier(getColorOrDefault(ColorTypes.SECONDARY, 0xFF777777), slider);
         int sliderBorderColor = getColorOrDefault(slider.focused() ? ColorTypes.SECONDARY : ColorTypes.BORDER, 0xFF000000); // Getting border color. Breeze theme doesn't check for namespace
         int barColor = getColorOrDefault(ColorTypes.BORDER, 0xFF111111);
 

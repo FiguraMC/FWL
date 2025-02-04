@@ -84,7 +84,7 @@ public abstract class FWLAbstractConfig<T extends FWLTheme> extends AbstractFWLC
 
     protected abstract Pair<Component, FieldConstructor<T>>[] getConstructors();
 
-    public interface FieldConstructor<T extends FWLTheme> {
+    public interface FieldConstructor<T> {
         FWLWidget getWidget(T parent, float x, float y);
     }
 }

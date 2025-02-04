@@ -111,12 +111,12 @@ public class SideViewSwitcher extends ViewSwitcher {
             float widthDiff = textWidth - maxTextWidth;
 
             Scissors.enableScissors(graphics, textX, entryY, maxTextWidth, entryHeight);
-            if (widthDiff <= 0 || !hovered) renderText(graphics, text, textX, textY, 0, textScale, 0xFFFFFFFF, false);
+            if (widthDiff <= 0 || !hovered) renderText(graphics, text, textX, textY, 0, textScale, false);
             else {
                 float scrollTicks = widthDiff / 2f;
                 float scrollProgress = scrollProgress(scrollTicks + 15, scrollTicks, hoveredTicks + delta);
                 float textXOffset = widthDiff * scrollProgress;
-                renderText(graphics, text, textX - textXOffset, textY, 0, textScale, 0xFFFFFFFF, false);
+                renderText(graphics, text, textX - textXOffset, textY, 0, textScale, false);
             }
             Scissors.disableScissors(graphics);
         }
@@ -129,7 +129,7 @@ public class SideViewSwitcher extends ViewSwitcher {
             float scale = height / (lineHeight() - 1);
             float w = textWidth(seq, scale);
             float xOffset = (width - w) / 2;
-            renderText(graphics, seq, x + xOffset, y, 0, scale, 0xFFFFFFFF, false);
+            renderText(graphics, seq, x + xOffset, y, 0, scale, false);
         }
     }
 

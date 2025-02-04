@@ -4,8 +4,11 @@ import com.mojang.blaze3d.font.GlyphInfo;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,6 +33,10 @@ public class TextUtils {
             if (Character.isWhitespace(c)) return i;
         }
         return i;
+    }
+
+    public static String themeToTranslationString(ResourceLocation theme) {
+        return "%s.theme.%s".formatted(theme.getNamespace(), theme.getPath().replace('/', '.'));
     }
 
     public static FormattedCharSequence substr(FormattedCharSequence sequence, int beginIndex, int endIndex) {
@@ -67,6 +74,23 @@ public class TextUtils {
             return true;
         });
         return returnStyle.get();
+    }
+
+    public static List<FormattedCharSequence> splitByNewLine(FormattedCharSequence sequence) {
+        ArrayList<FormattedCharSequence> lines = new ArrayList<>();
+        AtomicInteger startIndex = new AtomicInteger(0);
+        AtomicInteger endIndex = new AtomicInteger(0);
+        sequence.accept((index, style, codepoint) -> {
+            endIndex.set(index);
+            if (codepoint == '\n') {
+                lines.add(substr(sequence, startIndex.get(), endIndex.get()));
+                startIndex.set(endIndex.get() + 1);
+                return true;
+            }
+            return true;
+        });
+        lines.add(substr(sequence, startIndex.get(), endIndex.get() + 1));
+        return lines;
     }
 
     public static int lines(FormattedCharSequence text) {

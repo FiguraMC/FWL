@@ -8,6 +8,7 @@ import org.figuramc.fwl.gui.screens.FWLScreen;
 import org.figuramc.fwl.gui.themes.ColorTypes;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.gui.widgets.containers.FWLContainerWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.misc.ContextMenuDescriptor;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.RenderUtils;
@@ -18,17 +19,20 @@ import java.util.ArrayList;
 import java.util.function.Function;
 
 import static org.figuramc.fwl.FWL.fwl;
+import static org.figuramc.fwl.utils.MathUtils.clamp;
 import static org.figuramc.fwl.utils.MathUtils.wrapModulo;
 
 public class ContextMenu implements FWLWidget {
+    public static final int MAX_CONTEXT_ENTRIES_UNTIL_SCROLL = 8;
     private final ContextMenuDescriptor desc;
-    private final FWLScreen parent;
+    private final FWLContainerWidget parent;
     private final ArrayList<Entry> entries = new ArrayList<>();
     private int currentEntry = -1;
+    private int currentScroll = 0;
     private int priority;
 
-    public ContextMenu(FWLScreen screen, float x, float y) {
-        this.parent = screen;
+    public ContextMenu(FWLContainerWidget parent, float x, float y) {
+        this.parent = parent;
         this.desc = new ContextMenuDescriptor(x, y, 0, 0);
     }
 
@@ -62,7 +66,7 @@ public class ContextMenu implements FWLWidget {
     private void update() {
         Font font = Minecraft.getInstance().font;
         int width = 0;
-        int height = entryHeight() * entries.size();
+        int height = entryHeight() * Math.min(entries.size(), MAX_CONTEXT_ENTRIES_UNTIL_SCROLL);
         for (Entry entry: entries) {
             width = Math.max(width, font.width(entry.text()));
         }
@@ -96,7 +100,7 @@ public class ContextMenu implements FWLWidget {
         int color = theme.getColorOrDefault(ColorTypes.TEXT, 0xFFFFFFFF);
         int accentColor = theme.getColorOrDefault(ColorTypes.SECONDARY, 0xFFFFAAAA);
 
-        float x = desc.x(), y = desc.y(), width = desc.width();
+        float x = desc.x(), y = desc.y(), width = desc.width(), height = desc.height();
 
         float x2 = x + width;
 
@@ -104,15 +108,25 @@ public class ContextMenu implements FWLWidget {
         float textX1 = x + 2;
 
         int entriesCount = entries.size();
-        for (int i = 0; i < entriesCount; i++) {
-            Entry entry = entries.get(i);
+        for (int i = 0; i < Math.min(entriesCount, MAX_CONTEXT_ENTRIES_UNTIL_SCROLL); i++) {
+            Entry entry = entries.get(i + currentScroll);
             float textY = y + (i * lineHeight) + 2;
             int textColor;
             if (currentEntry == i || (mouseX >= x && mouseX <= x2 && mouseY >= textY && mouseY <= textY + lineHeight)) textColor = accentColor;
             else textColor = color;
             RenderUtils.renderText(graphics, entry.text(), textX1, textY, 0, 1, textColor, false);
         }
+        if (entriesCount > 8) {
+            int unrenderedEntries = entriesCount - 8;
+            float barHeight = (8f / entriesCount) * height;
+            float barYStep = (height - barHeight) / unrenderedEntries;
+            float barY = y + (barYStep * currentScroll);
+            RenderUtils.fill(graphics, x2 - 2, barY, x2, barY + barHeight, 0, accentColor);
+        }
+    }
 
+    private void addToScroll(int addition) {
+        currentScroll = clamp(currentScroll + addition, 0, Math.max(0, entries.size() - MAX_CONTEXT_ENTRIES_UNTIL_SCROLL));
     }
 
     @Override
@@ -124,11 +138,13 @@ public class ContextMenu implements FWLWidget {
             case GLFW.GLFW_KEY_UP -> {
                 if (currentEntry == -1) currentEntry = 0;
                 else currentEntry = wrapModulo(currentEntry - 1, entries.size());
+                if (currentEntry < currentScroll) addToScroll(-1);
             }
 
             case GLFW.GLFW_KEY_DOWN -> {
                 if (currentEntry == -1) currentEntry = 0;
                 else currentEntry = (currentEntry + 1) % entries.size();
+                if (currentEntry > currentScroll + 7) addToScroll(1);
             }
 
             case GLFW.GLFW_KEY_ENTER -> {
@@ -169,6 +185,12 @@ public class ContextMenu implements FWLWidget {
             }
         }
         if (!keepOpen) parent.removeWidget(this);
+        return true;
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        addToScroll((int) amount);
         return true;
     }
 

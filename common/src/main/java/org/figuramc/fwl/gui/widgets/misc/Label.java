@@ -6,6 +6,7 @@ import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.RenderUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -15,7 +16,7 @@ public class Label implements FWLWidget {
     private Component text;
 
     private float scale = 1;
-    private int color = 0xFFFFFFFF;
+    private Integer color = null;
     private boolean shadow = false;
 
     public Label(float x, float y, @NotNull Component text) {
@@ -43,7 +44,10 @@ public class Label implements FWLWidget {
 
     @Override
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-        RenderUtils.renderText(graphics, text, x, y, 0, scale, color, shadow);
+        if (color != null) RenderUtils.renderText(graphics, text, x, y, 0, scale, color, shadow);
+        else RenderUtils.renderText(graphics, text, x, y, 0, scale, shadow);
+        if (boundaries().pointIn(mouseX, mouseY))
+            RenderUtils.renderTextTooltip(graphics, text.getVisualOrderText(), x, y, scale, mouseX, mouseY);
     }
 
     @Override
@@ -87,11 +91,11 @@ public class Label implements FWLWidget {
         return this;
     }
 
-    public int color() {
+    public Integer color() {
         return color;
     }
 
-    public Label setColor(int color) {
+    public Label setColor(Integer color) {
         this.color = color;
         return this;
     }

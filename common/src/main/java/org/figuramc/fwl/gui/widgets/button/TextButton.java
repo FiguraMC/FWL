@@ -23,19 +23,12 @@ public class TextButton extends Button implements NarratableEntry {
 
     @Override
     public void renderButton(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-        FWLTheme theme = fwl().currentTheme();
         if (message != null) {
             float textWidth = textWidth(message, 1);
             float x = desc.x() + (desc.width() / 2) - (textWidth / 2);
             float y = desc.y() + (desc.height() / 2) - (textHeight(message, 1, desc.width() - 2) / 2);
-            int color = getTextColor(theme);
-            RenderUtils.renderText(graphics, message, x, y, 0, 1, color, false);
+            RenderUtils.renderText(graphics, message, x, y, 0, 1, false);
         }
-    }
-
-    private int getTextColor(FWLTheme theme) {
-        Integer color = getTextColorForType(theme, desc.type().getPath());
-        return color != null ? color : getTextColorForType(theme, ButtonTypes.DEFAULT.getPath(), 0xFFFFFFFF);
     }
 
     private Integer getTextColorForType(FWLTheme theme, String type) {

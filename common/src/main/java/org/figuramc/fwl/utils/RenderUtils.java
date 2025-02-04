@@ -13,13 +13,23 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.FormattedCharSequence;
 import org.figuramc.fwl.FWL;
+import org.figuramc.fwl.gui.themes.ColorTypes;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor;
 import org.joml.Matrix4f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.figuramc.fwl.utils.MathUtils.clamp;
+import static org.figuramc.fwl.utils.TextUtils.splitByNewLine;
 
 public class RenderUtils {
+    public static float renderText(GuiGraphics graphics, Component text, float x, float y, float z, float scale, boolean shadow) {
+        int color = FWL.fwl().currentTheme().getColorOrDefault(ColorTypes.TEXT, 0xFFFFFFFF);
+        return renderText(graphics, text, x, y, z, 1, color, shadow);
+    }
+
     public static float renderText(GuiGraphics graphics, Component text, float x, float y, float z, float scale, int color, boolean shadow) {
         PoseStack stack = graphics.pose();
         Font font = Minecraft.getInstance().font;
@@ -30,13 +40,25 @@ public class RenderUtils {
         stack.popPose();
         return w * scale;
     }
+
+    public static float renderText(GuiGraphics graphics, FormattedCharSequence text, float x, float y, float z, float scale, boolean shadow) {
+        int color = FWL.fwl().currentTheme().getColorOrDefault(ColorTypes.TEXT, 0xFFFFFFFF);
+        return renderText(graphics, text, x, y, z, 1, color, shadow);
+    }
+
     public static float renderText(GuiGraphics graphics, FormattedCharSequence text, float x, float y, float z, float scale, int color, boolean shadow) {
         PoseStack stack = graphics.pose();
         Font font = Minecraft.getInstance().font;
         stack.pushPose();
         stack.translate(x, y, z);
         stack.scale(scale, scale, scale);
-        int w = graphics.drawString(font, text, 0, 0, color, shadow);
+        List<FormattedCharSequence> lines = splitByNewLine(text);
+        int w = 0;
+        int yOffset = 0;
+        for (FormattedCharSequence line: lines) {
+            w = Math.max(graphics.drawString(font, line, 0, yOffset, color, shadow), w);
+            yOffset += font.lineHeight;
+        }
         stack.popPose();
         return w * scale;
     }
@@ -55,7 +77,12 @@ public class RenderUtils {
 
     public static float textWidth(FormattedCharSequence text, float scale) {
         Font font = Minecraft.getInstance().font;
-        return font.width(text) * scale;
+        List<FormattedCharSequence> lines = TextUtils.splitByNewLine(text);
+        int w = 0;
+        for (FormattedCharSequence line : lines) {
+            w = Math.max(font.width(line), w);
+        }
+        return w * scale;
     }
 
     public static float lineHeight() {
@@ -316,7 +343,7 @@ public class RenderUtils {
         stack.translate(0, 0, z);
         theme.fillBounds(graphics, 0, desc);
         theme.renderBounds(graphics, 0, desc);
-        renderText(graphics, tooltip, x + TEXT_OFFSET, y + TEXT_OFFSET, 0, textScale, 0xFFFFFFFF, false);
+        renderText(graphics, tooltip, x + TEXT_OFFSET, y + TEXT_OFFSET, 0, textScale, false);
         stack.popPose();
     }
 

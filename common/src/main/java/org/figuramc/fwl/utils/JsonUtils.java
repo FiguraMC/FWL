@@ -13,4 +13,13 @@ public class JsonUtils {
         }
         return defaultValue;
     }
+
+    public static String stringOrDefault(JsonObject object, String member, String defaultValue) {
+        JsonElement element = object.get(member);
+        if (element.isJsonPrimitive()) {
+            JsonPrimitive primitive = element.getAsJsonPrimitive();
+            return primitive.isString() ? primitive.getAsString() : defaultValue;
+        }
+        return defaultValue;
+    }
 }

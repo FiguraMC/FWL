@@ -201,7 +201,7 @@ public class TextInput implements FWLWidget, Update {
                 RenderUtils.fill(graphics, cursorX, cursorY1, cursorX + 1, cursorY2, 0, cursorColor);
             }
         }
-        RenderUtils.renderText(graphics, bakedText, textX1 + textOffset, textYPos, 0, 1, 0xFFFFFFFF, false);
+        RenderUtils.renderText(graphics, bakedText, textX1 + textOffset, textYPos, 0, 1, false);
         Scissors.disableScissors(graphics);
         if (desc.boundaries().pointIn(mouseX, mouseY)) {
             RenderUtils.renderTextTooltip(graphics, bakedText.getVisualOrderText(), textX1 + textOffset, textYPos, 1, mouseX, mouseY);
