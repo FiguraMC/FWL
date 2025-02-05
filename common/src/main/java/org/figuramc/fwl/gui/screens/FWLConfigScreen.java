@@ -113,7 +113,6 @@ public class FWLConfigScreen extends FWLScreen {
             this.height = height;
             float currentY = 10;
             currentY += createThemeDropdown(10, currentY) + 10;
-            currentY += createSuperSecretSettings(10, currentY) + 10;
         }
 
         private float createThemeDropdown(float x, float y) {
@@ -128,23 +127,16 @@ public class FWLConfigScreen extends FWLScreen {
             return 20;
         }
 
-        private float createSuperSecretSettings(float x, float y) {
-            Style labelStyle = Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("fwl.config.settings.super_secret_toggle.tooltip")));
-            Label toggleLabel = new Label(x, y, Component.translatable("fwl.config.settings.super_secret_toggle").withStyle(labelStyle));
-            Checkbox checkbox = new Checkbox(toggleLabel.boundaries().right() + 10, y, 20, 20, false);
-            addWidget(toggleLabel);
-            addWidget(checkbox);
-            return 20;
-        }
-
         private void changeThemeCallback(float x, float y, int button) {
             if (button == 0) {
-                ContextMenu menu = new ContextMenu(this, x, y);
+                Rectangle boundaries = changeThemeButton.boundaries();
+                ContextMenu menu = new ContextMenu(this, boundaries.left(), boundaries.bottom());
                 FWLThemeRepository themes = fwl().themeRepository();
                 themes.getRegisteredThemes().forEachRemaining(p -> {
                     menu.addEntry(new ThemeSwitchEntry(p.a(), changeThemeButton));
                 });
                 menu.setInteractionPriority(1000).setRenderPriority(1000);
+                setFocused(menu);
                 addWidget(menu);
             }
         }

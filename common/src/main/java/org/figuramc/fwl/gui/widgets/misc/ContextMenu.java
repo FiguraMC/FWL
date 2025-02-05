@@ -109,10 +109,11 @@ public class ContextMenu implements FWLWidget {
 
         int entriesCount = entries.size();
         for (int i = 0; i < Math.min(entriesCount, MAX_CONTEXT_ENTRIES_UNTIL_SCROLL); i++) {
-            Entry entry = entries.get(i + currentScroll);
+            int index = i + currentScroll;
+            Entry entry = entries.get(index);
             float textY = y + (i * lineHeight) + 2;
             int textColor;
-            if (currentEntry == i || (mouseX >= x && mouseX <= x2 && mouseY >= textY && mouseY <= textY + lineHeight)) textColor = accentColor;
+            if (currentEntry == index || (mouseX >= x && mouseX <= x2 && mouseY >= textY && mouseY <= textY + lineHeight)) textColor = accentColor;
             else textColor = color;
             RenderUtils.renderText(graphics, entry.text(), textX1, textY, 0, 1, textColor, false);
         }
@@ -129,6 +130,11 @@ public class ContextMenu implements FWLWidget {
         currentScroll = clamp(currentScroll + addition, 0, Math.max(0, entries.size() - MAX_CONTEXT_ENTRIES_UNTIL_SCROLL));
     }
 
+    private void updateScroll() {
+        if (currentEntry < currentScroll) currentScroll = currentEntry;
+        else if (currentEntry - 7 > currentScroll) currentScroll = currentEntry - 7;
+    }
+
     @Override
     public void tick() {}
 
@@ -138,13 +144,13 @@ public class ContextMenu implements FWLWidget {
             case GLFW.GLFW_KEY_UP -> {
                 if (currentEntry == -1) currentEntry = 0;
                 else currentEntry = wrapModulo(currentEntry - 1, entries.size());
-                if (currentEntry < currentScroll) addToScroll(-1);
+                updateScroll();
             }
 
             case GLFW.GLFW_KEY_DOWN -> {
                 if (currentEntry == -1) currentEntry = 0;
                 else currentEntry = (currentEntry + 1) % entries.size();
-                if (currentEntry > currentScroll + 7) addToScroll(1);
+                updateScroll();
             }
 
             case GLFW.GLFW_KEY_ENTER -> {
@@ -190,7 +196,7 @@ public class ContextMenu implements FWLWidget {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        addToScroll((int) amount);
+        addToScroll(-(int) amount);
         return true;
     }
 
