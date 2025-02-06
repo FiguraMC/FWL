@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
+import net.minecraft.resources.ResourceLocation;
 import org.figuramc.fwl.text.providers.StyleProvider;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -36,18 +37,18 @@ public class TextRenderer {
     }
 
     public boolean accept(int index, StyleProvider provider, int codepoint) {
+        FWLStyle style = provider.get(index, 0);
+        Vector2f scale = style.getScale();
+        float glyphHeight = font.lineHeight * scale.y;
+        lineHeight = Math.max(lineHeight, glyphHeight);
         if (codepoint == '\n') {
             render();
         }
         else {
-            FWLStyle style = provider.get(index, 0);
             FontSet set = font.getFontSet(style.getFont());
             GlyphInfo info = set.getGlyphInfo(codepoint, font.filterFishyGlyphs);
             BakedGlyph glyph = style.isObfuscated() ? set.getRandomGlyph(info) : set.getGlyph(codepoint);
-            Vector2f scale = style.getScale();
             float glyphWidth = info.getAdvance(style.isBold()) * scale.x;
-            float glyphHeight = font.lineHeight * scale.y;
-            lineHeight = Math.max(lineHeight, glyphHeight);
             lineGlyphs.add(new GlyphData(info, glyph, glyphWidth, glyphHeight, style));
         }
         return true;
@@ -56,7 +57,7 @@ public class TextRenderer {
     private boolean renderLine() {
         if (lineGlyphs.isEmpty()) return false;
         for (GlyphData data: lineGlyphs) {
-            x += renderChar(graphics, layerType, matrix, data.glyph, data.info, x, y, data.style, lineHeight, font.lineHeight, light);
+            x += renderChar(graphics, font, layerType, matrix, data.glyph, data.info, x, y, data.style, lineHeight, font.lineHeight, light);
         }
         return true;
     }
@@ -71,11 +72,20 @@ public class TextRenderer {
         }
     }
 
-    public static float renderChar(GuiGraphics graphics, Font.DisplayMode layerType, Matrix4f matrix, BakedGlyph glyph, GlyphInfo info, float x, float y, FWLStyle style, float lineHeight, int charHeight, int light) {
+    public static float renderChar(GuiGraphics graphics, Font renderer, Font.DisplayMode layerType, Matrix4f matrix, BakedGlyph glyph, GlyphInfo info, float x, float y, FWLStyle style, float lineHeight, int charHeight, int light) {
         final float initialX = x, initialY = y;
 
         float width = info.getAdvance(style.isBold());
         float height = charHeight;
+
+        if (style.hasBackground()) {
+            Vector4f backgroundColor = style.getBackgroundColor();
+            float cR = backgroundColor.x;
+            float cG = backgroundColor.y;
+            float cB = backgroundColor.z;
+            float cA = backgroundColor.w;
+            renderEffect(graphics, renderer, layerType, matrix, initialX, initialY, initialX + width, initialY + lineHeight, cR, cG, cB, cA, light);
+        }
 
         if (!(glyph instanceof EmptyGlyph)) {
             VertexConsumer consumer = graphics.bufferSource().getBuffer(glyph.renderType(layerType));
@@ -126,21 +136,67 @@ public class TextRenderer {
             x2 += xDiff * (scale.x - 1);
             y2 += yDiff * (scale.y - 1);
 
-            if (style.hasBackground()) {
-                // TODO render background
+            if (style.hasShadow()) {
+                Vector4f shadowColor = style.getShadowColor();
+                Vector2f shadowOffset = style.getShadowOffset();
+                if (!style.hasShadowOffset()) {
+                    shadowOffset.mul(scale.x, scale.y);
+                }
+                float oX = shadowOffset.x, oY = shadowOffset.y;
+                float cR = shadowColor.x;
+                float cG = shadowColor.y;
+                float cB = shadowColor.z;
+                float cA = shadowColor.w;
+                renderCharInternal(consumer, matrix, x1 + oX, y1 + oY, x2 + oX, y2 + oY, u0, v0, u1, v1, skewX, skewY, cR, cG, cB, cA, light);
             }
 
             if (style.hasOutline()) {
-                // TODO render outline
+                Vector4f outlineColor = style.getOutlineColor();
+                Vector2f outlineScale = style.getOutlineScale();
+                float cR = outlineColor.x;
+                float cG = outlineColor.y;
+                float cB = outlineColor.z;
+                float cA = outlineColor.w;
+                for (int oY = -1; oY <= 1; oY++) {
+                    for (int oX = -1; oX <= 1; oX++) {
+                        if (oY == 0 && oX == 0) continue;
+                        float cX = oX * outlineScale.x;
+                        float cY = oY * outlineScale.y;
+                        renderCharInternal(consumer, matrix, x1 + cX, y1 + cY, x2 + cX, y2 + cY, u0, v0, u1, v1, skewX, skewY, cR, cG, cB, cA, light);
+                    }
+                }
             }
-            else if (style.hasShadow()) {
-                // TODO render shadow
-            }
-            else if (style.isBold()) {
-                // TODO render bold
+
+            if (style.isBold()) {
+                float weight = info.getBoldOffset() * scale.x;
+                renderCharInternal(consumer, matrix, x1 + weight, y1, x2 + weight, y2, u0, v0, u1, v1, skewX, skewY, r, g, b, a, light);
             }
 
             renderCharInternal(consumer, matrix, x1, y1, x2, y2, u0, v0, u1, v1, skewX, skewY, r, g, b, a, light);
+        }
+
+        if (style.hasStrikethrough()) {
+            Vector4f strikethroughColor = style.getStrikethroughColor();
+            float cX2 = initialX + width;
+            float cY1 = initialY + (lineHeight / 2) - 1;
+            float cY2 = cY1 + 1;
+            float cR = strikethroughColor.x;
+            float cG = strikethroughColor.y;
+            float cB = strikethroughColor.z;
+            float cA = strikethroughColor.w;
+            renderEffect(graphics, renderer, layerType, matrix, initialX, cY1, cX2, cY2, cR, cG, cB, cA, light);
+        }
+
+        if (style.hasUnderline()) {
+            Vector4f underlineColor = style.getUnderlineColor();
+            float cX2 = initialX + width;
+            float cY2 = initialY + (lineHeight);
+            float cY1 = cY2 - 1;
+            float cR = underlineColor.x;
+            float cG = underlineColor.y;
+            float cB = underlineColor.z;
+            float cA = underlineColor.w;
+            renderEffect(graphics, renderer, layerType, matrix, initialX, cY1, cX2, cY2, cR, cG, cB, cA, light);
         }
         return width;
     }
@@ -150,6 +206,18 @@ public class TextRenderer {
         consumer.vertex(matrix, x1 - skewX, y2 - skewY, 0).color(r, g, b, a).uv(u0, v1).uv2(light).endVertex();
         consumer.vertex(matrix, x2 - skewX, y2 + skewY, 0).color(r, g, b, a).uv(u1, v1).uv2(light).endVertex();
         consumer.vertex(matrix, x2 + skewX, y1 + skewY, 0).color(r, g, b, a).uv(u1, v0).uv2(light).endVertex();
+    }
+
+    private static void renderEffect(GuiGraphics graphics, Font renderer, Font.DisplayMode layerType, Matrix4f matrix, float x1, float y1, float x2, float y2, float r, float g, float b, float a, int light) {
+        FontSet fontSet = renderer.getFontSet(FWLStyle.DEFAULT_FONT);
+        BakedGlyph whiteGlyph = fontSet.whiteGlyph();
+
+        VertexConsumer consumer = graphics.bufferSource().getBuffer(whiteGlyph.renderType(layerType));
+
+        consumer.vertex(matrix, x1, y1, 0).color(r, g, b, a).uv(whiteGlyph.u0, whiteGlyph.v0).uv2(light).endVertex();
+        consumer.vertex(matrix, x1, y2, 0).color(r, g, b, a).uv(whiteGlyph.u0, whiteGlyph.v1).uv2(light).endVertex();
+        consumer.vertex(matrix, x2, y2, 0).color(r, g, b, a).uv(whiteGlyph.u1, whiteGlyph.v1).uv2(light).endVertex();
+        consumer.vertex(matrix, x2, y1, 0).color(r, g, b, a).uv(whiteGlyph.u1, whiteGlyph.v0).uv2(light).endVertex();
     }
 
     private record GlyphData(GlyphInfo info, BakedGlyph glyph, float width, float height, FWLStyle style) {}

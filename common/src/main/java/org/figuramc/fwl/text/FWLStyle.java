@@ -1,6 +1,7 @@
 package org.figuramc.fwl.text;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -8,8 +9,9 @@ import org.joml.Vector4f;
 import java.util.Objects;
 
 public class FWLStyle {
+    public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
     public static final FWLStyle EMPTY = new FWLStyle();
-    private @Nullable Boolean bold, italic, obfuscated, blended;
+    private @Nullable Boolean bold, italic, obfuscated;
     private @Nullable Vector4f color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor;
     private @Nullable Vector2f scale, outlineScale, skew, offset, shadowOffset;
     private @Nullable Float verticalAlignment;
@@ -19,11 +21,10 @@ public class FWLStyle {
 
     }
 
-    public FWLStyle(@Nullable Boolean bold, @Nullable Boolean italic, @Nullable Boolean obfuscated, @Nullable Boolean blended, @Nullable Vector4f color, @Nullable Vector4f backgroundColor, @Nullable Vector4f shadowColor, @Nullable Vector4f strikethroughColor, @Nullable Vector4f underlineColor, @Nullable Vector4f outlineColor, @Nullable Vector2f scale, @Nullable Vector2f outlineScale, @Nullable Vector2f skew, @Nullable Vector2f offset, @Nullable Vector2f shadowOffset, @Nullable Float verticalAlignment, @Nullable ResourceLocation font) {
+    public FWLStyle(@Nullable Boolean bold, @Nullable Boolean italic, @Nullable Boolean obfuscated, @Nullable Vector4f color, @Nullable Vector4f backgroundColor, @Nullable Vector4f shadowColor, @Nullable Vector4f strikethroughColor, @Nullable Vector4f underlineColor, @Nullable Vector4f outlineColor, @Nullable Vector2f scale, @Nullable Vector2f outlineScale, @Nullable Vector2f skew, @Nullable Vector2f offset, @Nullable Vector2f shadowOffset, @Nullable Float verticalAlignment, @Nullable ResourceLocation font) {
         this.bold = bold;
         this.italic = italic;
         this.obfuscated = obfuscated;
-        this.blended = blended;
         this.color = color;
         this.backgroundColor = backgroundColor;
         this.shadowColor = shadowColor;
@@ -57,16 +58,18 @@ public class FWLStyle {
         return inst;
     }
 
-    public FWLStyle withBlended(@Nullable Boolean blended) {
-        FWLStyle inst = this.clone();
-        inst.blended = blended;
-        return inst;
-    }
-
     public FWLStyle withColor(@Nullable Vector4f color) {
         FWLStyle inst = this.clone();
         inst.color = color;
         return inst;
+    }
+
+    public FWLStyle withColor(float r, float g, float b, float a) {
+        return withColor(new Vector4f(r, g, b, a));
+    }
+
+    public FWLStyle withColor(int argb) {
+        return withColor(argbToColorVec4(argb));
     }
 
     public FWLStyle withBackgroundColor(@Nullable Vector4f backgroundColor) {
@@ -75,10 +78,26 @@ public class FWLStyle {
         return inst;
     }
 
+    public FWLStyle withBackgroundColor(float r, float g, float b, float a) {
+        return withBackgroundColor(new Vector4f(r, g, b, a));
+    }
+
+    public FWLStyle withBackgroundColor(int argb) {
+        return withBackgroundColor(argbToColorVec4(argb));
+    }
+
     public FWLStyle withShadowColor(@Nullable Vector4f shadowColor) {
         FWLStyle inst = this.clone();
         inst.shadowColor = shadowColor;
         return inst;
+    }
+
+    public FWLStyle withShadowColor(float r, float g, float b, float a) {
+        return withShadowColor(new Vector4f(r, g, b, a));
+    }
+
+    public FWLStyle withShadowColor(int argb) {
+        return withShadowColor(argbToColorVec4(argb));
     }
 
     public FWLStyle withStrikethroughColor(@Nullable Vector4f strikethroughColor) {
@@ -87,10 +106,26 @@ public class FWLStyle {
         return inst;
     }
 
+    public FWLStyle withStrikethroughColor(float r, float g, float b, float a) {
+        return withStrikethroughColor(new Vector4f(r, g, b, a));
+    }
+
+    public FWLStyle withStrikethroughColor(int argb) {
+        return withStrikethroughColor(argbToColorVec4(argb));
+    }
+
     public FWLStyle withUnderlineColor(@Nullable Vector4f underlineColor) {
         FWLStyle inst = this.clone();
         inst.underlineColor = underlineColor;
         return inst;
+    }
+
+    public FWLStyle withUnderlineColor(float r, float g, float b, float a) {
+        return withUnderlineColor(new Vector4f(r, g, b, a));
+    }
+
+    public FWLStyle withUnderlineColor(int argb) {
+        return withUnderlineColor(argbToColorVec4(argb));
     }
 
     public FWLStyle withOutlineColor(@Nullable Vector4f outlineColor) {
@@ -99,10 +134,22 @@ public class FWLStyle {
         return inst;
     }
 
+    public FWLStyle withOutlineColor(float r, float g, float b, float a) {
+        return withOutlineColor(new Vector4f(r, g, b, a));
+    }
+
+    public FWLStyle withOutlineColor(int argb) {
+        return withOutlineColor(argbToColorVec4(argb));
+    }
+
     public FWLStyle withScale(@Nullable Vector2f scale) {
         FWLStyle inst = this.clone();
         inst.scale = scale;
         return inst;
+    }
+
+    public FWLStyle withScale(float x, float y) {
+        return withScale(new Vector2f(x, y));
     }
 
     public FWLStyle withOutlineScale(@Nullable Vector2f outlineScale) {
@@ -111,10 +158,18 @@ public class FWLStyle {
         return inst;
     }
 
+    public FWLStyle withOutlineScale(float x, float y) {
+        return withOutlineScale(new Vector2f(x, y));
+    }
+
     public FWLStyle withSkew(@Nullable Vector2f skew) {
         FWLStyle inst = this.clone();
         inst.skew = skew;
         return inst;
+    }
+
+    public FWLStyle withSkew(float x, float y) {
+        return withSkew(new Vector2f(x, y));
     }
 
     public FWLStyle withOffset(@Nullable Vector2f offset) {
@@ -123,10 +178,18 @@ public class FWLStyle {
         return inst;
     }
 
+    public FWLStyle withOffset(float x, float y) {
+        return withOffset(new Vector2f(x, y));
+    }
+
     public FWLStyle withShadowOffset(@Nullable Vector2f shadowOffset) {
         FWLStyle inst = this.clone();
         inst.shadowOffset = shadowOffset;
         return inst;
+    }
+
+    public FWLStyle withShadowOffset(float x, float y) {
+        return withShadowOffset(new Vector2f(x, y));
     }
 
     public FWLStyle withVerticalAlignment(@Nullable Float verticalAlignment) {
@@ -151,10 +214,6 @@ public class FWLStyle {
 
     public boolean isObfuscated() {
         return obfuscated != null ? obfuscated : false;
-    }
-
-    public boolean isBlended() {
-        return blended != null ? blended : false;
     }
 
     public Vector4f getColor() {
@@ -246,7 +305,7 @@ public class FWLStyle {
     }
 
     public ResourceLocation getFont() {
-        return font == null ? new ResourceLocation("minecraft", "default") : font;
+        return font == null ? DEFAULT_FONT : font;
     }
 
     public static FWLStyle merge(FWLStyle a, FWLStyle b) {
@@ -254,7 +313,6 @@ public class FWLStyle {
                 b.bold == null ? a.bold : b.bold,
                 b.italic == null ? a.italic : b.italic,
                 b.obfuscated == null ? a.obfuscated : b.obfuscated,
-                b.blended == null ? a.blended : b.blended,
                 b.color == null ? a.color : b.color,
                 b.backgroundColor == null ? a.backgroundColor : b.backgroundColor,
                 b.shadowColor == null ? a.shadowColor : b.shadowColor,
@@ -280,18 +338,30 @@ public class FWLStyle {
     }
 
     public FWLStyle clone() {
-        return new FWLStyle(bold, italic, obfuscated, blended, color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor, scale, outlineScale, skew, offset, shadowOffset, verticalAlignment, font);
+        return new FWLStyle(bold, italic, obfuscated, color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor, scale, outlineScale, skew, offset, shadowOffset, verticalAlignment, font);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof FWLStyle fwlStyle)) return false;
-        return Objects.equals(bold, fwlStyle.bold) && Objects.equals(italic, fwlStyle.italic) && Objects.equals(obfuscated, fwlStyle.obfuscated) && Objects.equals(blended, fwlStyle.blended) && Objects.equals(color, fwlStyle.color) && Objects.equals(backgroundColor, fwlStyle.backgroundColor) && Objects.equals(shadowColor, fwlStyle.shadowColor) && Objects.equals(strikethroughColor, fwlStyle.strikethroughColor) && Objects.equals(underlineColor, fwlStyle.underlineColor) && Objects.equals(outlineColor, fwlStyle.outlineColor) && Objects.equals(scale, fwlStyle.scale) && Objects.equals(outlineScale, fwlStyle.outlineScale) && Objects.equals(skew, fwlStyle.skew) && Objects.equals(offset, fwlStyle.offset) && Objects.equals(shadowOffset, fwlStyle.shadowOffset) && Objects.equals(verticalAlignment, fwlStyle.verticalAlignment) && Objects.equals(font, fwlStyle.font);
+        return Objects.equals(bold, fwlStyle.bold) && Objects.equals(italic, fwlStyle.italic) && Objects.equals(obfuscated, fwlStyle.obfuscated) && Objects.equals(color, fwlStyle.color) && Objects.equals(backgroundColor, fwlStyle.backgroundColor) && Objects.equals(shadowColor, fwlStyle.shadowColor) && Objects.equals(strikethroughColor, fwlStyle.strikethroughColor) && Objects.equals(underlineColor, fwlStyle.underlineColor) && Objects.equals(outlineColor, fwlStyle.outlineColor) && Objects.equals(scale, fwlStyle.scale) && Objects.equals(outlineScale, fwlStyle.outlineScale) && Objects.equals(skew, fwlStyle.skew) && Objects.equals(offset, fwlStyle.offset) && Objects.equals(shadowOffset, fwlStyle.shadowOffset) && Objects.equals(verticalAlignment, fwlStyle.verticalAlignment) && Objects.equals(font, fwlStyle.font);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(bold, italic, obfuscated, blended, color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor, scale, outlineScale, skew, offset, shadowOffset, verticalAlignment, font);
+        return Objects.hash(bold, italic, obfuscated, color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor, scale, outlineScale, skew, offset, shadowOffset, verticalAlignment, font);
+    }
+
+    private static Vector4f argbToColorVec4(int argb) {
+        float red = FastColor.ARGB32.red(argb) / 255f;
+        float green = FastColor.ARGB32.green(argb) / 255f;
+        float blue = FastColor.ARGB32.blue(argb) / 255f;
+        float alpha = FastColor.ARGB32.alpha(argb) / 255f;
+        return new Vector4f(red, green, blue, alpha);
+    }
+
+    public static FWLStyle style() {
+        return EMPTY;
     }
 }

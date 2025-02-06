@@ -14,8 +14,13 @@ public class LiteralComponent extends ContainerComponent {
     private FWLStyle style;
     private @NotNull String text;
 
-    public LiteralComponent(@NotNull String text) {
+    public LiteralComponent(@NotNull String text, FWLStyle style) {
         this.text = Objects.requireNonNull(text);
+        this.style = style;
+    }
+
+    public LiteralComponent(@NotNull String text) {
+        this(text, null);
     }
 
     @Override
@@ -62,5 +67,13 @@ public class LiteralComponent extends ContainerComponent {
 
     public @Nullable FWLStyle getStyle() {
         return style;
+    }
+
+    public static LiteralComponent literal(String text) {
+        return new LiteralComponent(text);
+    }
+
+    public static LiteralComponent literal(String text, FWLStyle style) {
+        return new LiteralComponent(text, style);
     }
 }

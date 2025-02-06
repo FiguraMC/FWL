@@ -1,6 +1,7 @@
 package org.figuramc.fwl.gui.screens;
 
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,14 +24,18 @@ import org.figuramc.fwl.gui.widgets.tabs.SideViewSwitcher;
 import org.figuramc.fwl.gui.widgets.tabs.pages.PageEntry;
 import org.figuramc.fwl.text.FWLStyle;
 import org.figuramc.fwl.text.TextRenderer;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.text.components.LiteralComponent;
 import org.figuramc.fwl.text.components.special.GradientComponent;
 import org.figuramc.fwl.utils.Rectangle;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 import static org.figuramc.fwl.FWL.fwl;
+import static org.figuramc.fwl.text.FWLStyle.style;
+import static org.figuramc.fwl.text.components.LiteralComponent.literal;
 import static org.figuramc.fwl.utils.TextUtils.themeToTranslationString;
 
 public class FWLConfigScreen extends FWLScreen {
@@ -273,23 +278,41 @@ public class FWLConfigScreen extends FWLScreen {
     }
 
     private static class TestPage extends AbstractFWLContainerWidget implements Resizeable {
-        private final LiteralComponent component;
+        private final AbstractComponent component;
         private float width, height;
 
         public TestPage(float width, float height) {
             this.width = width;
             this.height = height;
-            component = new LiteralComponent("Hi!\n").setStyle(FWLStyle.EMPTY.withItalic(true));
-            GradientComponent gradient = new GradientComponent();
-            gradient.setColorA(new Vector4f(1f, 0.25f, 0.25f, 1f));
-            gradient.setColorB(new Vector4f(0.25f, 0.25f, 1f, 1f));
-            gradient.append(new LiteralComponent("This is a test component used for testing custom components for FWL!\n").setStyle(FWLStyle.EMPTY.withItalic(false)));
-            gradient.append(new LiteralComponent("Previous, this and next, line is wrapped in a GradientComponent\n"));
-            gradient.append(new LiteralComponent("That is applied to whole text color, unless nested component has explicitly set "));
-            gradient.append(new LiteralComponent("another ").setStyle(FWLStyle.EMPTY.withColor(new Vector4f(1))));
-            gradient.append(new LiteralComponent("color!\n"));
-            component.append(gradient);
-            component.append(new LiteralComponent("And this line is not wrapped in gradient :p"));
+            LiteralComponent title = literal("Hi!\n").setStyle(style().withScale(2, 2).withShadowColor(0.0f, 0.0f, 0.0f, 1f));
+            LiteralComponent mainText = literal("\nThis is a text made for showcase of the features of FWL's custom components.\n")
+                    .setStyle(style().withScale(1, 1).withVerticalAlignment(0f));
+            title.append(mainText);
+
+            mainText.append(literal("Main purpose of custom components is extension of minecraft's text styling capabilities.\n"))
+                    .append(literal("Apart from default "))
+                    .append(literal("color", style().withColor(0.25f, 1.0f, 0.25f, 1))).append(literal(", "))
+                    .append(literal("bold", style().withBold(true))).append(literal(", "))
+                    .append(literal("italic", style().withItalic(true))).append(literal(", "))
+                    .append(literal("underline", style().withUnderlineColor(1, 1, 1, 1))).append(literal(", "))
+                    .append(literal("strikethrough", style().withStrikethroughColor(1, 1, 1, 1))).append(literal(", "))
+                    .append(literal("and, of course")).append(literal(", "))
+                    .append(literal("obfuscated", style().withObfuscated(true))).append(literal(",\n"))
+                    .append(literal("there's also "))
+                    .append(literal("scale", style().withScale(1.5f, 1.5f))).append(literal(", "))
+                    .append(literal("offset", style().withOffset(0f, 4f))).append(literal(", "))
+                    .append(literal("skew", style().withSkew(1f, 1f))).append(literal(", "))
+                    .append(literal("background", style().withBackgroundColor(1f, 1f, 0.5f, 0.5f))).append(literal(", "))
+                    .append(literal("and also some little things like ability to set the color of\n"))
+                    .append(literal("shadow", style().withShadowColor(0.5f, 0, 0, 1))).append(literal(", "))
+                    .append(literal("underline", style().withUnderlineColor(1f, 0.5f, 0.5f, 1))).append(literal(", and "))
+                    .append(literal("strikethrough", style().withStrikethroughColor(1f, 0.5f, 0.5f, 1))).append(literal(".\n"))
+                    .append(literal("Oh and also there's text outline :3.", style().withOutlineColor(1f, 1f, 0.5f, 0.15f)))
+            ;
+
+
+
+            component = title;
         }
 
         @Override
@@ -308,8 +331,10 @@ public class FWLConfigScreen extends FWLScreen {
             Font font = Minecraft.getInstance().font;
             Matrix4f matrix = graphics.pose().last().pose();
             TextRenderer renderer = new TextRenderer(graphics,10, 10, font, matrix, Font.DisplayMode.NORMAL, 15728880);
+            RenderSystem.enableBlend();
             component.visit(renderer::accept);
             renderer.render();
+            RenderSystem.disableBlend();
         }
     }
 }
