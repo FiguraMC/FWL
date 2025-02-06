@@ -2,6 +2,8 @@ package org.figuramc.fwl.gui.screens;
 
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -13,16 +15,20 @@ import org.figuramc.fwl.gui.themes.FWLThemeRepository;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.Resizeable;
 import org.figuramc.fwl.gui.widgets.Update;
-import org.figuramc.fwl.gui.widgets.button.Checkbox;
 import org.figuramc.fwl.gui.widgets.button.TextButton;
 import org.figuramc.fwl.gui.widgets.containers.AbstractFWLContainerWidget;
-import org.figuramc.fwl.gui.widgets.containers.FWLContainerWidget;
 import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
 import org.figuramc.fwl.gui.widgets.misc.Label;
 import org.figuramc.fwl.gui.widgets.tabs.SideViewSwitcher;
 import org.figuramc.fwl.gui.widgets.tabs.pages.PageEntry;
+import org.figuramc.fwl.text.FWLStyle;
+import org.figuramc.fwl.text.TextRenderer;
+import org.figuramc.fwl.text.components.LiteralComponent;
+import org.figuramc.fwl.text.components.special.GradientComponent;
 import org.figuramc.fwl.utils.Rectangle;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import static org.figuramc.fwl.FWL.fwl;
 import static org.figuramc.fwl.utils.TextUtils.themeToTranslationString;
@@ -45,7 +51,8 @@ public class FWLConfigScreen extends FWLScreen {
                 .setEntryHeight(16)
                 .setExpandedWidth(100)
                 .addEntry(new FWLSettingsPageEntry())
-                .addEntry(new ThemeSettingsPageEntry());
+                .addEntry(new ThemeSettingsPageEntry())
+                .addEntry(new TestPageEntry());
         addWidget(configSwitcher);
     }
 
@@ -89,6 +96,19 @@ public class FWLConfigScreen extends FWLScreen {
         @Override
         public void onClose() {
             page.cancelChanges();
+        }
+    }
+
+    private static class TestPageEntry implements PageEntry {
+
+        @Override
+        public FWLWidget getPage(float width, float height) {
+            return new TestPage(width, height);
+        }
+
+        @Override
+        public Component getTitle() {
+            return Component.literal("Test page");
         }
     }
 
@@ -249,6 +269,47 @@ public class FWLConfigScreen extends FWLScreen {
 
         private void cancelChanges() {
             theme.applyPreset(savedPreset);
+        }
+    }
+
+    private static class TestPage extends AbstractFWLContainerWidget implements Resizeable {
+        private final LiteralComponent component;
+        private float width, height;
+
+        public TestPage(float width, float height) {
+            this.width = width;
+            this.height = height;
+            component = new LiteralComponent("Hi!\n").setStyle(FWLStyle.EMPTY.withItalic(true));
+            GradientComponent gradient = new GradientComponent();
+            gradient.setColorA(new Vector4f(1f, 0.25f, 0.25f, 1f));
+            gradient.setColorB(new Vector4f(0.25f, 0.25f, 1f, 1f));
+            gradient.append(new LiteralComponent("This is a test component used for testing custom components for FWL!\n").setStyle(FWLStyle.EMPTY.withItalic(false)));
+            gradient.append(new LiteralComponent("Previous, this and next, line is wrapped in a GradientComponent\n"));
+            gradient.append(new LiteralComponent("That is applied to whole text color, unless nested component has explicitly set "));
+            gradient.append(new LiteralComponent("another ").setStyle(FWLStyle.EMPTY.withColor(new Vector4f(1))));
+            gradient.append(new LiteralComponent("color!\n"));
+            component.append(gradient);
+            component.append(new LiteralComponent("And this line is not wrapped in gradient :p"));
+        }
+
+        @Override
+        public Rectangle boundaries() {
+            return new Rectangle(0, 0, width, height);
+        }
+
+        @Override
+        public void resize(float width, float height) {
+            this.width = width;
+            this.height = height;
+        }
+
+        @Override
+        public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
+            Font font = Minecraft.getInstance().font;
+            Matrix4f matrix = graphics.pose().last().pose();
+            TextRenderer renderer = new TextRenderer(graphics,10, 10, font, matrix, Font.DisplayMode.NORMAL, 15728880);
+            component.visit(renderer::accept);
+            renderer.render();
         }
     }
 }

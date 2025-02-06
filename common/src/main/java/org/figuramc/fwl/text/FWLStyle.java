@@ -193,24 +193,52 @@ public class FWLStyle {
         return underlineColor == null ? new Vector4f(0f) : new Vector4f(underlineColor);
     }
 
+    public boolean hasOutline() {
+        return outlineColor != null;
+    }
+
+    public Vector4f getOutlineColor() {
+        return outlineColor == null ? new Vector4f(0f) : new Vector4f(outlineColor);
+    }
+
     public Vector2f getScale() {
         return scale == null ? new Vector2f(1f) : new Vector2f(scale);
+    }
+
+    public boolean hasScale() {
+        return scale != null;
     }
 
     public Vector2f getOutlineScale() {
         return outlineScale == null ? new Vector2f(1f) : new Vector2f(outlineScale);
     }
 
+    public boolean hasOutlineScale() {
+        return outlineScale != null;
+    }
+
     public Vector2f getSkew() {
         return skew == null ? new Vector2f(0f) : new Vector2f(skew);
+    }
+
+    public boolean hasSkew() {
+        return skew != null;
     }
 
     public Vector2f getOffset() {
         return offset == null ? new Vector2f(0f) : new Vector2f(offset);
     }
 
+    public boolean hasOffset() {
+        return offset != null;
+    }
+
     public Vector2f getShadowOffset() {
         return shadowOffset == null ? new Vector2f(1f) : new Vector2f(shadowOffset);
+    }
+
+    public boolean hasShadowOffset() {
+        return shadowOffset != null;
     }
 
     public float getVerticalAlignment() {

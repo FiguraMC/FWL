@@ -8,3 +8,12 @@ accessible field net/minecraft/client/gui/screens/Screen children Ljava/util/Lis
 
 accessible method net/minecraft/client/gui/Font getFontSet (Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/gui/font/FontSet;
 accessible field net/minecraft/client/gui/Font filterFishyGlyphs Z
+
+accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph u0 F
+accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph u1 F
+accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph v0 F
+accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph v1 F
+accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph left F
+accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph right F
+accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph up F
+accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph down F

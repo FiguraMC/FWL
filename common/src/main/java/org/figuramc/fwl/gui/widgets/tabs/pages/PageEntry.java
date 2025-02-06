@@ -18,5 +18,7 @@ public interface PageEntry {
     FWLWidget getPage(float width, float height);
 
     Component getTitle();
-    @Nullable Component getTooltip();
+    default @Nullable Component getTooltip() {
+        return null;
+    }
 }

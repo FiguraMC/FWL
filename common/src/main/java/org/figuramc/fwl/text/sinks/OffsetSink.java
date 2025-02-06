@@ -16,7 +16,7 @@ public class OffsetSink implements StyledSink {
 
     @Override
     public boolean accept(int index, StyleProvider provider, int codepoint) {
-        parentSink.accept(index, new OffsetProvider(parentProvider, provider, offset), codepoint);
+        parentSink.accept(index + offset, new OffsetProvider(parentProvider, provider, offset), codepoint);
         return true;
     }
 }

@@ -46,7 +46,7 @@ public abstract class AbstractComponent {
     public boolean visit(StyledSink sink) {
         if (!visitSelf(sink)) return false;
         Iterator<AbstractComponent> siblings = siblings();
-        int offset = 0;
+        int offset = selfLength();
         while (siblings.hasNext()) {
             AbstractComponent component = siblings.next();
             if (!component.visit(new OffsetSink(this::getSelfStyle, sink, offset))) return false;
