@@ -1,5 +1,9 @@
 package org.figuramc.fwl.utils;
 
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
 public class MathUtils {
     public static int clamp(int v, int min, int max) {
         return Math.max(Math.min(v, max), min);
@@ -23,6 +27,30 @@ public class MathUtils {
 
     public static double lerp(double a, double b, double v) {
         return a + v * (b - a);
+    }
+
+    public static Vector2f lerp(Vector2f a, Vector2f b, float v) {
+        return new Vector2f(
+                lerp(a.x, b.x, v),
+                lerp(a.y, b.y, v)
+        );
+    }
+
+    public static Vector3f lerp(Vector3f a, Vector3f b, float v) {
+        return new Vector3f(
+                lerp(a.x, b.x, v),
+                lerp(a.y, b.y, v),
+                lerp(a.z, b.z, v)
+        );
+    }
+
+    public static Vector4f lerp(Vector4f a, Vector4f b, float v) {
+        return new Vector4f(
+                lerp(a.x, b.x, v),
+                lerp(a.y, b.y, v),
+                lerp(a.z, b.z, v),
+                lerp(a.w, b.w, v)
+        );
     }
 
     public static float rlerp(int a, int b, float v) {

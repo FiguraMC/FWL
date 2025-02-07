@@ -22,20 +22,21 @@ import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
 import org.figuramc.fwl.gui.widgets.misc.Label;
 import org.figuramc.fwl.gui.widgets.tabs.SideViewSwitcher;
 import org.figuramc.fwl.gui.widgets.tabs.pages.PageEntry;
-import org.figuramc.fwl.text.FWLStyle;
 import org.figuramc.fwl.text.TextRenderer;
 import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.text.components.LiteralComponent;
-import org.figuramc.fwl.text.components.special.GradientComponent;
+import org.figuramc.fwl.text.effects.GradientApplier;
 import org.figuramc.fwl.utils.Rectangle;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector4f;
 
 import static org.figuramc.fwl.FWL.fwl;
-import static org.figuramc.fwl.text.FWLStyle.style;
+import static org.figuramc.fwl.text.FWLStyle.*;
 import static org.figuramc.fwl.text.components.LiteralComponent.literal;
+import static org.figuramc.fwl.text.effects.ConstantApplier.constant;
+import static org.figuramc.fwl.text.effects.GradientApplier.*;
+import static org.figuramc.fwl.text.effects.ShakeApplier.shake2;
+import static org.figuramc.fwl.text.effects.WithValue.withValue;
 import static org.figuramc.fwl.utils.TextUtils.themeToTranslationString;
 
 public class FWLConfigScreen extends FWLScreen {
@@ -284,9 +285,8 @@ public class FWLConfigScreen extends FWLScreen {
         public TestPage(float width, float height) {
             this.width = width;
             this.height = height;
-            LiteralComponent title = literal("Hi!\n").setStyle(style().withScale(2, 2).withShadowColor(0.0f, 0.0f, 0.0f, 1f));
-            LiteralComponent mainText = literal("\nThis is a text made for showcase of the features of FWL's custom components.\n")
-                    .setStyle(style().withScale(1, 1).withVerticalAlignment(0f));
+            LiteralComponent title = literal("Hi!\n", style().withScale(2, 2).withShadowColor(0.0f, 0.0f, 0.0f, 1f));
+            LiteralComponent mainText = literal("\nThis is a text made for showcase of the features of FWL's custom components.\n", style().withScale(1, 1).withVerticalAlignment(0f));
             title.append(mainText);
 
             mainText.append(literal("Main purpose of custom components is extension of minecraft's text styling capabilities.\n"))
@@ -307,8 +307,16 @@ public class FWLConfigScreen extends FWLScreen {
                     .append(literal("shadow", style().withShadowColor(0.5f, 0, 0, 1))).append(literal(", "))
                     .append(literal("underline", style().withUnderlineColor(1f, 0.5f, 0.5f, 1))).append(literal(", and "))
                     .append(literal("strikethrough", style().withStrikethroughColor(1f, 0.5f, 0.5f, 1))).append(literal(".\n"))
-                    .append(literal("Oh and also there's text outline :3.", style().withOutlineColor(1f, 1f, 0.5f, 0.15f)))
-            ;
+                    .append(literal("Oh and also there's text outline :3.\n", style().withOutlineColor(1f, 1f, 0.5f, 0.15f)))
+                    .append(literal("Oh and also there's gradient.", style().withBackgroundColor(1,1,1, 0)
+                            .withEffect(SCALE, withValue(constant(2,2), gradient2(0.5f, 0.5f)))
+                            .withEffect(OFFSET, gradient2(0, 40))
+                            .withEffect(OFFSET, shake2(
+                                    withValue(constant(-0.25f, -0.25f), gradient2(-0.5f, -0.5f)),
+                                    withValue(constant( 0.25f,  0.25f),   gradient2( 0.5f,   0.5f))
+                            ))
+                            .build()
+                    ));
 
 
 

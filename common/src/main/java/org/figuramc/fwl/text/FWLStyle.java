@@ -2,6 +2,8 @@ package org.figuramc.fwl.text;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
+import org.figuramc.fwl.text.effects.Applier;
+import org.figuramc.fwl.text.providers.headless.ProviderBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -16,6 +18,28 @@ public class FWLStyle {
     private @Nullable Vector2f scale, outlineScale, skew, offset, shadowOffset;
     private @Nullable Float verticalAlignment;
     private @Nullable ResourceLocation font;
+
+    public static final Property<Boolean>
+            BOLD = property(FWLStyle::isBold, FWLStyle::withBold, Boolean.class),
+            ITALIC = property(FWLStyle::isItalic, FWLStyle::withItalic, Boolean.class),
+            OBFUSCATED = property(FWLStyle::isObfuscated, FWLStyle::withObfuscated, Boolean.class);
+
+    public static final Property<Vector4f>
+            COLOR = property(FWLStyle::getColor, FWLStyle::withColor, Vector4f.class),
+            BACKGROUND_COLOR = property(FWLStyle::getBackgroundColor, FWLStyle::withBackgroundColor, Vector4f.class),
+            SHADOW_COLOR = property(FWLStyle::getShadowColor, FWLStyle::withShadowColor, Vector4f.class),
+            STRIKETHROUGH_COLOR = property(FWLStyle::getStrikethroughColor, FWLStyle::withStrikethroughColor, Vector4f.class),
+            UNDERLINE_COLOR = property(FWLStyle::getUnderlineColor, FWLStyle::withUnderlineColor, Vector4f.class),
+            OUTLINE_COLOR = property(FWLStyle::getOutlineColor, FWLStyle::withOutlineColor, Vector4f.class);
+
+    public static final Property<Vector2f>
+            SCALE = property(FWLStyle::getScale, FWLStyle::withScale, Vector2f.class),
+            OUTLINE_SCALE = property(FWLStyle::getOutlineScale, FWLStyle::withOutlineScale, Vector2f.class),
+            SKEW = property(FWLStyle::getSkew, FWLStyle::withSkew, Vector2f.class),
+            OFFSET = property(FWLStyle::getOffset, FWLStyle::withOffset, Vector2f.class),
+            SHADOW_OFFSET = property(FWLStyle::getShadowOffset, FWLStyle::withOffset, Vector2f.class);
+
+    public static final Property<Float> VERTICAL_ALIGNMENT = property(FWLStyle::getVerticalAlignment, FWLStyle::withVerticalAlignment, Float.class);
 
     public FWLStyle() {
 
@@ -337,6 +361,10 @@ public class FWLStyle {
         return merge(parent, this);
     }
 
+    public <V> ProviderBuilder withEffect(Property<V> property, Applier<V> applier) {
+        return new ProviderBuilder(this).withEffect(property, applier);
+    }
+
     public FWLStyle clone() {
         return new FWLStyle(bold, italic, obfuscated, color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor, scale, outlineScale, skew, offset, shadowOffset, verticalAlignment, font);
     }
@@ -363,5 +391,17 @@ public class FWLStyle {
 
     public static FWLStyle style() {
         return EMPTY;
+    }
+
+    private static <V> Property<V> property(PropertyGetter<V> getter, PropertySetter<V> setter, Class<? extends V> clazz) {
+        return new Property<>(getter, setter, clazz);
+    }
+
+    public interface PropertyGetter<V> {
+        V get(FWLStyle style);
+    }
+
+    public interface PropertySetter<V> {
+        FWLStyle set(FWLStyle style, V value);
     }
 }

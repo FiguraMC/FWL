@@ -37,7 +37,7 @@ public class TextRenderer {
     }
 
     public boolean accept(int index, StyleProvider provider, int codepoint) {
-        FWLStyle style = provider.get(index, 0);
+        FWLStyle style = provider.get(index);
         Vector2f scale = style.getScale();
         float glyphHeight = font.lineHeight * scale.y;
         lineHeight = Math.max(lineHeight, glyphHeight);

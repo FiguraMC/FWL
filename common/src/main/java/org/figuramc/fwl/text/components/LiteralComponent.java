@@ -1,32 +1,32 @@
 package org.figuramc.fwl.text.components;
 
 import org.figuramc.fwl.text.FWLStyle;
+import org.figuramc.fwl.text.providers.headless.HeadlessStyleProvider;
 import org.figuramc.fwl.text.sinks.StyledSink;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class LiteralComponent extends ContainerComponent {
-    private FWLStyle style;
     private @NotNull String text;
 
-    public LiteralComponent(@NotNull String text, FWLStyle style) {
-        this.text = Objects.requireNonNull(text);
-        this.style = style;
-    }
-
     public LiteralComponent(@NotNull String text) {
-        this(text, null);
+        super();
+        this.text = Objects.requireNonNull(text);
     }
 
-    @Override
-    protected FWLStyle getSelfStyle(int index, float progress) {
-        return style == null ? FWLStyle.EMPTY : style;
+    public LiteralComponent(@NotNull String text, FWLStyle style) {
+        super(style);
+        this.text = Objects.requireNonNull(text);
     }
+
+    public LiteralComponent(@NotNull String text, HeadlessStyleProvider provider) {
+        super(provider);
+        this.text = Objects.requireNonNull(text);
+    }
+
 
     @Override
     protected int selfLength() {
@@ -60,20 +60,15 @@ public class LiteralComponent extends ContainerComponent {
         return text;
     }
 
-    public LiteralComponent setStyle(FWLStyle style) {
-        this.style = style;
-        return this;
-    }
-
-    public @Nullable FWLStyle getStyle() {
-        return style;
-    }
-
     public static LiteralComponent literal(String text) {
         return new LiteralComponent(text);
     }
 
     public static LiteralComponent literal(String text, FWLStyle style) {
         return new LiteralComponent(text, style);
+    }
+
+    public static LiteralComponent literal(String text, HeadlessStyleProvider styleProvider) {
+        return new LiteralComponent(text, styleProvider);
     }
 }

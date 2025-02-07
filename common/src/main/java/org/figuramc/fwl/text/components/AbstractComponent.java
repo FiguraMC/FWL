@@ -1,23 +1,40 @@
 package org.figuramc.fwl.text.components;
 
 import org.figuramc.fwl.text.FWLStyle;
+import org.figuramc.fwl.text.providers.headless.HeadlessStyleProvider;
+import org.figuramc.fwl.text.providers.headless.ProviderBuilder;
 import org.figuramc.fwl.text.sinks.OffsetSink;
 import org.figuramc.fwl.text.sinks.StyledSink;
 
 import java.util.Iterator;
 
 public abstract class AbstractComponent {
+    private HeadlessStyleProvider styleProvider;
 
     protected abstract Iterator<AbstractComponent> siblings();
-    
-    public FWLStyle getStyle(int index, float progress) {
-        FWLStyle parentStyle = getSelfStyle(index, progress);
-        return parentStyle.applyFrom(getSiblingStyle(index, progress));
+
+    public AbstractComponent() {
+        styleProvider = new ProviderBuilder(FWLStyle.style()).build();
     }
 
-    protected abstract FWLStyle getSelfStyle(int index, float progress);
+    public AbstractComponent(FWLStyle style) {
+        styleProvider = new ProviderBuilder(style).build();
+    }
 
-    protected FWLStyle getSiblingStyle(int index, float progress) {
+    public AbstractComponent(HeadlessStyleProvider provider) {
+        styleProvider = provider;
+    }
+
+    public FWLStyle getStyle(int index) {
+        FWLStyle parentStyle = getSelfStyle(index);
+        return parentStyle.applyFrom(getSiblingStyle(index));
+    }
+
+    protected FWLStyle getSelfStyle(int index) {
+        return styleProvider.get(index, length());
+    }
+
+    protected FWLStyle getSiblingStyle(int index) {
         if (index < 0 || index >= length()) return FWLStyle.EMPTY;
         int offset = 0;
         Iterator<AbstractComponent> siblings = siblings();
@@ -25,10 +42,20 @@ public abstract class AbstractComponent {
             int i = index - offset;
             AbstractComponent component = siblings.next();
             int len = component.length();
-            if (i < len) return component.getStyle(i, progress);
+            if (i < len) return component.getStyle(i);
             else offset += len;
         }
         return FWLStyle.EMPTY;
+    }
+
+    public AbstractComponent setStyle(FWLStyle style) {
+        styleProvider = new ProviderBuilder(style).build();
+        return this;
+    }
+
+    public AbstractComponent setStyle(HeadlessStyleProvider provider) {
+        styleProvider = provider;
+        return this;
     }
 
 
