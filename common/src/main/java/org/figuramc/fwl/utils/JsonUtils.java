@@ -15,7 +15,7 @@ public class JsonUtils {
 
     public static int intOrDefault(JsonObject object, String member, int defaultValue) {
         JsonElement element = object.get(member);
-        if (element.isJsonPrimitive()) {
+        if (element != null && element.isJsonPrimitive()) {
             JsonPrimitive primitive = element.getAsJsonPrimitive();
             return primitive.isNumber() ? primitive.getAsInt() : defaultValue;
         }
@@ -25,7 +25,7 @@ public class JsonUtils {
     @Contract("_,_,!null->!null")
     public static @Nullable String stringOrDefault(JsonObject object, String member, String defaultValue) {
         JsonElement element = object.get(member);
-        if (element.isJsonPrimitive()) {
+        if (element != null && element.isJsonPrimitive()) {
             JsonPrimitive primitive = element.getAsJsonPrimitive();
             return primitive.isString() ? primitive.getAsString() : defaultValue;
         }
@@ -34,7 +34,7 @@ public class JsonUtils {
 
     public static boolean booleanOrDefault(JsonObject object, String member, boolean defaultValue) {
         JsonElement element = object.get(member);
-        if (element.isJsonPrimitive()) {
+        if (element != null && element.isJsonPrimitive()) {
             JsonPrimitive primitive = element.getAsJsonPrimitive();
             return primitive.isBoolean() ? primitive.getAsBoolean() : defaultValue;
         }

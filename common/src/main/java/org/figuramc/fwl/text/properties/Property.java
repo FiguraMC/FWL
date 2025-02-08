@@ -40,7 +40,7 @@ public interface Property<T> {
             JsonObject obj = elem.getAsJsonObject();
             String type = JsonUtils.stringOrDefault(obj, "type", null);
             if (type == null) throw new IllegalArgumentException("Type of {} property cannot be null");
-            return switch (elem.getAsString()) {
+            return switch (type) {
                 case "alternating" -> AlternatingProperty.INSTANCE;
                 case "random" -> RandomProperty.fromJson(obj, Property::parseBoolean, Boolean.class);
                 case "gradient" -> GradientProperty.fromJson(obj, Property::parseBoolean, Boolean.class);

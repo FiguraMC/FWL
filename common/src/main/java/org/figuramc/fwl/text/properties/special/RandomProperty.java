@@ -36,9 +36,27 @@ public class RandomProperty<T> implements Property<T> {
 
     private static boolean random(boolean min, boolean max) { return min == max ? min : Math.random() < 0.5; }
     private static float random(float min, float max) { return Mth.lerp((float) Math.random(), min, max); }
-    private static Vector2f random(Vector2f min, Vector2f max) { return min.lerp(max, (float) Math.random(), new Vector2f()); }
-    private static Vector3f random(Vector3f min, Vector3f max) { return min.lerp(max, (float) Math.random(), new Vector3f()); }
-    private static Vector4f random(Vector4f min, Vector4f max) { return min.lerp(max, (float) Math.random(), new Vector4f()); }
+    private static Vector2f random(Vector2f min, Vector2f max) {
+        return new Vector2f(
+                Mth.lerp((float) Math.random(), min.x, max.x),
+                Mth.lerp((float) Math.random(), min.y, max.y)
+        );
+    }
+    private static Vector3f random(Vector3f min, Vector3f max) {
+        return new Vector3f(
+                Mth.lerp((float) Math.random(), min.x, max.x),
+                Mth.lerp((float) Math.random(), min.y, max.y),
+                Mth.lerp((float) Math.random(), min.z, max.z)
+        );
+    }
+    private static Vector4f random(Vector4f min, Vector4f max) {
+        return new Vector4f(
+                Mth.lerp((float) Math.random(), min.x, max.x),
+                Mth.lerp((float) Math.random(), min.y, max.y),
+                Mth.lerp((float) Math.random(), min.z, max.z),
+                Mth.lerp((float) Math.random(), min.w, max.w)
+        );
+    }
 
     @Override
     public CompiledStyle.CompiledProperty<T> compile(int currentIndex, BaseFomponent fomponent) {
@@ -50,7 +68,7 @@ public class RandomProperty<T> implements Property<T> {
 
     @Override
     public boolean varies() {
-        return false;
+        return varies;
     }
 
     @Override

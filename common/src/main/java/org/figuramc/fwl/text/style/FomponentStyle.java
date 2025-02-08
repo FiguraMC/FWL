@@ -8,6 +8,7 @@ import org.figuramc.fwl.text.properties.commutative.AddProperty;
 import org.figuramc.fwl.text.properties.special.GradientProperty;
 import org.figuramc.fwl.text.properties.Property;
 import org.figuramc.fwl.text.properties.special.RandomProperty;
+import org.figuramc.fwl.utils.ColorUtils;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -276,7 +277,6 @@ public class FomponentStyle {
     public static Property<Vector2f> random2(Property<Vector2f> min, Property<Vector2f> max) { return new RandomProperty<>(min, max, Vector2f.class); }
     @SafeVarargs public static Property<Vector2f> add2(Property<Vector2f>... values) { return new AddProperty<>(List.of(values), Vector2f.class); }
 
-
     // Vector4
     public static final Property<Vector4f> VEC4_ZERO = new ConstantProperty<>(new Vector4f());
     public static final Property<Vector4f> VEC4_ONE = new ConstantProperty<>(new Vector4f(1));
@@ -285,6 +285,10 @@ public class FomponentStyle {
     public static Property<Vector4f> random4(Property<Vector4f> min, Property<Vector4f> max) { return new RandomProperty<>(min, max, Vector4f.class); }
     @SafeVarargs public static Property<Vector4f> add4(Property<Vector4f>... values) { return new AddProperty<>(List.of(values), Vector4f.class); }
 
+    // Color from string
+    public static Property<Vector4f> color(String color) { return new ConstantProperty<>(ColorUtils.fromString(color)); }
+
+    // Any type constant
     public static <T> Property<T> constant(T value) { return new ConstantProperty<>(value); }
 
 }

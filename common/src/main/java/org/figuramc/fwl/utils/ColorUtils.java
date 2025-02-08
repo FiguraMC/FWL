@@ -12,34 +12,34 @@ public class ColorUtils {
         return FastColor.ARGB32.color(Math.max(0, a), Math.max(0, r), Math.max(0, g), Math.max(0, b));
     }
 
-    public static Vector4f fromArgb(int argb) {
+    public static Vector4f fromRgb(int argb) {
         return new Vector4f(
                 FastColor.ARGB32.red(argb) / 255f,
                 FastColor.ARGB32.green(argb) / 255f,
                 FastColor.ARGB32.blue(argb) / 255f,
-                FastColor.ARGB32.alpha(argb) / 255f
+                1f
         );
     }
 
     @SuppressWarnings("ConstantConditions")
     public static Vector4f fromString(String s) throws IllegalArgumentException {
         return switch (s) {
-            case "black" -> fromArgb(ChatFormatting.BLACK.getColor());
-            case "dark_blue" -> fromArgb(ChatFormatting.DARK_BLUE.getColor());
-            case "dark_green" -> fromArgb(ChatFormatting.DARK_GREEN.getColor());
-            case "dark_aqua" -> fromArgb(ChatFormatting.DARK_AQUA.getColor());
-            case "dark_red" -> fromArgb(ChatFormatting.DARK_RED.getColor());
-            case "dark_purple" -> fromArgb(ChatFormatting.DARK_PURPLE.getColor());
-            case "gold" -> fromArgb(ChatFormatting.GOLD.getColor());
-            case "gray" -> fromArgb(ChatFormatting.GRAY.getColor());
-            case "dark_gray" -> fromArgb(ChatFormatting.DARK_GRAY.getColor());
-            case "blue" -> fromArgb(ChatFormatting.BLUE.getColor());
-            case "green" -> fromArgb(ChatFormatting.GREEN.getColor());
-            case "aqua" -> fromArgb(ChatFormatting.AQUA.getColor());
-            case "red" -> fromArgb(ChatFormatting.RED.getColor());
-            case "light_purple" -> fromArgb(ChatFormatting.LIGHT_PURPLE.getColor());
-            case "yellow" -> fromArgb(ChatFormatting.YELLOW.getColor());
-            case "white" -> fromArgb(ChatFormatting.WHITE.getColor());
+            case "black" -> fromRgb(ChatFormatting.BLACK.getColor());
+            case "dark_blue" -> fromRgb(ChatFormatting.DARK_BLUE.getColor());
+            case "dark_green" -> fromRgb(ChatFormatting.DARK_GREEN.getColor());
+            case "dark_aqua" -> fromRgb(ChatFormatting.DARK_AQUA.getColor());
+            case "dark_red" -> fromRgb(ChatFormatting.DARK_RED.getColor());
+            case "dark_purple" -> fromRgb(ChatFormatting.DARK_PURPLE.getColor());
+            case "gold" -> fromRgb(ChatFormatting.GOLD.getColor());
+            case "gray" -> fromRgb(ChatFormatting.GRAY.getColor());
+            case "dark_gray" -> fromRgb(ChatFormatting.DARK_GRAY.getColor());
+            case "blue" -> fromRgb(ChatFormatting.BLUE.getColor());
+            case "green" -> fromRgb(ChatFormatting.GREEN.getColor());
+            case "aqua" -> fromRgb(ChatFormatting.AQUA.getColor());
+            case "red" -> fromRgb(ChatFormatting.RED.getColor());
+            case "light_purple" -> fromRgb(ChatFormatting.LIGHT_PURPLE.getColor());
+            case "yellow" -> fromRgb(ChatFormatting.YELLOW.getColor());
+            case "white" -> fromRgb(ChatFormatting.WHITE.getColor());
             default -> {
                 if (s.charAt(0) != '#')
                     throw new IllegalArgumentException("Unknown color: \"" + s + "\"");

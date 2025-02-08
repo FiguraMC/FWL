@@ -2,6 +2,7 @@ package org.figuramc.fwl.gui.screens;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -325,13 +326,29 @@ public class FWLConfigScreen extends FWLScreen {
                             gradient2(VEC2_ZERO, constant(0, 40)),
                             random2(constant(-0.5f, -0.5f), constant(0.5f, 0.5f))
                     )));
+            BaseFomponent lotsOfColors = literal("Woaaaa thats a lot of colors to put in 1 gradient!!! How does it work??", style()
+                    .setColor(gradient4(color("red"), color("yellow"), color("green"), color("aqua"), color("blue"), color("dark_purple"), color("red")))
+            );
 
+            BaseFomponent jsonTest = BaseFomponent.fromJson(JsonParser.parseString("""
+                    {
+                        "text": "Wacky piece of text with lots of customizations!",
+                        "color": {
+                            "type": "gradient",
+                            "values": ["red", "yellow", "green", "aqua", "blue", "dark_purple", "red"]
+                        },
+                        "italic": { "type": "random", "min": false, "max": true },
+                        "bold": { "type": "alternating" }
+                    }
+                    """));
 
-            BaseFomponent title = literal("Hi!\n", style().setScale(constant(new Vector2f(2))).setShadowColor(constant(new Vector4f(0,0,0,1))))
+            BaseFomponent title = literal("Hi!\n", style().setScale(constant(2, 2)).setShadowColor(constant(0, 0, 0, 1)))
                     .append(mainText).append(literal("\n\n"))
                     .append(deserialized).append(literal("\n\n"))
                     .append(gradientTesting1).append(literal("\n\n"))
                     .append(gradientTesting2).append(literal("\n\n"))
+                    .append(lotsOfColors).append(literal("\n\n\n\n\n\n\n"))
+                    .append(jsonTest).append(literal("\n\n"))
             ;
             fomponent = title;
         }
