@@ -9,5 +9,5 @@ public abstract class NonVaryingProperty<T> implements Property<T> {
         this.compiledProperty = compiledProperty;
     }
     @Override public CompiledStyle.CompiledProperty<T> compile(int currentIndex, BaseFomponent fomponent) { return compiledProperty; }
-    @Override public boolean varies() { return false; }
+    @Override public final boolean varies() { return false; }
 }

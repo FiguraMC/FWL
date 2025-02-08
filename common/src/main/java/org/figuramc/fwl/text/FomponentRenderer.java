@@ -41,16 +41,16 @@ public class FomponentRenderer implements FomponentVisitor {
 
     @Override
     public void accept(int index, CompiledStyle style, int codepoint) {
-        Vector2f scale = style.getScale(index, 0);
+        Vector2f scale = style.getScale(index);
         float glyphHeight = font.lineHeight * scale.y;
         lineHeight = Math.max(lineHeight, glyphHeight);
         if (codepoint == '\n') {
             renderLine();
         } else {
-            FontSet set = font.getFontSet(style.getFont(index, 0));
+            FontSet set = font.getFontSet(style.getFont(index));
             GlyphInfo info = set.getGlyphInfo(codepoint, font.filterFishyGlyphs);
-            BakedGlyph glyph = style.isObfuscated(index, 0) ? set.getRandomGlyph(info) : set.getGlyph(codepoint);
-            float glyphWidth = info.getAdvance(style.isBold(index, 0)) * scale.x;
+            BakedGlyph glyph = style.isObfuscated(index) ? set.getRandomGlyph(info) : set.getGlyph(codepoint);
+            float glyphWidth = info.getAdvance(style.isBold(index)) * scale.x;
             lineGlyphs.add(new GlyphData(info, glyph, glyphWidth, glyphHeight, style, index));
         }
     }
@@ -78,7 +78,7 @@ public class FomponentRenderer implements FomponentVisitor {
         float width = data.width;
         float height = data.height;
 
-        Vector4f backgroundColor = style.getBackgroundColor(index, 0);
+        Vector4f backgroundColor = style.getBackgroundColor(index);
         if (backgroundColor.w != 0)
             renderEffect(initialX, initialY, initialX + width, initialY + height, backgroundColor);
 
@@ -86,28 +86,28 @@ public class FomponentRenderer implements FomponentVisitor {
             VertexConsumer consumer = graphics.bufferSource().getBuffer(glyph.renderType(layerType));
 
             // Color
-            Vector4f color = style.getColor(index, 0);
+            Vector4f color = style.getColor(index);
             float r = color.x, g = color.y, b = color.z, a = color.w;
 
             // Offset
-            Vector2f offset = style.getOffset(index, 0);
+            Vector2f offset = style.getOffset(index);
             x += offset.x;
             y += offset.y;
 
             // Scale
-            Vector2f scale = style.getScale(index, 0);
+            Vector2f scale = style.getScale(index);
 //            width *= scale.x;
 //            height *= scale.y;
 
             // Alignment
-            float alignment = style.getVerticalAlignment(index, 0);
+            float alignment = style.getVerticalAlignment(index);
             y += (lineHeight - height) * alignment;
 
             // Skew
             float skewX = 0, skewY = 0;
-            if (style.isItalic(index, 0))
+            if (style.isItalic(index))
                 skewX += scale.x;
-            Vector2f skew = style.getSkew(index, 0);
+            Vector2f skew = style.getSkew(index);
             skewX += skew.x;
             skewY += skew.y;
 
@@ -124,18 +124,18 @@ public class FomponentRenderer implements FomponentVisitor {
             y2 += yDiff * (scale.y - 1);
 
             // Shadow
-            Vector4f shadowColor = style.getShadowColor(index, 0);
+            Vector4f shadowColor = style.getShadowColor(index);
             if (shadowColor.w != 0) {
-                Vector2f shadowOffset = style.getShadowOffset(index, 0);
+                Vector2f shadowOffset = style.getShadowOffset(index);
                 float oX = shadowOffset.x * scale.x;
                 float oY = shadowOffset.y * scale.y;
                 renderCharInternal(consumer, x1 + oX, y1 + oY, x2 + oX, y2 + oY, u0, v0, u1, v1, skewX, skewY, shadowColor.x, shadowColor.y, shadowColor.z, shadowColor.w, light);
             }
 
             // Outline
-            Vector4f outlineColor = style.getOutlineColor(index, 0);
+            Vector4f outlineColor = style.getOutlineColor(index);
             if (outlineColor.w != 0) {
-                Vector2f outlineScale = style.getOutlineScale(index, 0);
+                Vector2f outlineScale = style.getOutlineScale(index);
                 float cR = outlineColor.x, cG = outlineColor.y, cB = outlineColor.z, cA = outlineColor.w;
                 for (int oY = -1; oY <= 1; oY++) {
                     for (int oX = -1; oX <= 1; oX++) {
@@ -148,7 +148,7 @@ public class FomponentRenderer implements FomponentVisitor {
             }
 
             // Bold
-            if (style.isBold(index, 0)) {
+            if (style.isBold(index)) {
                 float weight = data.info().getBoldOffset() * scale.x;
                 renderCharInternal(consumer, x1 + weight, y1, x2 + weight, y2, u0, v0, u1, v1, skewX, skewY, r, g, b, a, light);
             }
@@ -158,7 +158,7 @@ public class FomponentRenderer implements FomponentVisitor {
         }
 
         // Strikethrough
-        Vector4f strikethroughColor = style.getStrikethroughColor(index, 0);
+        Vector4f strikethroughColor = style.getStrikethroughColor(index);
         if (strikethroughColor.w != 0) {
             float cY1 = initialY + (lineHeight / 2) - 1;
             float cY2 = cY1 + 1;
@@ -166,7 +166,7 @@ public class FomponentRenderer implements FomponentVisitor {
         }
 
         // Underline
-        Vector4f underlineColor = style.getUnderlineColor(index, 0);
+        Vector4f underlineColor = style.getUnderlineColor(index);
         if (underlineColor.w != 0) {
             float cY2 = initialY + lineHeight;
             float cY1 = cY2 - 1;
@@ -185,7 +185,7 @@ public class FomponentRenderer implements FomponentVisitor {
 
     private void renderEffect(float x1, float y1, float x2, float y2, Vector4f color) {
         float r = color.x, g = color.y, b = color.z, a = color.w;
-        FontSet fontSet = font.getFontSet(CompiledStyle.EMPTY.getFont(0, 0));
+        FontSet fontSet = font.getFontSet(CompiledStyle.EMPTY.getFont(-1));
         BakedGlyph whiteGlyph = fontSet.whiteGlyph();
         VertexConsumer consumer = graphics.bufferSource().getBuffer(whiteGlyph.renderType(layerType));
         consumer.vertex(matrix, x1, y1, 0).color(r, g, b, a).uv(whiteGlyph.u0, whiteGlyph.v0).uv2(light).endVertex();

@@ -56,78 +56,78 @@ public record CompiledStyle(
         );
     }
 
-    public boolean isBold(int index, float progress) {
-        return bold != null && bold.fetch(index, progress);
+    public boolean isBold(int index) {
+        return bold != null && bold.fetch(index);
     }
-    public boolean isItalic(int index, float progress) {
-        return italic != null && italic.fetch(index, progress);
+    public boolean isItalic(int index) {
+        return italic != null && italic.fetch(index);
     }
-    public boolean isObfuscated(int index, float progress) {
-        return obfuscated != null && obfuscated.fetch(index, progress);
+    public boolean isObfuscated(int index) {
+        return obfuscated != null && obfuscated.fetch(index);
     }
 
     private static final Vector4f VEC4_ZEROES = new Vector4f(0);
     private static final Vector4f VEC4_ONES = new Vector4f(1);
 
-    public Vector4f getColor(int index, float progress) {
-        return color == null ? VEC4_ONES : color.fetch(index, progress);
+    public Vector4f getColor(int index) {
+        return color == null ? VEC4_ONES : color.fetch(index);
     }
 
-    public Vector4f getBackgroundColor(int index, float progress) {
-        return backgroundColor == null ? VEC4_ZEROES : backgroundColor.fetch(index, progress);
+    public Vector4f getBackgroundColor(int index) {
+        return backgroundColor == null ? VEC4_ZEROES : backgroundColor.fetch(index);
     }
 
-    public Vector4f getShadowColor(int index, float progress) {
-        return shadowColor == null ? VEC4_ZEROES : shadowColor.fetch(index, progress);
+    public Vector4f getShadowColor(int index) {
+        return shadowColor == null ? VEC4_ZEROES : shadowColor.fetch(index);
     }
 
-    public Vector4f getStrikethroughColor(int index, float progress) {
-        return strikethroughColor == null ? VEC4_ZEROES : strikethroughColor.fetch(index, progress);
+    public Vector4f getStrikethroughColor(int index) {
+        return strikethroughColor == null ? VEC4_ZEROES : strikethroughColor.fetch(index);
     }
 
-    public Vector4f getUnderlineColor(int index, float progress) {
-        return underlineColor == null ? VEC4_ZEROES : underlineColor.fetch(index, progress);
+    public Vector4f getUnderlineColor(int index) {
+        return underlineColor == null ? VEC4_ZEROES : underlineColor.fetch(index);
     }
 
-    public Vector4f getOutlineColor(int index, float progress) {
-        return outlineColor == null ? VEC4_ZEROES : outlineColor.fetch(index, progress);
+    public Vector4f getOutlineColor(int index) {
+        return outlineColor == null ? VEC4_ZEROES : outlineColor.fetch(index);
     }
 
     private static final Vector2f VEC2_ZEROES = new Vector2f(0);
     private static final Vector2f VEC2_ONES = new Vector2f(1);
 
-    public Vector2f getScale(int index, float progress) {
-        return scale == null ? VEC2_ONES : scale.fetch(index, progress);
+    public Vector2f getScale(int index) {
+        return scale == null ? VEC2_ONES : scale.fetch(index);
     }
 
-    public Vector2f getOutlineScale(int index, float progress) {
-        return outlineScale == null ? VEC2_ONES : outlineScale.fetch(index, progress);
+    public Vector2f getOutlineScale(int index) {
+        return outlineScale == null ? VEC2_ONES : outlineScale.fetch(index);
     }
 
-    public Vector2f getSkew(int index, float progress) {
-        return skew == null ? VEC2_ZEROES : skew.fetch(index, progress);
+    public Vector2f getSkew(int index) {
+        return skew == null ? VEC2_ZEROES : skew.fetch(index);
     }
 
-    public Vector2f getOffset(int index, float progress) {
-        return offset == null ? VEC2_ZEROES : offset.fetch(index, progress);
+    public Vector2f getOffset(int index) {
+        return offset == null ? VEC2_ZEROES : offset.fetch(index);
     }
 
-    public Vector2f getShadowOffset(int index, float progress) {
-        return shadowOffset == null ? VEC2_ONES : shadowOffset.fetch(index, progress);
+    public Vector2f getShadowOffset(int index) {
+        return shadowOffset == null ? VEC2_ONES : shadowOffset.fetch(index);
     }
 
-    public float getVerticalAlignment(int index, float progress) {
-        return verticalAlignment == null ? 1f : verticalAlignment.fetch(index, progress);
+    public float getVerticalAlignment(int index) {
+        return verticalAlignment == null ? 1f : verticalAlignment.fetch(index);
     }
 
     private static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
-    public ResourceLocation getFont(int index, float progress) {
-        return font == null ? DEFAULT_FONT : font.fetch(index, progress);
+    public ResourceLocation getFont(int index) {
+        return font == null ? DEFAULT_FONT : font.fetch(index);
     }
 
     @FunctionalInterface
     public interface CompiledProperty<T> {
-        T fetch(int index, float progress);
+        T fetch(int index);
     }
 
 }
