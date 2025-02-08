@@ -35,10 +35,11 @@ public class GradientProperty<T> implements Property<T> {
 
     @Override
     public CompiledStyle.CompiledProperty<T> compile(int startIndex, BaseFomponent fomponent) {
-        int len = fomponent.length();
+        // TODO Cache array if none of the values vary
         CompiledStyle.CompiledProperty<T>[] compiledValues = new CompiledStyle.CompiledProperty[values.size()];
-        for (int i = 0; i < compiledValues.length; i++)
-            compiledValues[i] = values.get(i).compile(startIndex, fomponent);
+        for (int i = 0; i < compiledValues.length; i++) compiledValues[i] = values.get(i).compile(startIndex, fomponent);
+
+        int len = fomponent.length();
         return (i) -> {
             float progress = (float) (i - startIndex) / len; // 0 to 1
             float index = progress * (compiledValues.length - 1);
