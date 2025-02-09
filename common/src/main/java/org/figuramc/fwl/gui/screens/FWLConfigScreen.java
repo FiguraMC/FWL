@@ -353,11 +353,7 @@ public class FWLConfigScreen extends FWLScreen {
 
         @Override
         public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-            Instant inst = Instant.now();
             RenderUtils.renderText(graphics, component, 10, 10, 0);
-            Instant after = Instant.now();
-            long nanos = ChronoUnit.NANOS.between(inst, after);
-            System.out.printf("Rendering text takes %s nanoseconds\n", nanos);
         }
     }
 }
