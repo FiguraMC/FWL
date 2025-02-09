@@ -2,9 +2,9 @@ package org.figuramc.fwl.text.properties.special;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import org.figuramc.fwl.text.properties.NonVaryingProperty;
+import org.figuramc.fwl.text.properties.CacheableProperty;
 
-public class AlternatingProperty extends NonVaryingProperty<Boolean> {
+public class AlternatingProperty extends CacheableProperty<Boolean> {
 
     public static final AlternatingProperty INSTANCE = new AlternatingProperty();
 

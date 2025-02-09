@@ -35,7 +35,7 @@ public class GradientProperty<T> implements Property<T> {
 
     @Override
     public CompiledStyle.CompiledProperty<T> compile(int startIndex, BaseFomponent fomponent) {
-        // TODO Cache array if none of the values vary
+        // TODO Cache array if all values are cacheable
         CompiledStyle.CompiledProperty<T>[] compiledValues = new CompiledStyle.CompiledProperty[values.size()];
         for (int i = 0; i < compiledValues.length; i++) compiledValues[i] = values.get(i).compile(startIndex, fomponent);
 
@@ -47,7 +47,10 @@ public class GradientProperty<T> implements Property<T> {
         };
     }
 
-    @Override public boolean varies() { return true; }
+    @Override
+    public boolean cacheable() {
+        return false;
+    }
 
     @FunctionalInterface
     private interface Lerper<T> {

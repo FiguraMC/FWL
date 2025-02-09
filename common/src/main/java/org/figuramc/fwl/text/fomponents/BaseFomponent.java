@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class BaseFomponent {
 
@@ -67,7 +66,7 @@ public abstract class BaseFomponent {
         // Get the base json object
         JsonObject json = getBaseJsonObject();
         // Add style
-        style.writeTo(json);
+        style.writeJson(json);
         // Add siblings
         JsonArray extras = new JsonArray();
         for (BaseFomponent sibling : siblings)
@@ -89,7 +88,7 @@ public abstract class BaseFomponent {
         } else if (json.isJsonObject()) {
             JsonObject obj = json.getAsJsonObject();
             // Get style
-            FomponentStyle style = FomponentStyle.readFrom(obj);
+            FomponentStyle style = FomponentStyle.readJson(obj);
             // Get extras
             ArrayList<BaseFomponent> extras = new ArrayList<>();
             JsonArray extrasJson = JsonUtils.arrayOrNull(obj, "extras");

@@ -20,7 +20,7 @@ import java.util.function.Function;
 public abstract class CommutativeProperty<T> implements Property<T> {
 
     private final List<Property<T>> values;
-    private final boolean varies;
+    private final boolean cacheable;
     private final Operation<T> operation;
     private final T unit;
 
@@ -33,7 +33,7 @@ public abstract class CommutativeProperty<T> implements Property<T> {
         else if (tClass == Vector3f.class) { operation = (Operation<T>) (Operation<Vector3f>) this::operate; unit = (T) unitVec3(); }
         else if (tClass == Vector4f.class) { operation = (Operation<T>) (Operation<Vector4f>) this::operate; unit = (T) unitVec4(); }
         else throw new IllegalArgumentException("Unexpected class for AddProperty: expected boolean, float, or vector, got " + tClass);
-        this.varies = values.stream().anyMatch(Property::varies);
+        this.cacheable = values.stream().allMatch(Property::cacheable);
     }
 
     protected abstract String id();
@@ -70,8 +70,8 @@ public abstract class CommutativeProperty<T> implements Property<T> {
     }
 
     @Override
-    public boolean varies() {
-        return varies;
+    public boolean cacheable() {
+        return cacheable;
     }
 
     @Override

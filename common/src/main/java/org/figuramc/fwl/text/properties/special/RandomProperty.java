@@ -16,7 +16,7 @@ public class RandomProperty<T> implements Property<T> {
 
     private final Property<T> min, max;
     private Randomizer<T> randomizer; // min, max -> output
-    private final boolean varies;
+    private final boolean cacheable;
 
     public RandomProperty(Property<T> min, Property<T> max, Class<T> tClass) {
         this.min = min;
@@ -26,7 +26,7 @@ public class RandomProperty<T> implements Property<T> {
         else if (tClass == Vector2f.class) randomizer = (Randomizer<T>) (Randomizer<Vector2f>) RandomProperty::random;
         else if (tClass == Vector3f.class) randomizer = (Randomizer<T>) (Randomizer<Vector3f>) RandomProperty::random;
         else if (tClass == Vector4f.class) randomizer = (Randomizer<T>) (Randomizer<Vector4f>) RandomProperty::random;
-        varies = min.varies() || max.varies();
+        cacheable = min.cacheable() && max.cacheable();
     }
 
     @FunctionalInterface
@@ -60,15 +60,15 @@ public class RandomProperty<T> implements Property<T> {
 
     @Override
     public CompiledStyle.CompiledProperty<T> compile(int currentIndex, BaseFomponent fomponent) {
-        // TODO: If !varies, cache lambda
+        // TODO: If cacheable, cache lambda
         CompiledStyle.CompiledProperty<T> compiledMin = min.compile(currentIndex, fomponent);
         CompiledStyle.CompiledProperty<T> compiledMax = max.compile(currentIndex, fomponent);
         return (i) -> randomizer.getRandom(compiledMin.fetch(i), compiledMax.fetch(i));
     }
 
     @Override
-    public boolean varies() {
-        return varies;
+    public boolean cacheable() {
+        return cacheable;
     }
 
     @Override

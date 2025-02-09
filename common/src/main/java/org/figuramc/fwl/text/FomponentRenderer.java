@@ -15,6 +15,8 @@ import org.joml.Vector4f;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.figuramc.fwl.text.style.StyleField.*;
+
 public class FomponentRenderer implements FomponentVisitor {
 
     private final Font font;
@@ -41,16 +43,16 @@ public class FomponentRenderer implements FomponentVisitor {
 
     @Override
     public void accept(int index, CompiledStyle style, int codepoint) {
-        Vector2f scale = style.getScale(index);
+        Vector2f scale = style.get(SCALE, index);
         float glyphHeight = font.lineHeight * scale.y;
         lineHeight = Math.max(lineHeight, glyphHeight);
         if (codepoint == '\n') {
             renderLine();
         } else {
-            FontSet set = font.getFontSet(style.getFont(index));
+            FontSet set = font.getFontSet(style.get(FONT, index));
             GlyphInfo info = set.getGlyphInfo(codepoint, font.filterFishyGlyphs);
-            BakedGlyph glyph = style.isObfuscated(index) ? set.getRandomGlyph(info) : set.getGlyph(codepoint);
-            float glyphWidth = info.getAdvance(style.isBold(index)) * scale.x;
+            BakedGlyph glyph = style.get(OBFUSCATED, index) ? set.getRandomGlyph(info) : set.getGlyph(codepoint);
+            float glyphWidth = info.getAdvance(style.get(BOLD, index)) * scale.x;
             lineGlyphs.add(new GlyphData(info, glyph, glyphWidth, glyphHeight, style, index));
         }
     }
@@ -78,36 +80,33 @@ public class FomponentRenderer implements FomponentVisitor {
         float width = data.width;
         float height = data.height;
 
-        Vector4f backgroundColor = style.getBackgroundColor(index);
-        if (backgroundColor.w != 0)
-            renderEffect(initialX, initialY, initialX + width, initialY + height, backgroundColor);
+        if (style.get(BACKGROUND, index))
+            renderEffect(initialX, initialY, initialX + width, initialY + height, style.get(BACKGROUND_COLOR, index));
 
         if (!(glyph instanceof EmptyGlyph)) {
             VertexConsumer consumer = graphics.bufferSource().getBuffer(glyph.renderType(layerType));
 
             // Color
-            Vector4f color = style.getColor(index);
+            Vector4f color = style.get(COLOR, index);
             float r = color.x, g = color.y, b = color.z, a = color.w;
 
             // Offset
-            Vector2f offset = style.getOffset(index);
+            Vector2f offset = style.get(OFFSET, index);
             x += offset.x;
             y += offset.y;
 
             // Scale
-            Vector2f scale = style.getScale(index);
-//            width *= scale.x;
-//            height *= scale.y;
+            Vector2f scale = style.get(SCALE, index);
 
             // Alignment
-            float alignment = style.getVerticalAlignment(index);
+            float alignment = style.get(VERTICAL_ALIGNMENT, index);
             y += (lineHeight - height) * alignment;
 
             // Skew
             float skewX = 0, skewY = 0;
-            if (style.isItalic(index))
+            if (style.get(ITALIC, index))
                 skewX += scale.x;
-            Vector2f skew = style.getSkew(index);
+            Vector2f skew = style.get(SKEW, index);
             skewX += skew.x;
             skewY += skew.y;
 
@@ -124,18 +123,18 @@ public class FomponentRenderer implements FomponentVisitor {
             y2 += yDiff * (scale.y - 1);
 
             // Shadow
-            Vector4f shadowColor = style.getShadowColor(index);
-            if (shadowColor.w != 0) {
-                Vector2f shadowOffset = style.getShadowOffset(index);
+            if (style.get(SHADOW, index)) {
+                Vector4f shadowColor = style.get(SHADOW_COLOR, index);
+                Vector2f shadowOffset = style.get(SHADOW_OFFSET, index);
                 float oX = shadowOffset.x * scale.x;
                 float oY = shadowOffset.y * scale.y;
                 renderCharInternal(consumer, x1 + oX, y1 + oY, x2 + oX, y2 + oY, u0, v0, u1, v1, skewX, skewY, shadowColor.x, shadowColor.y, shadowColor.z, shadowColor.w, light);
             }
 
             // Outline
-            Vector4f outlineColor = style.getOutlineColor(index);
-            if (outlineColor.w != 0) {
-                Vector2f outlineScale = style.getOutlineScale(index);
+            if (style.get(OUTLINE, index)) {
+                Vector4f outlineColor = style.get(OUTLINE_COLOR, index);
+                Vector2f outlineScale = style.get(OUTLINE_SCALE, index);
                 float cR = outlineColor.x, cG = outlineColor.y, cB = outlineColor.z, cA = outlineColor.w;
                 for (int oY = -1; oY <= 1; oY++) {
                     for (int oX = -1; oX <= 1; oX++) {
@@ -148,7 +147,7 @@ public class FomponentRenderer implements FomponentVisitor {
             }
 
             // Bold
-            if (style.isBold(index)) {
+            if (style.get(BOLD, index)) {
                 float weight = data.info().getBoldOffset() * scale.x;
                 renderCharInternal(consumer, x1 + weight, y1, x2 + weight, y2, u0, v0, u1, v1, skewX, skewY, r, g, b, a, light);
             }
@@ -158,16 +157,16 @@ public class FomponentRenderer implements FomponentVisitor {
         }
 
         // Strikethrough
-        Vector4f strikethroughColor = style.getStrikethroughColor(index);
-        if (strikethroughColor.w != 0) {
+        if (style.get(STRIKETHROUGH, index)) {
+            Vector4f strikethroughColor = style.get(STRIKETHROUGH_COLOR, index);
             float cY1 = initialY + (lineHeight / 2) - 1;
             float cY2 = cY1 + 1;
             renderEffect(initialX, cY1, initialX + width, cY2, strikethroughColor);
         }
 
         // Underline
-        Vector4f underlineColor = style.getUnderlineColor(index);
-        if (underlineColor.w != 0) {
+        if (style.get(UNDERLINE, index)) {
+            Vector4f underlineColor = style.get(UNDERLINE_COLOR, index);
             float cY2 = initialY + lineHeight;
             float cY1 = cY2 - 1;
             renderEffect(initialX, cY1, initialX + width, cY2, underlineColor);
@@ -185,7 +184,7 @@ public class FomponentRenderer implements FomponentVisitor {
 
     private void renderEffect(float x1, float y1, float x2, float y2, Vector4f color) {
         float r = color.x, g = color.y, b = color.z, a = color.w;
-        FontSet fontSet = font.getFontSet(CompiledStyle.EMPTY.getFont(-1));
+        FontSet fontSet = font.getFontSet(FONT.defaultValue);
         BakedGlyph whiteGlyph = fontSet.whiteGlyph();
         VertexConsumer consumer = graphics.bufferSource().getBuffer(whiteGlyph.renderType(layerType));
         consumer.vertex(matrix, x1, y1, 0).color(r, g, b, a).uv(whiteGlyph.u0, whiteGlyph.v0).uv2(light).endVertex();

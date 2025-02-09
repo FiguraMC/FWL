@@ -2,7 +2,6 @@ package org.figuramc.fwl.text.properties;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.resources.ResourceLocation;
 import org.figuramc.fwl.text.properties.commutative.AddProperty;
 import org.figuramc.fwl.text.properties.commutative.CommutativeProperty;
@@ -22,9 +21,9 @@ public interface Property<T> {
     // Compile this into a compiled style property.
     CompiledStyle.CompiledProperty<T> compile(int currentIndex, BaseFomponent fomponent);
 
-    // Whether this varies with respect to its args to compile().
-    // If all properties have this as false, optimization can be done.
-    boolean varies();
+    // Whether the CompiledProperty yielded by this is cacheable.
+    // If all properties in a style have this as true, an optimization can be done.
+    boolean cacheable();
 
     // Convert this to a json element.
     JsonElement toJson();

@@ -26,21 +26,15 @@ import org.figuramc.fwl.gui.widgets.tabs.SideViewSwitcher;
 import org.figuramc.fwl.gui.widgets.tabs.pages.PageEntry;
 import org.figuramc.fwl.text.FomponentRenderer;
 import org.figuramc.fwl.text.fomponents.BaseFomponent;
-import org.figuramc.fwl.text.fomponents.LiteralFomponent;
-import org.figuramc.fwl.text.properties.commutative.AddProperty;
-import org.figuramc.fwl.text.properties.special.RandomProperty;
 import org.figuramc.fwl.utils.Rectangle;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector4f;
-
-import java.util.List;
 
 import static org.figuramc.fwl.FWL.fwl;
-import static org.figuramc.fwl.utils.TextUtils.themeToTranslationString;
+import static org.figuramc.fwl.text.fomponents.LiteralFomponent.literal;
 import static org.figuramc.fwl.text.style.FomponentStyle.*;
-import static org.figuramc.fwl.text.fomponents.LiteralFomponent.*;
+import static org.figuramc.fwl.text.style.StyleField.*;
+import static org.figuramc.fwl.utils.TextUtils.themeToTranslationString;
 
 public class FWLConfigScreen extends FWLScreen {
     private SideViewSwitcher configSwitcher;
@@ -290,44 +284,44 @@ public class FWLConfigScreen extends FWLScreen {
             this.width = width;
             this.height = height;
 
-            BaseFomponent mainText = literal("This is a text made for showcase of the features of FWL's custom components.\n", style().setScale(VEC2_ONE).setVerticalAlignment(ZERO))
+            BaseFomponent mainText = literal("This is a text made for showcase of the features of FWL's custom components.\n", style().set(SCALE, VEC2_ONE).set(VERTICAL_ALIGNMENT, ZERO))
                     .append(literal("Main purpose of custom components is extension of minecraft's text styling capabilities.\n", style()))
                     .append(literal("Apart from default ", style()))
-                    .append(literal("color", style().setColor(constant(0.25f, 1.0f, 0.25f, 1.0f)))).append(literal(", "))
-                    .append(literal("bold", style().setBold(TRUE))).append(literal(", "))
-                    .append(literal("italic", style().setItalic(TRUE))).append(literal(", "))
-                    .append(literal("underline", style().setUnderlineColor(VEC4_ONE))).append(literal(", "))
-                    .append(literal("strikethrough", style().setStrikethroughColor(VEC4_ONE))).append(literal(", "))
+                    .append(literal("color", style().set(COLOR, constant(0.25f, 1.0f, 0.25f, 1.0f)))).append(literal(", "))
+                    .append(literal("bold", style().set(BOLD, TRUE))).append(literal(", "))
+                    .append(literal("italic", style().set(ITALIC, TRUE))).append(literal(", "))
+                    .append(literal("underline", style().set(UNDERLINE, TRUE))).append(literal(", "))
+                    .append(literal("strikethrough", style().set(STRIKETHROUGH, TRUE))).append(literal(", "))
                     .append(literal("and, of course, "))
-                    .append(literal("obfuscated", style().setObfuscated(TRUE))).append(literal(",\n"))
+                    .append(literal("obfuscated", style().set(OBFUSCATED, TRUE))).append(literal(",\n"))
                     .append(literal("there's also "))
-                    .append(literal("scale", style().setScale(constant(1.5f, 1.5f)))).append(literal(", "))
-                    .append(literal("offset", style().setOffset(constant(0.0f, 4.0f)))).append(literal(", "))
-                    .append(literal("skew", style().setSkew(constant(1.0f, 1.0f)))).append(literal(", "))
-                    .append(literal("background", style().setBackgroundColor(constant(1.0f, 1.0f, 0.5f, 0.5f)))).append(literal(", "))
+                    .append(literal("scale", style().set(SCALE, constant(1.5f, 1.5f)))).append(literal(", "))
+                    .append(literal("offset", style().set(OFFSET, constant(0.0f, 4.0f)))).append(literal(", "))
+                    .append(literal("skew", style().set(SKEW, constant(1.0f, 1.0f)))).append(literal(", "))
+                    .append(literal("background", style().set(BACKGROUND, TRUE).set(BACKGROUND_COLOR, constant(1.0f, 1.0f, 0.5f, 0.5f)))).append(literal(", "))
                     .append(literal("and also some little things like ability to set the color of\n"))
-                    .append(literal("shadow", style().setShadowColor(constant(0.5f, 0.0f, 0.0f, 1.0f)))).append(literal(", "))
-                    .append(literal("underline", style().setUnderlineColor(constant(1.0f, 0.5f, 0.5f, 1.0f)))).append(literal(", and "))
-                    .append(literal("strikethrough", style().setStrikethroughColor(constant(1.0f, 0.5f, 0.5f, 1.0f)))).append(literal(".\n"))
-                    .append(literal("Oh and there's also text outline :3", style().setOutlineColor(constant(1.0f, 1.0f, 0.5f, 0.15f)))).append(literal("\n"));
+                    .append(literal("shadow", style().set(SHADOW, TRUE).set(SHADOW_COLOR, constant(0.5f, 0.0f, 0.0f, 1.0f)))).append(literal(", "))
+                    .append(literal("underline", style().set(UNDERLINE, TRUE).set(UNDERLINE_COLOR, constant(1.0f, 0.5f, 0.5f, 1.0f)))).append(literal(", and "))
+                    .append(literal("strikethrough", style().set(STRIKETHROUGH, true).set(STRIKETHROUGH_COLOR, constant(1.0f, 0.5f, 0.5f, 1.0f)))).append(literal(".\n"))
+                    .append(literal("Oh and there's also text outline :3", style().set(OUTLINE, TRUE).set(OUTLINE_COLOR, constant(1.0f, 1.0f, 0.5f, 0.15f)))).append(literal("\n"));
 
             JsonElement serialized = mainText.toJson();
             BaseFomponent deserialized = BaseFomponent.fromJson(serialized);
 
             BaseFomponent gradientTesting1 = literal("Shaky amount is a gradient!!!", style()
-                    .setScale(VEC2_ONE)
-                    .setOffset(random2(
+                    .set(SCALE, VEC2_ONE)
+                    .set(OFFSET, random2(
                             gradient2(VEC2_ZERO, constant(-2f, -2f)),
                             gradient2(VEC2_ZERO, constant(2f, 2f))
                     )));
             BaseFomponent gradientTesting2 = literal("Gradient, and is shaky!!!", style()
-                    .setScale(VEC2_ONE)
-                    .setOffset(add2(
+                    .set(SCALE, VEC2_ONE)
+                    .set(OFFSET, add2(
                             gradient2(VEC2_ZERO, constant(0, 40)),
                             random2(constant(-0.5f, -0.5f), constant(0.5f, 0.5f))
                     )));
             BaseFomponent lotsOfColors = literal("Woaaaa thats a lot of colors to put in 1 gradient!!! How does it work??", style()
-                    .setColor(gradient4(color("red"), color("yellow"), color("green"), color("aqua"), color("blue"), color("dark_purple"), color("red")))
+                    .set(COLOR, gradient4(color("red"), color("yellow"), color("green"), color("aqua"), color("blue"), color("dark_purple"), color("red")))
             );
 
             BaseFomponent jsonTest = BaseFomponent.fromJson(JsonParser.parseString("""
@@ -342,7 +336,7 @@ public class FWLConfigScreen extends FWLScreen {
                     }
                     """));
 
-            BaseFomponent title = literal("Hi!\n", style().setScale(constant(2, 2)).setShadowColor(constant(0, 0, 0, 1)))
+            BaseFomponent title = literal("Hi!\n", style().set(SCALE, constant(2, 2)).set(SHADOW, TRUE).set(SHADOW_COLOR, constant(0, 0, 0, 1)))
                     .append(mainText).append(literal("\n\n"))
                     .append(deserialized).append(literal("\n\n"))
                     .append(gradientTesting1).append(literal("\n\n"))
