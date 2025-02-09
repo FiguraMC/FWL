@@ -18,18 +18,21 @@ public class EffectProvider implements HeadlessStyleProvider {
 
     @Override
     public FWLStyle get(int index, int length) {
-        FWLStyle current = style.clone();
-        for (PropertyPair<?> pair: effects) {
-            apply(current, pair, index, length);
+        if (effects.isEmpty()) return style;
+        else {
+            FWLStyle current = style.clone();
+            for (PropertyPair<?> pair: effects) {
+                current = apply(current, pair, index, length);
+            }
+            return current;
         }
-        return current;
     }
 
-    private <V> void apply(FWLStyle current, PropertyPair<V> pair, int index, int length) {
+    private <V> FWLStyle apply(FWLStyle current, PropertyPair<V> pair, int index, int length) {
         FWLStyle.Property<V> property = pair.value();
         Applier<V> applier = pair.applier();
         V initialValue = property.get(current);
-        property.set(current, applier.get(current, initialValue, index, length));
+        return property.set(current, applier.get(current, initialValue, index, length));
     }
 
 }

@@ -27,12 +27,18 @@ import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.text.components.LiteralComponent;
 import org.figuramc.fwl.text.serialization.FWLSerializer;
 import org.figuramc.fwl.utils.Rectangle;
+import org.figuramc.fwl.utils.RenderUtils;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalField;
 
 import static org.figuramc.fwl.FWL.fwl;
 import static org.figuramc.fwl.text.FWLStyle.*;
 import static org.figuramc.fwl.text.components.LiteralComponent.literal;
+import static org.figuramc.fwl.text.components.TranslatableComponent.translation;
 import static org.figuramc.fwl.text.effects.ConstantApplier.constant;
 import static org.figuramc.fwl.text.effects.GradientApplier.*;
 import static org.figuramc.fwl.text.effects.ShakeApplier.shake2;
@@ -283,7 +289,7 @@ public class FWLConfigScreen extends FWLScreen {
         private float width, height;
         private static final String testComponent = """
                 {
-                    "text": "Hello, this is a test component parsed by FWL json parser!",
+                    "text": "Hello, this is a test component parsed by FWL json parser!\n",
                     "color": {
                         "value": "#ff77ff",
                         "type": "gradient",
@@ -296,7 +302,8 @@ public class FWLConfigScreen extends FWLScreen {
             this.width = width;
             this.height = height;
             LiteralComponent title = literal("Hi!\n", empty().withScale(2, 2));
-            LiteralComponent mainText = literal("\nThis is a text made for showcase of the features of FWL's custom components.\n", empty().withScale(1, 1));
+            LiteralComponent mainText = literal("\nThis is a text made for showcase of the features of FWL's custom components.\n",
+                    empty().withScale(1, 1));
             title.append(mainText);
 
             mainText.append(literal("Main purpose of custom components is extension of minecraft's text styling capabilities.\n"))
@@ -317,7 +324,7 @@ public class FWLConfigScreen extends FWLScreen {
                     .append(literal("shadow", empty().withShadowColor(0.5f, 0, 0, 1))).append(literal(", "))
                     .append(literal("underline", empty().withUnderlineColor(1f, 0.5f, 0.5f, 1))).append(literal(", and "))
                     .append(literal("strikethrough", empty().withStrikethroughColor(1f, 0.5f, 0.5f, 1))).append(literal(".\n"))
-                    .append(literal("Oh and also there's text outline :3.\n", empty().withOutlineColor(1f, 1f, 0.35f, 0.2f)));
+                    .append(literal("Oh and also there's text outline :3.\n"));
             try {
                 AbstractComponent cmp = FWLSerializer.parse(testComponent);
                 mainText.append(cmp);
@@ -326,6 +333,9 @@ public class FWLConfigScreen extends FWLScreen {
                 e.printStackTrace();
             }
 
+            String key = "fwl.theme.breeze";
+
+            mainText.append(translation(key));
 
             component = title;
         }
@@ -343,13 +353,11 @@ public class FWLConfigScreen extends FWLScreen {
 
         @Override
         public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-            Font font = Minecraft.getInstance().font;
-            Matrix4f matrix = graphics.pose().last().pose();
-            TextRenderer renderer = new TextRenderer(graphics,10, 10, font, matrix, Font.DisplayMode.NORMAL, 15728880);
-            RenderSystem.enableBlend();
-            component.visit(renderer::accept);
-            renderer.render();
-            RenderSystem.disableBlend();
+            Instant inst = Instant.now();
+            RenderUtils.renderText(graphics, component, 10, 10, 0);
+            Instant after = Instant.now();
+            long nanos = ChronoUnit.NANOS.between(inst, after);
+            System.out.printf("Rendering text takes %s nanoseconds\n", nanos);
         }
     }
 }

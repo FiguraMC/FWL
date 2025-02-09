@@ -1,5 +1,6 @@
 package org.figuramc.fwl.utils;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -16,6 +17,8 @@ import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.themes.ColorTypes;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor;
+import org.figuramc.fwl.text.TextRenderer;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
@@ -43,7 +46,7 @@ public class RenderUtils {
 
     public static float renderText(GuiGraphics graphics, FormattedCharSequence text, float x, float y, float z, float scale, boolean shadow) {
         int color = FWL.fwl().currentTheme().getColorOrDefault(ColorTypes.TEXT, 0xFFFFFFFF);
-        return renderText(graphics, text, x, y, z, 1, color, shadow);
+        return renderText(graphics, text, x, y, z, scale, color, shadow);
     }
 
     public static float renderText(GuiGraphics graphics, FormattedCharSequence text, float x, float y, float z, float scale, int color, boolean shadow) {
@@ -61,6 +64,19 @@ public class RenderUtils {
         }
         stack.popPose();
         return w * scale;
+    }
+
+    public static void renderText(GuiGraphics graphics, AbstractComponent text, float x, float y, float z) {
+        PoseStack stack = graphics.pose();
+        stack.pushPose();
+        stack.translate(0, 0, z);
+        TextRenderer renderer = new TextRenderer(graphics.bufferSource(), x, y, getFont(), stack.last().pose(), Font.DisplayMode.NORMAL, 15728880);
+        RenderSystem.enableBlend();
+        text.visit(renderer::accept);
+        renderer.render();
+        graphics.flushIfUnmanaged();
+        RenderSystem.disableBlend();
+        stack.popPose();
     }
 
     public static float scrollProgress(float totalTicks, float scrollTicks, float ticks) {
@@ -103,6 +119,7 @@ public class RenderUtils {
         Font font = Minecraft.getInstance().font;
         return TextUtils.lines(text) * font.lineHeight * scale;
     }
+
 
     public static void renderLine(GuiGraphics graphics, float x0, float y0, float x1, float y1, float z, float scaling, int color) {
         renderLine(graphics, x0, y0, x1, y1, z, scaling, new StaticColor(color));

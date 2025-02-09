@@ -12,6 +12,7 @@ import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.text.FWLStyle;
 import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.text.components.LiteralComponent;
+import org.figuramc.fwl.text.components.TranslatableComponent;
 import org.figuramc.fwl.text.effects.*;
 import org.figuramc.fwl.text.providers.headless.EffectProvider;
 import org.figuramc.fwl.text.providers.headless.PropertyPair;
@@ -158,24 +159,6 @@ public class FWLSerializer {
             if (value != null) return ConstantApplier.constant(value);
             else throw new IllegalArgumentException("Unable to parse expression");
         }
-        // Object value = readDefaultValue(element, fieldClass);
-        // if (value != null) {
-        //     Applier<Object> valueApplier = ConstantApplier.constant(value);
-        //     if (element.isJsonObject()) {
-        //         JsonObject object = element.getAsJsonObject();
-        //         object.remove("value");
-        //         Applier<?> actualExpression = parseExpression(element, fieldClass);
-        //         return new WithValue<>((Applier<Object>) actualExpression, valueApplier);
-        //     }
-        //     else return valueApplier;
-        // }
-        // else {
-        //     JsonObject object = element.getAsJsonObject();
-        //     String type = stringOrThrow(object, "type");
-        //     EffectDeserializer<?> deserializer = EFFECT_DESERIALIZERS.get(type);
-        //     if (deserializer == null) throw new IllegalStateException("No deserializer found for effect %s".formatted(type));
-        //     return deserializer.deserialize(element, fieldClass);
-        // }
     }
 
     private static Object readDefaultValue(JsonElement element, Class<?> fieldClass) {
@@ -227,10 +210,26 @@ public class FWLSerializer {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
+    public static JsonObject serialize(AbstractComponent component) {
+        String type = component.type();
+        ComponentSerializer<AbstractComponent> serializer =
+                (ComponentSerializer<AbstractComponent>) COMPONENT_SERIALIZERS.get(type);
+        if (serializer == null) throw new IllegalStateException("No serializer found for effect %s".formatted(type));
+        JsonObject object = serializer.serialize(component);
+
+        // TODO style serialization
+        // TODO appliers serialization
+
+        return object;
+    }
+
     static {
         registerComponentSerializer("text", LiteralComponent::serialize);
+        registerComponentSerializer("translatable", TranslatableComponent::serialize);
 
         registerComponentDeserializer("text", LiteralComponent::deserialize);
+        registerComponentDeserializer("translatable", TranslatableComponent::deserialize);
 
         registerEffectDeserializer("gradient", GradientApplier::deserialize);
         registerEffectDeserializer("shake", ShakeApplier::deserialize);

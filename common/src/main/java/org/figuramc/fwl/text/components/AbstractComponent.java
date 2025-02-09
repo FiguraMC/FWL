@@ -1,10 +1,12 @@
 package org.figuramc.fwl.text.components;
 
+import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.text.FWLStyle;
 import org.figuramc.fwl.text.providers.headless.EffectProvider;
 import org.figuramc.fwl.text.providers.headless.ProviderBuilder;
 import org.figuramc.fwl.text.sinks.OffsetSink;
 import org.figuramc.fwl.text.sinks.StyledSink;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,21 +14,21 @@ import java.util.List;
 
 public abstract class AbstractComponent {
     protected final ArrayList<AbstractComponent> siblings = new ArrayList<>();
-    private EffectProvider styleProvider;
+    private @Nullable EffectProvider styleProvider;
 
     public final List<AbstractComponent> siblings() {
         return siblings;
     }
 
     public AbstractComponent() {
-        styleProvider = new ProviderBuilder(FWLStyle.empty()).build();
+        styleProvider = null;
     }
 
     public AbstractComponent(FWLStyle style) {
         styleProvider = new ProviderBuilder(style).build();
     }
 
-    public AbstractComponent(EffectProvider provider) {
+    public AbstractComponent(@Nullable EffectProvider provider) {
         styleProvider = provider;
     }
 
@@ -36,7 +38,7 @@ public abstract class AbstractComponent {
     }
 
     protected FWLStyle getSelfStyle(int index) {
-        return styleProvider.get(index, length());
+        return styleProvider != null ? styleProvider.get(index, length()) : FWLStyle.EMPTY;
     }
 
     protected FWLStyle getSiblingStyle(int index) {

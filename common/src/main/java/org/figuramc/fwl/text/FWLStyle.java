@@ -14,12 +14,15 @@ import java.util.Objects;
 
 
 public class FWLStyle {
+    public static final FWLStyle EMPTY = empty().lock();
     public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
     private @Nullable Boolean bold, italic, obfuscated;
     private @Nullable Vector4f color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor;
     private @Nullable Vector2f scale, outlineScale, skew, offset, shadowOffset;
     private @Nullable Float verticalAlignment;
     private @Nullable ResourceLocation font;
+
+    private boolean locked;
 
     public static final Property<Boolean>
             BOLD = property(FWLStyle::isBold, FWLStyle::setBold, FWLStyle::withBold, Boolean.class, "bold"),
@@ -344,83 +347,131 @@ public class FWLStyle {
     }
 
     public FWLStyle setBold(@Nullable Boolean bold) {
-        this.bold = bold;
-        return this;
+        if (locked) return withBold(bold);
+        else {
+            this.bold = bold;
+            return this;
+        }
     }
 
     public FWLStyle setItalic(@Nullable Boolean italic) {
-        this.italic = italic;
-        return this;
+        if (locked) return withItalic(italic);
+        else {
+            this.italic = italic;
+            return this;
+        }
     }
 
     public FWLStyle setObfuscated(@Nullable Boolean obfuscated) {
-        this.obfuscated = obfuscated;
-        return this;
+        if (locked) return withObfuscated(obfuscated);
+        else {
+            this.obfuscated = obfuscated;
+            return this;
+        }
     }
 
     public FWLStyle setColor(@Nullable Vector4f color) {
-        this.color = color;
-        return this;
+        if (locked) return withColor(color);
+        else {
+            this.color = color;
+            return this;
+        }
     }
 
     public FWLStyle setBackgroundColor(@Nullable Vector4f backgroundColor) {
-        this.backgroundColor = backgroundColor;
-        return this;
+        if (locked) return withBackgroundColor(backgroundColor);
+        else {
+            this.backgroundColor = backgroundColor;
+            return this;
+        }
     }
 
     public FWLStyle setShadowColor(@Nullable Vector4f shadowColor) {
-        this.shadowColor = shadowColor;
-        return this;
+        if (locked) return withShadowColor(shadowColor);
+        else {
+            this.shadowColor = shadowColor;
+            return this;
+        }
     }
 
     public FWLStyle setStrikethroughColor(@Nullable Vector4f strikethroughColor) {
-        this.strikethroughColor = strikethroughColor;
-        return this;
+        if (locked) return withStrikethroughColor(strikethroughColor);
+        else {
+            this.strikethroughColor = strikethroughColor;
+            return this;
+        }
     }
 
     public FWLStyle setUnderlineColor(@Nullable Vector4f underlineColor) {
-        this.underlineColor = underlineColor;
-        return this;
+        if (locked) return withUnderlineColor(underlineColor);
+        else {
+            this.underlineColor = underlineColor;
+            return this;
+        }
     }
 
     public FWLStyle setOutlineColor(@Nullable Vector4f outlineColor) {
-        this.outlineColor = outlineColor;
-        return this;
+        if (locked) return withOutlineColor(outlineColor);
+        else {
+            this.outlineColor = outlineColor;
+            return this;
+        }
     }
 
     public FWLStyle setScale(@Nullable Vector2f scale) {
-        this.scale = scale;
-        return this;
+        if (locked) return withScale(scale);
+        else {
+            this.scale = scale;
+            return this;
+        }
     }
 
     public FWLStyle setOutlineScale(@Nullable Vector2f outlineScale) {
-        this.outlineScale = outlineScale;
-        return this;
+        if (locked) return withOutlineScale(outlineScale);
+        else {
+            this.outlineScale = outlineScale;
+            return this;
+        }
     }
 
     public FWLStyle setSkew(@Nullable Vector2f skew) {
-        this.skew = skew;
-        return this;
+        if (locked) return withSkew(skew);
+        else {
+            this.skew = skew;
+            return this;
+        }
     }
 
     public FWLStyle setOffset(@Nullable Vector2f offset) {
-        this.offset = offset;
-        return this;
+        if (locked) return withOffset(offset);
+        else {
+            this.offset = offset;
+            return this;
+        }
     }
 
     public FWLStyle setShadowOffset(@Nullable Vector2f shadowOffset) {
-        this.shadowOffset = shadowOffset;
-        return this;
+        if (locked) return withShadowOffset(shadowOffset);
+        else {
+            this.shadowOffset = shadowOffset;
+            return this;
+        }
     }
 
     public FWLStyle setVerticalAlignment(@Nullable Float verticalAlignment) {
-        this.verticalAlignment = verticalAlignment;
-        return this;
+        if (locked) return withVerticalAlignment(verticalAlignment);
+        else {
+            this.verticalAlignment = verticalAlignment;
+            return this;
+        }
     }
 
     public FWLStyle setFont(@Nullable ResourceLocation font) {
-        this.font = font;
-        return this;
+        if (locked) return withFont(font);
+        else {
+            this.font = font;
+            return this;
+        }
     }
 
     public static FWLStyle merge(FWLStyle a, FWLStyle b) {
@@ -444,12 +495,21 @@ public class FWLStyle {
         );
     }
 
+    public FWLStyle lock() {
+        this.locked = true;
+        return this;
+    }
+
+    public boolean locked() {
+        return locked;
+    }
+
     public FWLStyle applyFrom(FWLStyle other) {
-        return merge(this, other);
+        return other == null ? this : merge(this, other);
     }
 
     public FWLStyle applyTo(FWLStyle parent) {
-        return merge(parent, this);
+        return parent == null ? this : merge(parent, this);
     }
 
     public <V> ProviderBuilder withEffect(Property<V> property, Applier<V> applier) {
@@ -493,7 +553,7 @@ public class FWLStyle {
     }
 
     public interface PropertySetter<V> {
-        void set(FWLStyle style, V value);
+        FWLStyle set(FWLStyle style, V value);
     }
 
     public interface PropertyWith<V> {
@@ -519,8 +579,8 @@ public class FWLStyle {
             return getter.get(style);
         }
 
-        public void set(FWLStyle style, V value) {
-            setter.set(style, value);
+        public FWLStyle set(FWLStyle style, V value) {
+            return setter.set(style, value);
         }
 
         public FWLStyle with(FWLStyle style, V value) {

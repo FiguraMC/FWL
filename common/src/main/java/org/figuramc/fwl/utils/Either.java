@@ -6,7 +6,7 @@ public class Either<A, B> {
 
     protected Either(Object value, boolean isB) {
         this.value = value;
-        b = false;
+        b = isB;
     }
 
 
@@ -14,8 +14,8 @@ public class Either<A, B> {
         return new Either<>(a, false);
     }
 
-    public static <A, B> Either<A, B> ofB(B a) {
-        return new Either<>(a, true);
+    public static <A, B> Either<A, B> ofB(B b) {
+        return new Either<>(b, true);
     }
 
     public boolean isA() {
