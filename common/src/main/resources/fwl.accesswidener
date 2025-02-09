@@ -17,3 +17,11 @@ accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph left F
 accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph right F
 accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph up F
 accessible field net/minecraft/client/gui/font/glyphs/BakedGlyph down F
+
+accessible field net/minecraft/network/chat/Style color Lnet/minecraft/network/chat/TextColor;
+accessible field net/minecraft/network/chat/Style bold Ljava/lang/Boolean;
+accessible field net/minecraft/network/chat/Style italic Ljava/lang/Boolean;
+accessible field net/minecraft/network/chat/Style underlined Ljava/lang/Boolean;
+accessible field net/minecraft/network/chat/Style strikethrough Ljava/lang/Boolean;
+accessible field net/minecraft/network/chat/Style obfuscated Ljava/lang/Boolean;
+accessible field net/minecraft/network/chat/Style font Lnet/minecraft/resources/ResourceLocation;

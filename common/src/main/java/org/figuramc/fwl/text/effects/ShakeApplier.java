@@ -1,7 +1,9 @@
 package org.figuramc.fwl.text.effects;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.figuramc.fwl.text.FWLStyle;
-import org.figuramc.fwl.text.Property;
+import org.figuramc.fwl.text.serialization.FWLSerializer;
 import org.joml.Random;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -22,10 +24,19 @@ public class ShakeApplier {
 
         @Override
         public Vector4f get(FWLStyle current, Vector4f initialValue, int index, int length) {
-            float progress = random.nextFloat();
             Vector4f minOffset = this.minOffset.get(current, initialValue, index, length);
             Vector4f maxOffset = this.maxOffset.get(current, initialValue, index, length);
-            return initialValue.add(lerp(minOffset, maxOffset, progress));
+            return initialValue.add(new Vector4f(
+                    lerp(minOffset.x, maxOffset.x, random.nextFloat()),
+                    lerp(minOffset.y, maxOffset.y, random.nextFloat()),
+                    lerp(minOffset.z, maxOffset.z, random.nextFloat()),
+                    lerp(minOffset.w, maxOffset.w, random.nextFloat())
+            ));
+        }
+
+        @Override
+        public String getType() {
+            return "shake";
         }
     }
 
@@ -39,10 +50,17 @@ public class ShakeApplier {
 
         @Override
         public Vector2f get(FWLStyle current, Vector2f initialValue, int index, int length) {
-            float progress = random.nextFloat();
             Vector2f minOffset = this.minOffset.get(current, initialValue, index, length);
             Vector2f maxOffset = this.maxOffset.get(current, initialValue, index, length);
-            return initialValue.add(lerp(minOffset, maxOffset, progress));
+            return initialValue.add(new Vector2f(
+                    lerp(minOffset.x, maxOffset.x, random.nextFloat()),
+                    lerp(minOffset.y, maxOffset.y, random.nextFloat())
+            ));
+        }
+
+        @Override
+        public String getType() {
+            return "shake";
         }
     }
 
@@ -61,6 +79,11 @@ public class ShakeApplier {
             Float maxOffset = this.maxOffset.get(current, initialValue, index, length);
             return initialValue + lerp(minOffset, maxOffset, progress);
         }
+
+        @Override
+        public String getType() {
+            return "shake";
+        }
     }
 
     public static Vec4 shake4(Applier<Vector4f> min, Applier<Vector4f> max) {
@@ -77,5 +100,16 @@ public class ShakeApplier {
 
     public static FloatValue shake(float min, float max) {
         return new FloatValue(constant(min), constant(max));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Applier<?> deserialize(JsonElement element, Class<?> fieldClass) {
+        JsonObject gradientObject = element.getAsJsonObject();
+        Applier<?> min = FWLSerializer.parseExpression(gradientObject.get("min"), fieldClass);
+        Applier<?> max = FWLSerializer.parseExpression(gradientObject.get("max"), fieldClass);
+        if (fieldClass == Float.class) return shake((Applier<Float>) min, (Applier<Float>) max);
+        else if (fieldClass == Vector2f.class) return shake2((Applier<Vector2f>) min, (Applier<Vector2f>) max);
+        else if (fieldClass == Vector4f.class) return shake4((Applier<Vector4f>) min, (Applier<Vector4f>) max);
+        throw new IllegalArgumentException("Unsupported field type: %s".formatted(fieldClass.getSimpleName()));
     }
 }

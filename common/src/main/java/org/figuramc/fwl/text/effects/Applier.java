@@ -10,4 +10,6 @@ public interface Applier<V> {
      * @return
      */
     V get(FWLStyle current, V initalValue, int index, int length);
+
+    String getType();
 }

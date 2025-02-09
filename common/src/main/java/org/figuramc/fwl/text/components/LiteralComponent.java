@@ -1,15 +1,20 @@
 package org.figuramc.fwl.text.components;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.figuramc.fwl.text.FWLStyle;
+import org.figuramc.fwl.text.providers.headless.EffectProvider;
 import org.figuramc.fwl.text.providers.headless.HeadlessStyleProvider;
 import org.figuramc.fwl.text.sinks.StyledSink;
+import org.figuramc.fwl.utils.JsonUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class LiteralComponent extends ContainerComponent {
+public class LiteralComponent extends AbstractComponent {
     private @NotNull String text;
 
     public LiteralComponent(@NotNull String text) {
@@ -22,7 +27,7 @@ public class LiteralComponent extends ContainerComponent {
         this.text = Objects.requireNonNull(text);
     }
 
-    public LiteralComponent(@NotNull String text, HeadlessStyleProvider provider) {
+    public LiteralComponent(@NotNull String text, EffectProvider provider) {
         super(provider);
         this.text = Objects.requireNonNull(text);
     }
@@ -60,6 +65,11 @@ public class LiteralComponent extends ContainerComponent {
         return text;
     }
 
+    @Override
+    public String type() {
+        return "text";
+    }
+
     public static LiteralComponent literal(String text) {
         return new LiteralComponent(text);
     }
@@ -68,7 +78,28 @@ public class LiteralComponent extends ContainerComponent {
         return new LiteralComponent(text, style);
     }
 
-    public static LiteralComponent literal(String text, HeadlessStyleProvider styleProvider) {
-        return new LiteralComponent(text, styleProvider);
+    public static LiteralComponent literal(String text, EffectProvider style) {
+        return new LiteralComponent(text, style);
+    }
+
+    public static JsonObject serialize(LiteralComponent component) {
+        JsonObject textObject = new JsonObject();
+        textObject.addProperty("text", component.text);
+
+        return textObject;
+    }
+
+    public static LiteralComponent deserialize(JsonElement element) {
+        if (element.isJsonPrimitive()) {
+            JsonPrimitive primitive = element.getAsJsonPrimitive();
+            if (primitive.isString()) return literal(primitive.getAsString());
+        }
+        else if (element.isJsonObject()) {
+            JsonObject object = element.getAsJsonObject();
+            String text = JsonUtils.stringOrThrow(object, "text");
+            return literal(text);
+        }
+
+        throw new IllegalArgumentException("Invalid token type");
     }
 }

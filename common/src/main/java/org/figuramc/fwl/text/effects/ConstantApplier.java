@@ -1,7 +1,6 @@
 package org.figuramc.fwl.text.effects;
 
 import org.figuramc.fwl.text.FWLStyle;
-import org.figuramc.fwl.text.Property;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
@@ -18,11 +17,7 @@ public class ConstantApplier<V> implements Applier<V> {
         return value;
     }
 
-    public static Applier<Boolean> constant(boolean value) {
-        return new ConstantApplier<>(value);
-    }
-
-    public static Applier<Float> constant(float value) {
+    public static <V> Applier<V> constant(V value) {
         return new ConstantApplier<>(value);
     }
 
@@ -40,5 +35,10 @@ public class ConstantApplier<V> implements Applier<V> {
 
     public static Applier<Vector4f> constant(Vector4f value) {
         return new ConstantApplier<>(value);
+    }
+
+    @Override
+    public String getType() {
+        return "constant";
     }
 }

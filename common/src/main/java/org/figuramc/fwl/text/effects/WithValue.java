@@ -17,6 +17,11 @@ public class WithValue<V> implements Applier<V> {
         return applier.get(current, value, index, length);
     }
 
+    @Override
+    public String getType() {
+        return null;
+    }
+
     public static <V> WithValue<V> withValue(Applier<V> value, Applier<V> applier) {
         return new WithValue<>(applier, value);
     }

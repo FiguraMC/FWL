@@ -1,5 +1,6 @@
 package org.figuramc.fwl.text;
 
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import org.figuramc.fwl.text.effects.Applier;
@@ -10,9 +11,10 @@ import org.joml.Vector4f;
 
 import java.util.Objects;
 
+
+
 public class FWLStyle {
     public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
-    public static final FWLStyle EMPTY = new FWLStyle();
     private @Nullable Boolean bold, italic, obfuscated;
     private @Nullable Vector4f color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor;
     private @Nullable Vector2f scale, outlineScale, skew, offset, shadowOffset;
@@ -20,26 +22,35 @@ public class FWLStyle {
     private @Nullable ResourceLocation font;
 
     public static final Property<Boolean>
-            BOLD = property(FWLStyle::isBold, FWLStyle::withBold, Boolean.class),
-            ITALIC = property(FWLStyle::isItalic, FWLStyle::withItalic, Boolean.class),
-            OBFUSCATED = property(FWLStyle::isObfuscated, FWLStyle::withObfuscated, Boolean.class);
+            BOLD = property(FWLStyle::isBold, FWLStyle::setBold, FWLStyle::withBold, Boolean.class, "bold"),
+            ITALIC = property(FWLStyle::isItalic, FWLStyle::setItalic, FWLStyle::withItalic, Boolean.class, "italic"),
+            OBFUSCATED = property(FWLStyle::isObfuscated, FWLStyle::setObfuscated, FWLStyle::withObfuscated, Boolean.class, "obfuscated");
 
     public static final Property<Vector4f>
-            COLOR = property(FWLStyle::getColor, FWLStyle::withColor, Vector4f.class),
-            BACKGROUND_COLOR = property(FWLStyle::getBackgroundColor, FWLStyle::withBackgroundColor, Vector4f.class),
-            SHADOW_COLOR = property(FWLStyle::getShadowColor, FWLStyle::withShadowColor, Vector4f.class),
-            STRIKETHROUGH_COLOR = property(FWLStyle::getStrikethroughColor, FWLStyle::withStrikethroughColor, Vector4f.class),
-            UNDERLINE_COLOR = property(FWLStyle::getUnderlineColor, FWLStyle::withUnderlineColor, Vector4f.class),
-            OUTLINE_COLOR = property(FWLStyle::getOutlineColor, FWLStyle::withOutlineColor, Vector4f.class);
+            COLOR = property(FWLStyle::getColor, FWLStyle::setColor, FWLStyle::withColor, Vector4f.class, "color"),
+            BACKGROUND_COLOR = property(FWLStyle::getBackgroundColor, FWLStyle::setBackgroundColor, FWLStyle::withBackgroundColor, Vector4f.class, "background_color"),
+            SHADOW_COLOR = property(FWLStyle::getShadowColor, FWLStyle::setShadowColor, FWLStyle::withShadowColor, Vector4f.class, "shadow_color"),
+            STRIKETHROUGH_COLOR = property(FWLStyle::getStrikethroughColor, FWLStyle::setStrikethroughColor, FWLStyle::withStrikethroughColor, Vector4f.class, "strikethrough_color"),
+            UNDERLINE_COLOR = property(FWLStyle::getUnderlineColor, FWLStyle::setUnderlineColor, FWLStyle::withUnderlineColor, Vector4f.class, "underline_color"),
+            OUTLINE_COLOR = property(FWLStyle::getOutlineColor, FWLStyle::setOutlineColor, FWLStyle::withOutlineColor, Vector4f.class, "outline_color");
 
     public static final Property<Vector2f>
-            SCALE = property(FWLStyle::getScale, FWLStyle::withScale, Vector2f.class),
-            OUTLINE_SCALE = property(FWLStyle::getOutlineScale, FWLStyle::withOutlineScale, Vector2f.class),
-            SKEW = property(FWLStyle::getSkew, FWLStyle::withSkew, Vector2f.class),
-            OFFSET = property(FWLStyle::getOffset, FWLStyle::withOffset, Vector2f.class),
-            SHADOW_OFFSET = property(FWLStyle::getShadowOffset, FWLStyle::withOffset, Vector2f.class);
+            SCALE = property(FWLStyle::getScale, FWLStyle::setScale, FWLStyle::withScale, Vector2f.class, "scale"),
+            OUTLINE_SCALE = property(FWLStyle::getOutlineScale, FWLStyle::setOutlineScale, FWLStyle::withOutlineScale, Vector2f.class, "outline_scale"),
+            SKEW = property(FWLStyle::getSkew, FWLStyle::setSkew, FWLStyle::withSkew, Vector2f.class, "skew"),
+            OFFSET = property(FWLStyle::getOffset, FWLStyle::setOffset, FWLStyle::withOffset, Vector2f.class, "offset"),
+            SHADOW_OFFSET = property(FWLStyle::getShadowOffset, FWLStyle::setShadowOffset, FWLStyle::withOffset, Vector2f.class, "shadow_offset");
 
-    public static final Property<Float> VERTICAL_ALIGNMENT = property(FWLStyle::getVerticalAlignment, FWLStyle::withVerticalAlignment, Float.class);
+    public static final Property<Float> VERTICAL_ALIGNMENT = property(FWLStyle::getVerticalAlignment, FWLStyle::setVerticalAlignment, FWLStyle::withVerticalAlignment, Float.class, "valign");
+
+    public static final Property<ResourceLocation> FONT = property(FWLStyle::getFont, FWLStyle::setFont, FWLStyle::withFont, ResourceLocation.class, "font");
+
+    public static final Property<?>[] PROPERTIES = new Property[] {
+            BOLD, ITALIC, OBFUSCATED,
+            COLOR, BACKGROUND_COLOR, SHADOW_COLOR, STRIKETHROUGH_COLOR, UNDERLINE_COLOR, OUTLINE_COLOR,
+            SCALE, OUTLINE_SCALE, SKEW, OFFSET, SHADOW_OFFSET,
+            VERTICAL_ALIGNMENT, FONT
+    };
 
     public FWLStyle() {
 
@@ -332,6 +343,86 @@ public class FWLStyle {
         return font == null ? DEFAULT_FONT : font;
     }
 
+    public FWLStyle setBold(@Nullable Boolean bold) {
+        this.bold = bold;
+        return this;
+    }
+
+    public FWLStyle setItalic(@Nullable Boolean italic) {
+        this.italic = italic;
+        return this;
+    }
+
+    public FWLStyle setObfuscated(@Nullable Boolean obfuscated) {
+        this.obfuscated = obfuscated;
+        return this;
+    }
+
+    public FWLStyle setColor(@Nullable Vector4f color) {
+        this.color = color;
+        return this;
+    }
+
+    public FWLStyle setBackgroundColor(@Nullable Vector4f backgroundColor) {
+        this.backgroundColor = backgroundColor;
+        return this;
+    }
+
+    public FWLStyle setShadowColor(@Nullable Vector4f shadowColor) {
+        this.shadowColor = shadowColor;
+        return this;
+    }
+
+    public FWLStyle setStrikethroughColor(@Nullable Vector4f strikethroughColor) {
+        this.strikethroughColor = strikethroughColor;
+        return this;
+    }
+
+    public FWLStyle setUnderlineColor(@Nullable Vector4f underlineColor) {
+        this.underlineColor = underlineColor;
+        return this;
+    }
+
+    public FWLStyle setOutlineColor(@Nullable Vector4f outlineColor) {
+        this.outlineColor = outlineColor;
+        return this;
+    }
+
+    public FWLStyle setScale(@Nullable Vector2f scale) {
+        this.scale = scale;
+        return this;
+    }
+
+    public FWLStyle setOutlineScale(@Nullable Vector2f outlineScale) {
+        this.outlineScale = outlineScale;
+        return this;
+    }
+
+    public FWLStyle setSkew(@Nullable Vector2f skew) {
+        this.skew = skew;
+        return this;
+    }
+
+    public FWLStyle setOffset(@Nullable Vector2f offset) {
+        this.offset = offset;
+        return this;
+    }
+
+    public FWLStyle setShadowOffset(@Nullable Vector2f shadowOffset) {
+        this.shadowOffset = shadowOffset;
+        return this;
+    }
+
+    public FWLStyle setVerticalAlignment(@Nullable Float verticalAlignment) {
+        this.verticalAlignment = verticalAlignment;
+        return this;
+    }
+
+    public FWLStyle setFont(@Nullable ResourceLocation font) {
+        this.font = font;
+        return this;
+    }
+
     public static FWLStyle merge(FWLStyle a, FWLStyle b) {
         return new FWLStyle(
                 b.bold == null ? a.bold : b.bold,
@@ -389,12 +480,12 @@ public class FWLStyle {
         return new Vector4f(red, green, blue, alpha);
     }
 
-    public static FWLStyle style() {
-        return EMPTY;
+    public static FWLStyle empty() {
+        return new FWLStyle();
     }
 
-    private static <V> Property<V> property(PropertyGetter<V> getter, PropertySetter<V> setter, Class<? extends V> clazz) {
-        return new Property<>(getter, setter, clazz);
+    private static <V> Property<V> property(PropertyGetter<V> getter, PropertySetter<V> setter, PropertyWith<V> with, Class<? extends V> clazz, String fieldName) {
+        return new Property<>(getter, setter, with, clazz, fieldName);
     }
 
     public interface PropertyGetter<V> {
@@ -402,6 +493,46 @@ public class FWLStyle {
     }
 
     public interface PropertySetter<V> {
-        FWLStyle set(FWLStyle style, V value);
+        void set(FWLStyle style, V value);
+    }
+
+    public interface PropertyWith<V> {
+        FWLStyle with(FWLStyle style, V value);
+    }
+
+    public static class Property<V> {
+        private final Class<? extends V> clazz;
+        private final PropertyGetter<V> getter;
+        private final PropertySetter<V> setter;
+        private final PropertyWith<V> with;
+        private final String fieldName;
+
+        public Property(PropertyGetter<V> getter, PropertySetter<V> setter, PropertyWith<V> with, Class<? extends V> clazz, String fieldName) {
+            this.getter = getter;
+            this.with = with;
+            this.clazz = clazz;
+            this.setter = setter;
+            this.fieldName = fieldName;
+        }
+
+        public V get(FWLStyle style) {
+            return getter.get(style);
+        }
+
+        public void set(FWLStyle style, V value) {
+            setter.set(style, value);
+        }
+
+        public FWLStyle with(FWLStyle style, V value) {
+            return with.with(style, value);
+        }
+
+        public String fieldName() {
+            return fieldName;
+        }
+
+        public Class<? extends V> fieldType() {
+            return clazz;
+        }
     }
 }

@@ -25,7 +25,7 @@ import org.figuramc.fwl.gui.widgets.tabs.pages.PageEntry;
 import org.figuramc.fwl.text.TextRenderer;
 import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.text.components.LiteralComponent;
-import org.figuramc.fwl.text.effects.GradientApplier;
+import org.figuramc.fwl.text.serialization.FWLSerializer;
 import org.figuramc.fwl.utils.Rectangle;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -281,43 +281,50 @@ public class FWLConfigScreen extends FWLScreen {
     private static class TestPage extends AbstractFWLContainerWidget implements Resizeable {
         private final AbstractComponent component;
         private float width, height;
+        private static final String testComponent = """
+                {
+                    "text": "Hello, this is a test component parsed by FWL json parser!",
+                    "color": {
+                        "value": "#ff77ff",
+                        "type": "gradient",
+                        "to": "blue"
+                    }
+                }
+                """;
 
         public TestPage(float width, float height) {
             this.width = width;
             this.height = height;
-            LiteralComponent title = literal("Hi!\n", style().withScale(2, 2).withShadowColor(0.0f, 0.0f, 0.0f, 1f));
-            LiteralComponent mainText = literal("\nThis is a text made for showcase of the features of FWL's custom components.\n", style().withScale(1, 1).withVerticalAlignment(0f));
+            LiteralComponent title = literal("Hi!\n", empty().withScale(2, 2));
+            LiteralComponent mainText = literal("\nThis is a text made for showcase of the features of FWL's custom components.\n", empty().withScale(1, 1));
             title.append(mainText);
 
             mainText.append(literal("Main purpose of custom components is extension of minecraft's text styling capabilities.\n"))
                     .append(literal("Apart from default "))
-                    .append(literal("color", style().withColor(0.25f, 1.0f, 0.25f, 1))).append(literal(", "))
-                    .append(literal("bold", style().withBold(true))).append(literal(", "))
-                    .append(literal("italic", style().withItalic(true))).append(literal(", "))
-                    .append(literal("underline", style().withUnderlineColor(1, 1, 1, 1))).append(literal(", "))
-                    .append(literal("strikethrough", style().withStrikethroughColor(1, 1, 1, 1))).append(literal(", "))
+                    .append(literal("color", empty().withColor(0.25f, 1.0f, 0.25f, 1))).append(literal(", "))
+                    .append(literal("bold", empty().withBold(true))).append(literal(", "))
+                    .append(literal("italic", empty().withItalic(true))).append(literal(", "))
+                    .append(literal("underline", empty().withUnderlineColor(1, 1, 1, 1))).append(literal(", "))
+                    .append(literal("strikethrough", empty().withStrikethroughColor(1, 1, 1, 1))).append(literal(", "))
                     .append(literal("and, of course")).append(literal(", "))
-                    .append(literal("obfuscated", style().withObfuscated(true))).append(literal(",\n"))
+                    .append(literal("obfuscated", empty().withObfuscated(true))).append(literal(",\n"))
                     .append(literal("there's also "))
-                    .append(literal("scale", style().withScale(1.5f, 1.5f))).append(literal(", "))
-                    .append(literal("offset", style().withOffset(0f, 4f))).append(literal(", "))
-                    .append(literal("skew", style().withSkew(1f, 1f))).append(literal(", "))
-                    .append(literal("background", style().withBackgroundColor(1f, 1f, 0.5f, 0.5f))).append(literal(", "))
+                    .append(literal("scale", empty().withScale(1.5f, 1.5f))).append(literal(", "))
+                    .append(literal("offset", empty().withOffset(0f, 4f))).append(literal(", "))
+                    .append(literal("skew", empty().withSkew(1f, 1f))).append(literal(", "))
+                    .append(literal("background", empty().withBackgroundColor(1f, 1f, 0.5f, 0.5f))).append(literal(", "))
                     .append(literal("and also some little things like ability to set the color of\n"))
-                    .append(literal("shadow", style().withShadowColor(0.5f, 0, 0, 1))).append(literal(", "))
-                    .append(literal("underline", style().withUnderlineColor(1f, 0.5f, 0.5f, 1))).append(literal(", and "))
-                    .append(literal("strikethrough", style().withStrikethroughColor(1f, 0.5f, 0.5f, 1))).append(literal(".\n"))
-                    .append(literal("Oh and also there's text outline :3.\n", style().withOutlineColor(1f, 1f, 0.5f, 0.15f)))
-                    .append(literal("Oh and also there's gradient.", style().withBackgroundColor(1,1,1, 0)
-                            .withEffect(SCALE, withValue(constant(2,2), gradient2(0.5f, 0.5f)))
-                            .withEffect(OFFSET, gradient2(0, 40))
-                            .withEffect(OFFSET, shake2(
-                                    withValue(constant(-0.25f, -0.25f), gradient2(-0.5f, -0.5f)),
-                                    withValue(constant( 0.25f,  0.25f),   gradient2( 0.5f,   0.5f))
-                            ))
-                            .build()
-                    ));
-
+                    .append(literal("shadow", empty().withShadowColor(0.5f, 0, 0, 1))).append(literal(", "))
+                    .append(literal("underline", empty().withUnderlineColor(1f, 0.5f, 0.5f, 1))).append(literal(", and "))
+                    .append(literal("strikethrough", empty().withStrikethroughColor(1f, 0.5f, 0.5f, 1))).append(literal(".\n"))
+                    .append(literal("Oh and also there's text outline :3.\n", empty().withOutlineColor(1f, 1f, 0.35f, 0.2f)));
+            try {
+                AbstractComponent cmp = FWLSerializer.parse(testComponent);
+                mainText.append(cmp);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
 
 
             component = title;

@@ -5,8 +5,6 @@ import org.figuramc.fwl.text.effects.Applier;
 
 import java.util.ArrayList;
 
-import org.figuramc.fwl.text.Property;
-
 public class ProviderBuilder {
     private FWLStyle style;
 
@@ -17,15 +15,15 @@ public class ProviderBuilder {
     }
 
     public ProviderBuilder() {
-        this.style = FWLStyle.EMPTY;
+        this.style = FWLStyle.empty();
     }
 
-    public <V> ProviderBuilder with(Property<V> property, V value) {
-        style = property.set(style, value);
+    public <V> ProviderBuilder with(FWLStyle.Property<V> property, V value) {
+        style = property.with(style, value);
         return this;
     }
 
-    public <V> ProviderBuilder withEffect(Property<V> property, Applier<V> applier) {
+    public <V> ProviderBuilder withEffect(FWLStyle.Property<V> property, Applier<V> applier) {
         effects.add(new PropertyPair<>(property, applier));
         return this;
     }

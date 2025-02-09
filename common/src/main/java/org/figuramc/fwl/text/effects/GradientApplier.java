@@ -1,7 +1,9 @@
 package org.figuramc.fwl.text.effects;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.figuramc.fwl.text.FWLStyle;
-import org.figuramc.fwl.text.Property;
+import org.figuramc.fwl.text.serialization.FWLSerializer;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
@@ -23,6 +25,11 @@ public class GradientApplier {
             Vector4f to = this.to.get(current, from, index, length);
             return lerp(from, to, progress);
         }
+
+        @Override
+        public String getType() {
+            return "gradient";
+        }
     }
 
     public static class Vec2 implements Applier<Vector2f> {
@@ -38,6 +45,11 @@ public class GradientApplier {
             Vector2f to = this.to.get(current, from, index, length);
             return lerp(from, to, progress);
         }
+
+        @Override
+        public String getType() {
+            return "gradient";
+        }
     }
 
     public static class FloatValue implements Applier<Float> {
@@ -52,6 +64,11 @@ public class GradientApplier {
             float progress = (float) index / length;
             float to = this.to.get(current, from, index, length);
             return lerp(from, to, progress);
+        }
+
+        @Override
+        public String getType() {
+            return "gradient";
         }
     }
 
@@ -85,5 +102,15 @@ public class GradientApplier {
 
     public static FloatValue gradient(float val) {
         return new FloatValue(constant(val));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Applier<?> deserialize(JsonElement element, Class<?> fieldClass) {
+        JsonObject gradientObject = element.getAsJsonObject();
+        Applier<?> to = FWLSerializer.parseExpression(gradientObject.get("to"), fieldClass);
+        if (fieldClass == Float.class) return gradient((Applier<Float>) to);
+        else if (fieldClass == Vector2f.class) return gradient2((Applier<Vector2f>) to);
+        else if (fieldClass == Vector4f.class) return gradient4((Applier<Vector4f>) to);
+        throw new IllegalArgumentException("Unsupported field type: %s".formatted(fieldClass.getSimpleName()));
     }
 }
