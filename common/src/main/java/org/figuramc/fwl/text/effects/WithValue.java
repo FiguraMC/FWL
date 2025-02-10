@@ -22,6 +22,14 @@ public class WithValue<V> implements Applier<V> {
         return null;
     }
 
+    public Applier<V> applier() {
+        return applier;
+    }
+
+    public Applier<V> value() {
+        return value;
+    }
+
     public static <V> WithValue<V> withValue(Applier<V> value, Applier<V> applier) {
         return new WithValue<>(applier, value);
     }

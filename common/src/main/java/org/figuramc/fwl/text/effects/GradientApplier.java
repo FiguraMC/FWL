@@ -10,13 +10,16 @@ import org.joml.Vector4f;
 import static org.figuramc.fwl.text.effects.ConstantApplier.constant;
 import static org.figuramc.fwl.utils.MathUtils.lerp;
 
-public class GradientApplier {
+public abstract class GradientApplier<V> implements Applier<V> {
+    protected final Applier<V> to;
 
-    public static class Vec4 implements Applier<Vector4f> {
-        private final Applier<Vector4f> to;
+    protected GradientApplier(Applier<V> applier) {
+        to = applier;
+    }
 
+    public static class Vec4 extends GradientApplier<Vector4f> {
         public Vec4(Applier<Vector4f> to) {
-            this.to = to;
+            super(to);
         }
 
         @Override
@@ -27,16 +30,14 @@ public class GradientApplier {
         }
 
         @Override
-        public String getType() {
-            return "gradient";
+        protected Class<?> fieldType() {
+            return Vector4f.class;
         }
     }
-
-    public static class Vec2 implements Applier<Vector2f> {
-        private final Applier<Vector2f> to;
+    public static class Vec2 extends GradientApplier<Vector2f> {
 
         public Vec2(Applier<Vector2f> to) {
-            this.to = to;
+            super(to);
         }
 
         @Override
@@ -47,16 +48,13 @@ public class GradientApplier {
         }
 
         @Override
-        public String getType() {
-            return "gradient";
+        protected Class<?> fieldType() {
+            return Vector2f.class;
         }
     }
-
-    public static class FloatValue implements Applier<Float> {
-        private final Applier<Float> to;
-
+    public static class FloatValue extends GradientApplier<Float> {
         public FloatValue(Applier<Float> to) {
-            this.to = to;
+            super(to);
         }
 
         @Override
@@ -67,10 +65,17 @@ public class GradientApplier {
         }
 
         @Override
-        public String getType() {
-            return "gradient";
+        protected Class<?> fieldType() {
+            return Float.class;
         }
     }
+
+    @Override
+    public String getType() {
+        return "gradient";
+    }
+
+    protected abstract Class<?> fieldType();
 
     public static Vec4 gradient4(Applier<Vector4f> to) {
         return new Vec4(to);
@@ -102,6 +107,15 @@ public class GradientApplier {
 
     public static FloatValue gradient(float val) {
         return new FloatValue(constant(val));
+    }
+
+    public static JsonObject serialize(Applier<?> applier) {
+        if (applier instanceof GradientApplier<?> gradient) {
+            JsonObject object = new JsonObject();
+            object.add("to", FWLSerializer.expressionToJson(gradient.to, gradient.fieldType()));
+            return object;
+        }
+        throw new ClassCastException("Unable to cast %s to GradientApplier".formatted(applier.getClass().getSimpleName()));
     }
 
     @SuppressWarnings("unchecked")

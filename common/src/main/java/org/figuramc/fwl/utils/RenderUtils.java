@@ -364,9 +364,9 @@ public class RenderUtils {
         return false;
     }
 
-    public static boolean renderTextTooltip(GuiGraphics graphics, FWLCharSequence text, float textX, float textY, float mouseX, float mouseY) {
-        FWLStyle hoveredStyle = TextUtils.getHoveredStyle(getFont(), text, textX, textY, mouseX, mouseY);
-        FWLCharSequence tooltip = hoveredStyle.getTooltip();
+    public static boolean renderTextTooltip(GuiGraphics graphics, AbstractComponent text, float textX, float textY, float mouseX, float mouseY) {
+        FWLStyle hoveredStyle = TextUtils.getHoveredStyle(getFont(), text::visit, textX, textY, mouseX, mouseY);
+        AbstractComponent tooltip = hoveredStyle.getTooltip();
         if (tooltip != null) {
             renderTooltip(graphics, tooltip, mouseX, mouseY);
         }

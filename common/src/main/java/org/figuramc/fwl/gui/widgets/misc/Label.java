@@ -46,7 +46,7 @@ public class Label implements FWLWidget {
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         RenderUtils.renderText(graphics, text, x, y, 0);
         if (boundaries().pointIn(mouseX, mouseY))
-            RenderUtils.renderTextTooltip(graphics, text::visit, x, y, mouseX, mouseY);
+            RenderUtils.renderTextTooltip(graphics, text, x, y, mouseX, mouseY);
     }
 
     @Override

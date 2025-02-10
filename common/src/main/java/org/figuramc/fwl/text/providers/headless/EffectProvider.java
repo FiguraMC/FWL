@@ -35,4 +35,11 @@ public class EffectProvider implements HeadlessStyleProvider {
         return property.set(current, applier.get(current, initialValue, index, length));
     }
 
+    public FWLStyle style() {
+        return style;
+    }
+
+    public ArrayList<PropertyPair<?>> effects() {
+        return effects;
+    }
 }

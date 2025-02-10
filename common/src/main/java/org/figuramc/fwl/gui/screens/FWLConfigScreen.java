@@ -289,16 +289,6 @@ public class FWLConfigScreen extends FWLScreen {
     private static class TestPage extends AbstractFWLContainerWidget implements Resizeable {
         private final AbstractComponent component;
         private float width, height;
-        private static final String testComponent = """
-                {
-                    "text": "Hello, this is a test component parsed by FWL json parser!\n",
-                    "color": {
-                        "value": "#ff77ff",
-                        "type": "gradient",
-                        "to": "blue"
-                    }
-                }
-                """;
 
         public TestPage(float width, float height) {
             this.width = width;
@@ -327,13 +317,6 @@ public class FWLConfigScreen extends FWLScreen {
                     .append(literal("underline", empty().withUnderlineColor(1f, 0.5f, 0.5f, 1))).append(literal(", and "))
                     .append(literal("strikethrough", empty().withStrikethroughColor(1f, 0.5f, 0.5f, 1))).append(literal(".\n"))
                     .append(literal("Oh and also there's text outline :3.\n"));
-            try {
-                AbstractComponent cmp = FWLSerializer.parse(testComponent);
-                mainText.append(cmp);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
 
             String key = "fwl.theme.breeze";
 

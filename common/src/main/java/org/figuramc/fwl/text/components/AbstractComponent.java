@@ -37,6 +37,10 @@ public abstract class AbstractComponent {
         return parentStyle.applyFrom(getSiblingStyle(index));
     }
 
+    public EffectProvider getStyle() {
+        return styleProvider;
+    }
+
     protected FWLStyle getSelfStyle(int index) {
         return styleProvider != null ? styleProvider.get(index, length()) : FWLStyle.EMPTY;
     }

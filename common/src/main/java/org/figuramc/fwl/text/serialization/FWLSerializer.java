@@ -1,14 +1,12 @@
 package org.figuramc.fwl.text.serialization;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import org.figuramc.fwl.FWL;
+import org.figuramc.fwl.text.FWLCharSequence;
 import org.figuramc.fwl.text.FWLStyle;
 import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.text.components.LiteralComponent;
@@ -22,13 +20,14 @@ import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static org.figuramc.fwl.utils.JsonUtils.stringOrDefault;
-import static org.figuramc.fwl.utils.JsonUtils.stringOrThrow;
+import static org.figuramc.fwl.utils.JsonUtils.*;
 
 public class FWLSerializer {
-    private static final Gson GSON = new Gson();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final HashMap<String, ComponentSerializer<?>> COMPONENT_SERIALIZERS = new HashMap<>();
     private static final HashMap<String, ComponentDeserializer<?>> COMPONENT_DESERIALIZERS = new HashMap<>();
     private static final HashMap<String, EffectSerializer<?>> EFFECT_SERIALIZERS = new HashMap<>();
@@ -89,8 +88,17 @@ public class FWLSerializer {
 
         AbstractComponent component = deserializer.deserialize(element);
         if (element.isJsonObject()) {
-            EffectProvider styleProvider = parseStyleProvider(element.getAsJsonObject());
+            JsonObject componentObject = element.getAsJsonObject();
+            EffectProvider styleProvider = parseStyleProvider(componentObject);
             component.setStyle(styleProvider);
+
+            if (componentObject.has("extra")) {
+                JsonArray extra = arrayOrThrow(componentObject, "extra");
+                for (JsonElement elem: extra) {
+                    AbstractComponent sibling = parse(elem);
+                    component.append(sibling);
+                }
+            }
         }
         return component;
     }
@@ -203,6 +211,9 @@ public class FWLSerializer {
                 String resLocString = element.getAsString();
                 return ResourceLocation.tryParse(resLocString);
             }
+            else if (fieldClass == AbstractComponent.class) {
+                return parse(element);
+            }
         }
         catch (Exception ignored) {
 
@@ -210,18 +221,118 @@ public class FWLSerializer {
         return null;
     }
 
+    private static JsonElement valueToJson(Object object, Class<?> fieldClass) {
+        if (fieldClass == Boolean.class) return new JsonPrimitive((Boolean) object);
+        else if (fieldClass == Float.class) return new JsonPrimitive((Float) object);
+        else if (fieldClass == Vector2f.class) {
+            JsonArray arr = new JsonArray();
+            Vector2f vec = (Vector2f) object;
+            arr.add(vec.x);
+            arr.add(vec.y);
+            return arr;
+        }
+        else if (fieldClass == Vector4f.class) {
+            JsonArray arr = new JsonArray();
+            Vector4f vec = (Vector4f) object;
+            arr.add(vec.x);
+            arr.add(vec.y);
+            arr.add(vec.z);
+            arr.add(vec.w);
+            return arr;
+        }
+        else if (fieldClass == ResourceLocation.class) return new JsonPrimitive(((ResourceLocation) object).toString());
+        else if (fieldClass == AbstractComponent.class) return serialize((AbstractComponent) object);
+        else throw new IllegalArgumentException("Expected %s, got %s".formatted(fieldClass.getSimpleName(), object.getClass().getSimpleName()));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static JsonElement expressionToJson(Applier<?> applier, Class<?> fieldClass) {
+        if (applier instanceof ConstantApplier<?> constant) return valueToJson(constant.value(), fieldClass);
+        else if (applier instanceof WithValue<?> withValue) {
+            JsonElement expr = expressionToJson(withValue.applier(), fieldClass);
+            if (expr.isJsonObject()) {
+                JsonObject exprObject = expr.getAsJsonObject();
+                exprObject.add("value", expressionToJson(withValue.value(), fieldClass));
+            }
+            return expr;
+        }
+        else {
+            String type = applier.getType();
+            EffectSerializer<Applier<Object>> serializer = (EffectSerializer<Applier<Object>>) EFFECT_SERIALIZERS.get(type);
+            if (serializer == null) throw new IllegalStateException("No serializer found for effect %s".formatted(type));
+            JsonElement expr = serializer.serialize((Applier<Object>) applier);
+            if (expr.isJsonObject()) {
+                expr.getAsJsonObject().addProperty("type", type);
+            }
+            return expr;
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public static JsonObject serialize(AbstractComponent component) {
         String type = component.type();
         ComponentSerializer<AbstractComponent> serializer =
                 (ComponentSerializer<AbstractComponent>) COMPONENT_SERIALIZERS.get(type);
-        if (serializer == null) throw new IllegalStateException("No serializer found for effect %s".formatted(type));
+        if (serializer == null) throw new IllegalStateException("No serializer found for type %s".formatted(type));
         JsonObject object = serializer.serialize(component);
+        object.addProperty("type", type);
 
-        // TODO style serialization
-        // TODO appliers serialization
+        EffectProvider effect = component.getStyle();
+        if (effect != null) {
+            FWLStyle style = effect.style();
+            for (FWLStyle.Property<?> prop: FWLStyle.PROPERTIES) {
+                List<Applier<?>> appliers = effect.effects().stream().filter(p -> p.value() == prop)
+                        .map(PropertyPair::applier).collect(Collectors.toUnmodifiableList());
+
+                JsonElement fieldValue;
+
+                if (prop.has(style)) {
+                    fieldValue = valueToJson(prop.get(style), prop.fieldType());
+                }
+                else fieldValue = null;
+
+                if (appliers.isEmpty()) {
+                    if (fieldValue != null) {
+                        object.add(prop.fieldName(), fieldValue);
+                    }
+                }
+                else {
+                    if (appliers.size() == 1) {
+                        JsonElement expr = expressionToJson(appliers.get(0), prop.fieldType());
+                        if (expr.isJsonObject()) {
+                            JsonObject exprObject = expr.getAsJsonObject();
+                            if (!exprObject.has("value") && fieldValue != null) exprObject.add("value", fieldValue);
+                        }
+                        object.add(prop.fieldName(), expr);
+                    }
+                    else {
+                        JsonObject fieldObject = new JsonObject();
+                        if (fieldValue != null) fieldObject.add("value", fieldValue);
+                        JsonArray effects = new JsonArray();
+                        for (Applier<?> applier: appliers) {
+                            effects.add(expressionToJson(applier, prop.fieldType()));
+                        }
+                        fieldObject.add("effects", effects);
+                        object.add(prop.fieldName(), fieldObject);
+                    }
+                }
+            }
+        }
+
+        if (!component.siblings().isEmpty()) {
+            JsonArray array = new JsonArray(component.siblings().size());
+            for (AbstractComponent sibling: component.siblings()) {
+                array.add(serialize(sibling));
+            }
+            object.add("extra", array);
+        }
 
         return object;
+    }
+
+    public static String toJson(AbstractComponent component) {
+        JsonObject componentJson = serialize(component);
+        return GSON.toJson(componentJson);
     }
 
     static {
@@ -230,6 +341,9 @@ public class FWLSerializer {
 
         registerComponentDeserializer("text", LiteralComponent::deserialize);
         registerComponentDeserializer("translatable", TranslatableComponent::deserialize);
+
+        registerEffectSerializer("gradient", GradientApplier::serialize);
+        registerEffectSerializer("shake", ShakeApplier::serialize);
 
         registerEffectDeserializer("gradient", GradientApplier::deserialize);
         registerEffectDeserializer("shake", ShakeApplier::deserialize);

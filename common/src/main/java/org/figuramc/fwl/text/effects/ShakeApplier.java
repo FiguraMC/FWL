@@ -11,15 +11,19 @@ import org.joml.Vector4f;
 import static org.figuramc.fwl.text.effects.ConstantApplier.constant;
 import static org.figuramc.fwl.utils.MathUtils.lerp;
 
-public class ShakeApplier {
+public abstract class ShakeApplier<V> implements Applier<V> {
     private static final Random random = new Random();
+    protected final Applier<V> minOffset, maxOffset;
 
-    public static class Vec4 implements Applier<Vector4f> {
-        private final Applier<Vector4f> minOffset, maxOffset;
+    protected ShakeApplier(Applier<V> minOffset, Applier<V> maxOffset) {
+        this.minOffset = minOffset;
+        this.maxOffset = maxOffset;
+    }
+
+    public static class Vec4 extends ShakeApplier<Vector4f> {
 
         public Vec4(Applier<Vector4f> minOffset, Applier<Vector4f> maxOffset) {
-            this.minOffset = minOffset;
-            this.maxOffset = maxOffset;
+            super(minOffset, maxOffset);
         }
 
         @Override
@@ -35,17 +39,13 @@ public class ShakeApplier {
         }
 
         @Override
-        public String getType() {
-            return "shake";
+        protected Class<?> fieldType() {
+            return Vector4f.class;
         }
     }
-
-    public static class Vec2 implements Applier<Vector2f> {
-        private final Applier<Vector2f> minOffset, maxOffset;
-
+    public static class Vec2 extends ShakeApplier<Vector2f> {
         public Vec2(Applier<Vector2f> minOffset, Applier<Vector2f> maxOffset) {
-            this.minOffset = minOffset;
-            this.maxOffset = maxOffset;
+            super(minOffset, maxOffset);
         }
 
         @Override
@@ -59,17 +59,13 @@ public class ShakeApplier {
         }
 
         @Override
-        public String getType() {
-            return "shake";
+        protected Class<?> fieldType() {
+            return Vector2f.class;
         }
     }
-
-    public static class FloatValue implements Applier<Float> {
-        private final Applier<Float> minOffset, maxOffset;
-
+    public static class FloatValue extends ShakeApplier<Float> {
         public FloatValue(Applier<Float> minOffset, Applier<Float> maxOffset) {
-            this.minOffset = minOffset;
-            this.maxOffset = maxOffset;
+            super(minOffset, maxOffset);
         }
 
         @Override
@@ -81,10 +77,16 @@ public class ShakeApplier {
         }
 
         @Override
-        public String getType() {
-            return "shake";
+        protected Class<?> fieldType() {
+            return Float.class;
         }
     }
+    @Override
+    public String getType() {
+        return "shake";
+    }
+
+    protected abstract Class<?> fieldType();
 
     public static Vec4 shake4(Applier<Vector4f> min, Applier<Vector4f> max) {
         return new Vec4(min, max);
@@ -100,6 +102,16 @@ public class ShakeApplier {
 
     public static FloatValue shake(float min, float max) {
         return new FloatValue(constant(min), constant(max));
+    }
+
+    public static JsonObject serialize(Applier<?> applier) {
+        if (applier instanceof ShakeApplier<?> shake) {
+            JsonObject shakeObject = new JsonObject();
+            shakeObject.add("min", FWLSerializer.expressionToJson(shake.minOffset, shake.fieldType()));
+            shakeObject.add("max", FWLSerializer.expressionToJson(shake.maxOffset, shake.fieldType()));
+            return shakeObject;
+        }
+        throw new ClassCastException("Unable to cast %s to ShakeApplier".formatted(applier.getClass().getSimpleName()));
     }
 
     @SuppressWarnings("unchecked")

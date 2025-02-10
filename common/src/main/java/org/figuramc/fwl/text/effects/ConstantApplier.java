@@ -41,4 +41,8 @@ public class ConstantApplier<V> implements Applier<V> {
     public String getType() {
         return "constant";
     }
+
+    public V value() {
+        return value;
+    }
 }
