@@ -11,6 +11,7 @@ import org.figuramc.fwl.gui.widgets.descriptors.Orientation;
 import org.figuramc.fwl.gui.widgets.misc.Label;
 import org.figuramc.fwl.gui.widgets.scrollable.ScrollBar;
 import org.figuramc.fwl.gui.widgets.scrollable.ScrollableArea;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.utils.Pair;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.RenderUtils;
@@ -41,11 +42,11 @@ public abstract class FWLAbstractConfig<T extends FWLTheme> extends AbstractFWLC
         addWidget(scrollableArea = new ScrollableArea(0, 0, width - SCROLLBAR_WIDTH, height));
 
         float currentY = 10;
-        for (Pair<Component, FieldConstructor<T>> pair: getConstructors()) {
-            Component text = pair.a();
+        for (Pair<AbstractComponent, FieldConstructor<T>> pair: getConstructors()) {
+            AbstractComponent text = pair.a();
             FieldConstructor<T> constructor = pair.b();
-            float textWidth = RenderUtils.textWidth(text, 1);
-            float textHeight = RenderUtils.textHeight(text, 1, Integer.MAX_VALUE);
+            float textWidth = RenderUtils.textWidth(text);
+            float textHeight = RenderUtils.textHeight(text);
             float widgetYOffset = (textHeight - 20) / 2;
             float textX = 10;
             float textY = currentY + 1;
@@ -82,7 +83,7 @@ public abstract class FWLAbstractConfig<T extends FWLTheme> extends AbstractFWLC
         return new Rectangle(0, 0, width, height);
     }
 
-    protected abstract Pair<Component, FieldConstructor<T>>[] getConstructors();
+    protected abstract Pair<AbstractComponent, FieldConstructor<T>>[] getConstructors();
 
     public interface FieldConstructor<T> {
         FWLWidget getWidget(T parent, float x, float y);

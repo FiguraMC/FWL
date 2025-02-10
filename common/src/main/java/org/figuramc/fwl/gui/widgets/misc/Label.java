@@ -3,6 +3,7 @@ package org.figuramc.fwl.gui.widgets.misc;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.RenderUtils;
 import org.jetbrains.annotations.NotNull;
@@ -13,13 +14,12 @@ import java.util.Objects;
 public class Label implements FWLWidget {
     private float x, y;
 
-    private Component text;
+    private AbstractComponent text;
 
-    private float scale = 1;
     private Integer color = null;
     private boolean shadow = false;
 
-    public Label(float x, float y, @NotNull Component text) {
+    public Label(float x, float y, @NotNull AbstractComponent text) {
         this.x = x;
         this.y = y;
         setText(text);
@@ -27,8 +27,8 @@ public class Label implements FWLWidget {
 
     @Override
     public Rectangle boundaries() {
-        float width = RenderUtils.textWidth(text, scale);
-        float height = RenderUtils.textHeight(text, scale, Integer.MAX_VALUE);
+        float width = RenderUtils.textWidth(text);
+        float height = RenderUtils.textHeight(text);
         return new Rectangle(x, y, width, height);
     }
 
@@ -44,10 +44,9 @@ public class Label implements FWLWidget {
 
     @Override
     public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-        if (color != null) RenderUtils.renderText(graphics, text, x, y, 0, scale, color, shadow);
-        else RenderUtils.renderText(graphics, text, x, y, 0, scale, shadow);
+        RenderUtils.renderText(graphics, text, x, y, 0);
         if (boundaries().pointIn(mouseX, mouseY))
-            RenderUtils.renderTextTooltip(graphics, text.getVisualOrderText(), x, y, scale, mouseX, mouseY);
+            RenderUtils.renderTextTooltip(graphics, text::visit, x, y, mouseX, mouseY);
     }
 
     @Override
@@ -73,21 +72,12 @@ public class Label implements FWLWidget {
         return this;
     }
 
-    public Component text() {
+    public AbstractComponent text() {
         return text;
     }
 
-    public Label setText(Component text) {
+    public Label setText(AbstractComponent text) {
         this.text = Objects.requireNonNull(text, "Label text can't be null");
-        return this;
-    }
-
-    public float scale() {
-        return scale;
-    }
-
-    public Label setScale(float scale) {
-        this.scale = scale;
         return this;
     }
 

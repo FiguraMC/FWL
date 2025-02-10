@@ -7,6 +7,7 @@ import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.ClickableDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonDescriptor;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.RenderUtils;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +21,7 @@ public abstract class Button implements FWLWidget {
     protected final ButtonDescriptor desc;
     private OnClick callback;
 
-    private @Nullable Component tooltip;
+    private @Nullable AbstractComponent tooltip;
 
     public Button(float x, float y, float width, float height) {
         desc = new ButtonDescriptor(x, y, width, height);
@@ -53,11 +54,11 @@ public abstract class Button implements FWLWidget {
         return this;
     }
 
-    public @Nullable Component tooltip() {
+    public @Nullable AbstractComponent tooltip() {
         return tooltip;
     }
 
-    public Button setTooltip(@Nullable Component tooltip) {
+    public Button setTooltip(@Nullable AbstractComponent tooltip) {
         this.tooltip = tooltip;
         return this;
     }
@@ -105,7 +106,7 @@ public abstract class Button implements FWLWidget {
         if (hovered) desc.setHoverPos(mouseX, mouseY);
         fwl().currentTheme().renderButton(graphics, delta, desc);
         renderButton(graphics, mouseX, mouseY, delta);
-        if (tooltip != null && hovered) RenderUtils.renderTooltip(graphics, tooltip.getVisualOrderText(), mouseX, mouseY, 1);
+        if (tooltip != null && hovered) RenderUtils.renderTooltip(graphics, tooltip, mouseX, mouseY);
     }
 
     public abstract void renderButton(GuiGraphics graphics, float mouseX, float mouseY, float delta);

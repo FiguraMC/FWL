@@ -2,16 +2,17 @@ package org.figuramc.fwl.gui.widgets.tabs.pages;
 
 import net.minecraft.network.chat.Component;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
 public class SimplePage implements PageEntry {
-    private Component title;
+    private AbstractComponent title;
     private FWLWidget page;
 
-    public SimplePage(@NotNull Component title, FWLWidget page) {
+    public SimplePage(@NotNull AbstractComponent title, FWLWidget page) {
         this.page = page;
         setTitle(title);
     }
@@ -22,20 +23,20 @@ public class SimplePage implements PageEntry {
     }
 
     @Override
-    public Component getTitle() {
+    public AbstractComponent getTitle() {
         return title;
     }
 
     @Override
-    public @Nullable Component getTooltip() {
+    public @Nullable AbstractComponent getTooltip() {
         return null;
     }
 
-    public Component title() {
+    public AbstractComponent title() {
         return title;
     }
 
-    public SimplePage setTitle(Component title) {
+    public SimplePage setTitle(AbstractComponent title) {
         this.title = Objects.requireNonNull(title, "Title of page entry can't be null");
         return this;
     }

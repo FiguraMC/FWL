@@ -8,7 +8,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FastColor;
@@ -17,11 +16,12 @@ import org.figuramc.fwl.FWL;
 import org.figuramc.fwl.gui.themes.ColorTypes;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor;
+import org.figuramc.fwl.text.FWLStyle;
+import org.figuramc.fwl.text.FWLCharSequence;
 import org.figuramc.fwl.text.TextRenderer;
 import org.figuramc.fwl.text.components.AbstractComponent;
 import org.joml.Matrix4f;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.figuramc.fwl.utils.MathUtils.clamp;
@@ -67,12 +67,16 @@ public class RenderUtils {
     }
 
     public static void renderText(GuiGraphics graphics, AbstractComponent text, float x, float y, float z) {
+        renderText(graphics, text::visit, x, y, z);
+    }
+
+    public static void renderText(GuiGraphics graphics, FWLCharSequence text, float x, float y, float z) {
         PoseStack stack = graphics.pose();
         stack.pushPose();
         stack.translate(0, 0, z);
         TextRenderer renderer = new TextRenderer(graphics.bufferSource(), x, y, getFont(), stack.last().pose(), Font.DisplayMode.NORMAL, 15728880);
         RenderSystem.enableBlend();
-        text.visit(renderer::accept);
+        text.accept(renderer::accept);
         renderer.render();
         graphics.flushIfUnmanaged();
         RenderSystem.disableBlend();
@@ -89,6 +93,22 @@ public class RenderUtils {
     public static float textWidth(Component text, float scale) {
         Font font = Minecraft.getInstance().font;
         return font.width(text) * scale;
+    }
+
+    public static float textWidth(AbstractComponent component) {
+        return TextUtils.width(component);
+    }
+
+    public static float textHeight(AbstractComponent component) {
+        return TextUtils.height(component);
+    }
+
+    public static float textWidth(FWLCharSequence component) {
+        return TextUtils.width(component);
+    }
+
+    public static float textHeight(FWLCharSequence component) {
+        return TextUtils.height(component);
     }
 
     public static float textWidth(FormattedCharSequence text, float scale) {
@@ -342,6 +362,39 @@ public class RenderUtils {
             renderTooltip(graphics, tooltip, mouseX, mouseY, 1);
         }
         return false;
+    }
+
+    public static boolean renderTextTooltip(GuiGraphics graphics, FWLCharSequence text, float textX, float textY, float mouseX, float mouseY) {
+        FWLStyle hoveredStyle = TextUtils.getHoveredStyle(getFont(), text, textX, textY, mouseX, mouseY);
+        FWLCharSequence tooltip = hoveredStyle.getTooltip();
+        if (tooltip != null) {
+            renderTooltip(graphics, tooltip, mouseX, mouseY);
+        }
+        return false;
+    }
+
+    public static void renderTooltip(GuiGraphics graphics, AbstractComponent tooltip, float x, float y) {
+        renderTooltip(graphics, tooltip::visit, x, y, 0);
+    }
+
+    public static void renderTooltip(GuiGraphics graphics, FWLCharSequence tooltip, float x, float y) {
+        renderTooltip(graphics, tooltip, x, y, 0);
+    }
+
+    public static void renderTooltip(GuiGraphics graphics, FWLCharSequence tooltip, float x, float y, float z) {
+        final float TEXT_OFFSET = 4;
+        FWLTheme theme = FWL.fwl().currentTheme();
+        float textWidth = textWidth(tooltip);
+        float textHeight = textHeight(tooltip);
+        BoundsDescriptor desc = new BoundsDescriptor(x, y, textWidth + (TEXT_OFFSET * 2), textHeight + (TEXT_OFFSET * 2));
+        desc.setWidgetType("tooltip");
+        PoseStack stack = graphics.pose();
+        stack.pushPose();
+        stack.translate(0, 0, z);
+        theme.fillBounds(graphics, 0, desc);
+        theme.renderBounds(graphics, 0, desc);
+        renderText(graphics, tooltip, x + TEXT_OFFSET, y + TEXT_OFFSET, 0);
+        stack.popPose();
     }
 
     public static void renderTooltip(GuiGraphics graphics, FormattedCharSequence tooltip, float x, float y, float textScale) {

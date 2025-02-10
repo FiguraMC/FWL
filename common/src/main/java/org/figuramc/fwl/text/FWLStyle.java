@@ -1,8 +1,9 @@
 package org.figuramc.fwl.text;
 
-import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.text.effects.Applier;
 import org.figuramc.fwl.text.providers.headless.ProviderBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +22,7 @@ public class FWLStyle {
     private @Nullable Vector2f scale, outlineScale, skew, offset, shadowOffset;
     private @Nullable Float verticalAlignment;
     private @Nullable ResourceLocation font;
+    private @Nullable FWLCharSequence tooltip;
 
     private boolean locked;
 
@@ -48,18 +50,20 @@ public class FWLStyle {
 
     public static final Property<ResourceLocation> FONT = property(FWLStyle::getFont, FWLStyle::setFont, FWLStyle::withFont, ResourceLocation.class, "font");
 
+    public static final Property<FWLCharSequence> TOOLTIP = property(FWLStyle::getTooltip, FWLStyle::setTooltip, FWLStyle::withTooltip, FWLCharSequence.class, "tooltip");
+
     public static final Property<?>[] PROPERTIES = new Property[] {
             BOLD, ITALIC, OBFUSCATED,
             COLOR, BACKGROUND_COLOR, SHADOW_COLOR, STRIKETHROUGH_COLOR, UNDERLINE_COLOR, OUTLINE_COLOR,
             SCALE, OUTLINE_SCALE, SKEW, OFFSET, SHADOW_OFFSET,
-            VERTICAL_ALIGNMENT, FONT
+            VERTICAL_ALIGNMENT, FONT, TOOLTIP
     };
 
     public FWLStyle() {
 
     }
 
-    public FWLStyle(@Nullable Boolean bold, @Nullable Boolean italic, @Nullable Boolean obfuscated, @Nullable Vector4f color, @Nullable Vector4f backgroundColor, @Nullable Vector4f shadowColor, @Nullable Vector4f strikethroughColor, @Nullable Vector4f underlineColor, @Nullable Vector4f outlineColor, @Nullable Vector2f scale, @Nullable Vector2f outlineScale, @Nullable Vector2f skew, @Nullable Vector2f offset, @Nullable Vector2f shadowOffset, @Nullable Float verticalAlignment, @Nullable ResourceLocation font) {
+    public FWLStyle(@Nullable Boolean bold, @Nullable Boolean italic, @Nullable Boolean obfuscated, @Nullable Vector4f color, @Nullable Vector4f backgroundColor, @Nullable Vector4f shadowColor, @Nullable Vector4f strikethroughColor, @Nullable Vector4f underlineColor, @Nullable Vector4f outlineColor, @Nullable Vector2f scale, @Nullable Vector2f outlineScale, @Nullable Vector2f skew, @Nullable Vector2f offset, @Nullable Vector2f shadowOffset, @Nullable Float verticalAlignment, @Nullable ResourceLocation font, @Nullable FWLCharSequence tooltip) {
         this.bold = bold;
         this.italic = italic;
         this.obfuscated = obfuscated;
@@ -76,6 +80,7 @@ public class FWLStyle {
         this.shadowOffset = shadowOffset;
         this.verticalAlignment = verticalAlignment;
         this.font = font;
+        this.tooltip = tooltip;
     }
 
     public FWLStyle withBold(@Nullable Boolean bold) {
@@ -108,6 +113,16 @@ public class FWLStyle {
 
     public FWLStyle withColor(int argb) {
         return withColor(argbToColorVec4(argb));
+    }
+
+    public FWLStyle withColor(TextColor color) {
+        int val = color.getValue();
+        return withColor(
+                FastColor.ARGB32.red(val) / 255f,
+                FastColor.ARGB32.green(val) / 255f,
+                FastColor.ARGB32.blue(val) / 255f,
+                1
+        );
     }
 
     public FWLStyle withBackgroundColor(@Nullable Vector4f backgroundColor) {
@@ -242,6 +257,17 @@ public class FWLStyle {
         return inst;
     }
 
+    public FWLStyle withTooltip(@Nullable FWLCharSequence tooltip) {
+        FWLStyle inst = this.clone();
+        inst.tooltip = tooltip;
+        return inst;
+    }
+
+    public FWLStyle withTooltip(@Nullable AbstractComponent component) {
+        if (component != null) return withTooltip(component::visit);
+        else return withTooltip((FWLCharSequence) null);
+    }
+
     public boolean isBold() {
         return bold != null ? bold : false;
     }
@@ -344,6 +370,10 @@ public class FWLStyle {
 
     public ResourceLocation getFont() {
         return font == null ? DEFAULT_FONT : font;
+    }
+
+    public @Nullable FWLCharSequence getTooltip() {
+        return tooltip;
     }
 
     public FWLStyle setBold(@Nullable Boolean bold) {
@@ -474,6 +504,14 @@ public class FWLStyle {
         }
     }
 
+    public FWLStyle setTooltip(@Nullable FWLCharSequence sequence) {
+        if (locked) return withTooltip(sequence);
+        else {
+            this.tooltip = sequence;
+            return this;
+        }
+    }
+
     public static FWLStyle merge(FWLStyle a, FWLStyle b) {
         return new FWLStyle(
                 b.bold == null ? a.bold : b.bold,
@@ -491,7 +529,8 @@ public class FWLStyle {
                 b.offset == null ? a.offset : b.offset,
                 b.shadowOffset == null ? a.shadowOffset : b.shadowOffset,
                 b.verticalAlignment == null ? a.verticalAlignment : b.verticalAlignment,
-                b.font == null ? a.font : b.font
+                b.font == null ? a.font : b.font,
+                b.tooltip != null ? a.tooltip : b.tooltip
         );
     }
 
@@ -517,7 +556,7 @@ public class FWLStyle {
     }
 
     public FWLStyle clone() {
-        return new FWLStyle(bold, italic, obfuscated, color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor, scale, outlineScale, skew, offset, shadowOffset, verticalAlignment, font);
+        return new FWLStyle(bold, italic, obfuscated, color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor, scale, outlineScale, skew, offset, shadowOffset, verticalAlignment, font, tooltip);
     }
 
     @Override

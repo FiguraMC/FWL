@@ -10,8 +10,10 @@ import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.containers.FWLContainerWidget;
 import org.figuramc.fwl.gui.widgets.descriptors.misc.ContextMenuDescriptor;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.RenderUtils;
+import org.figuramc.fwl.utils.TextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -65,10 +67,10 @@ public class ContextMenu implements FWLWidget {
 
     private void update() {
         Font font = Minecraft.getInstance().font;
-        int width = 0;
+        float width = 0;
         int height = entryHeight() * Math.min(entries.size(), MAX_CONTEXT_ENTRIES_UNTIL_SCROLL);
         for (Entry entry: entries) {
-            width = Math.max(width, font.width(entry.text()));
+            width = Math.max(width, TextUtils.width(entry.text()));
         }
         desc.setWidth(width + 4);
         desc.setHeight(height + 4);
@@ -115,7 +117,7 @@ public class ContextMenu implements FWLWidget {
             int textColor;
             if (currentEntry == index || (mouseX >= x && mouseX <= x2 && mouseY >= textY && mouseY <= textY + lineHeight)) textColor = accentColor;
             else textColor = color;
-            RenderUtils.renderText(graphics, entry.text(), textX1, textY, 0, 1, textColor, false);
+            RenderUtils.renderText(graphics, entry.text(), textX1, textY, 0);
         }
         if (entriesCount > 8) {
             int unrenderedEntries = entriesCount - 8;
@@ -209,7 +211,7 @@ public class ContextMenu implements FWLWidget {
          * Returns text that will be rendered as an entry text.
          * @return text
          */
-        Component text();
+        AbstractComponent text();
 
         /**
          * Interaction callback
@@ -220,16 +222,16 @@ public class ContextMenu implements FWLWidget {
     }
 
     public static class StandardEntry implements Entry {
-        private final Component text;
+        private final AbstractComponent text;
         private final Function<Integer, Boolean> callback;
 
-        public StandardEntry(@NotNull Component text, @NotNull Function<Integer, Boolean> callback) {
+        public StandardEntry(@NotNull AbstractComponent text, @NotNull Function<Integer, Boolean> callback) {
             this.text = text;
             this.callback = callback;
         }
 
         @Override
-        public Component text() {
+        public AbstractComponent text() {
             return text;
         }
 

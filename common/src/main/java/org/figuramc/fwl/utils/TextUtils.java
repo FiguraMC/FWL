@@ -6,6 +6,9 @@ import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import org.figuramc.fwl.text.FWLStyle;
+import org.figuramc.fwl.text.FWLCharSequence;
+import org.figuramc.fwl.text.components.AbstractComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +52,16 @@ public class TextUtils {
         });
     }
 
+    public static FWLCharSequence substr(FWLCharSequence sequence, int beginIndex, int endIndex) {
+        return (sink) -> sequence.accept((index, style, codepoint) -> {
+            if (index >= beginIndex) {
+                if (index < endIndex) return sink.accept(index, style, codepoint);
+                else return false;
+            }
+            else return true;
+        });
+    }
+
     public static Style getHoveredStyle(Font font, FormattedCharSequence sequence, float textX, float textY, float textScale, float mouseX, float mouseY) {
         float relativeX = mouseX - textX;
         float relativeY = mouseY - textY;
@@ -76,6 +89,35 @@ public class TextUtils {
         return returnStyle.get();
     }
 
+    public static FWLStyle getHoveredStyle(Font font, FWLCharSequence sequence, float textX, float textY, float mouseX, float mouseY) {
+        float relativeX = mouseX - textX;
+        float relativeY = mouseY - textY;
+        AtomicReference<Float> currentX = new AtomicReference<>((float) 0);
+        AtomicReference<Float> currentY = new AtomicReference<>((float) 0);
+        AtomicReference<FWLStyle> returnStyle = new AtomicReference<>(FWLStyle.EMPTY);
+        sequence.accept((index, provider, codepoint) -> {
+            FWLStyle style = provider.get(index);
+            if (codepoint == '\n') {
+                currentX.set(0f);
+                currentY.updateAndGet(v -> v + font.lineHeight);
+            }
+            boolean bold = style.isBold();
+            FontSet fontSet = font.getFontSet(style.getFont());
+            GlyphInfo info = fontSet.getGlyphInfo(codepoint, font.filterFishyGlyphs);
+            float sizeX = info.getAdvance(bold);
+            float sizeY = font.lineHeight;
+            Rectangle rect = new Rectangle(currentX.get(), currentY.get(), sizeX, sizeY);
+            if (rect.pointIn(relativeX, relativeY)) {
+                returnStyle.set(style);
+                return false;
+            }
+            currentX.updateAndGet(v -> v + sizeX);
+            return true;
+        });
+        return returnStyle.get();
+    }
+
+
     public static List<FormattedCharSequence> splitByNewLine(FormattedCharSequence sequence) {
         ArrayList<FormattedCharSequence> lines = new ArrayList<>();
         AtomicInteger startIndex = new AtomicInteger(0);
@@ -100,5 +142,53 @@ public class TextUtils {
             return true;
         });
         return lines.get();
+    }
+
+    public static float width(AbstractComponent component) {
+        return width(component::visit);
+    }
+
+    public static float height(AbstractComponent component) {
+        return height(component::visit);
+    }
+
+    public static float width(FWLCharSequence component) {
+        Font font = RenderUtils.getFont();
+        float[] currentLine = new float[1];
+        float[] maxWidth = new float[1];
+
+        component.accept((index, provider, codepoint) -> {
+            if (codepoint == '\n') {
+                maxWidth[0] = Math.max(maxWidth[0], currentLine[0]);
+                currentLine[0] = 0;
+            }
+            else {
+                FWLStyle style = provider.get(index);
+                FontSet set = font.getFontSet(style.getFont());
+                GlyphInfo info = set.getGlyphInfo(codepoint, font.filterFishyGlyphs);
+                currentLine[0] += info.getAdvance(style.isBold()) * style.getScale().x;
+            }
+            return true;
+        });
+
+        return Math.max(currentLine[0], maxWidth[0]);
+    }
+
+    public static float height(FWLCharSequence component) {
+        Font font = RenderUtils.getFont();
+        float[] currentLine = new float[1];
+        float[] height = new float[1];
+
+        component.accept((index, provider, codepoint) -> {
+            FWLStyle style = provider.get(index);
+            currentLine[0] = Math.max(currentLine[0], font.lineHeight * style.getScale().y);
+            if (codepoint == '\n') {
+                height[0] += currentLine[0];
+                currentLine[0] = 0;
+            }
+            return true;
+        });
+
+        return height[0] + currentLine[0];
     }
 }

@@ -1,13 +1,13 @@
 package org.figuramc.fwl.gui.widgets.tabs;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor;
 import org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor.Side;
 import org.figuramc.fwl.gui.widgets.descriptors.ClickableDescriptor;
 import org.figuramc.fwl.gui.widgets.tabs.pages.PageEntry;
+import org.figuramc.fwl.text.FWLCharSequence;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.RenderUtils;
 import org.figuramc.fwl.utils.Scissors;
@@ -54,7 +54,7 @@ public class SideViewSwitcher extends ViewSwitcher {
         renderBackground(theme, graphics, delta);
 
         Scissors.enableScissors(graphics, x, y + 7, entryWidth, height - 7);
-        Component tooltip = null;
+        AbstractComponent tooltip = null;
         for (int i = 0; i < entries.size(); i++) {
             float entryY = y + (entryHeight * i) + 8 - tabListScroll;
             PageEntry entry = pages.get(i);
@@ -81,7 +81,7 @@ public class SideViewSwitcher extends ViewSwitcher {
 
         super.render(graphics, mouseX, mouseY, delta);
 
-        if (tooltip != null) RenderUtils.renderTooltip(graphics, tooltip.getVisualOrderText(), mouseX, mouseY, 1);
+        if (tooltip != null) RenderUtils.renderTooltip(graphics, tooltip::visit, mouseX, mouseY, 1);
     }
 
     private void renderBackground(FWLTheme theme, GuiGraphics graphics, float delta) {
@@ -101,35 +101,34 @@ public class SideViewSwitcher extends ViewSwitcher {
         }
         else {
             boolean rendered = entry.renderIcon(graphics, iconX, iconY, iconSize, iconSize);
-            Component text = entry.getTitle();
+            AbstractComponent text = entry.getTitle();
             float textScale = Math.min((entryHeight - 2) / lineHeight(), 1);
             float textHeight = lineHeight() * textScale;
             float textX = rendered ? iconX + iconSize + 1 : iconX;
             float textY = entryY + (entryHeight - textHeight) / 2;
             float maxTextWidth = (rendered ? entryWidth - (iconSize + 1) : entryWidth) - 4;
-            float textWidth = textWidth(text, textScale);
+            float textWidth = textWidth(text);
             float widthDiff = textWidth - maxTextWidth;
 
             Scissors.enableScissors(graphics, textX, entryY, maxTextWidth, entryHeight);
-            if (widthDiff <= 0 || !hovered) renderText(graphics, text, textX, textY, 0, textScale, false);
+            if (widthDiff <= 0 || !hovered) renderText(graphics, text, textX, textY, 0);
             else {
                 float scrollTicks = widthDiff / 2f;
                 float scrollProgress = scrollProgress(scrollTicks + 15, scrollTicks, hoveredTicks + delta);
                 float textXOffset = widthDiff * scrollProgress;
-                renderText(graphics, text, textX - textXOffset, textY, 0, textScale, false);
+                renderText(graphics, text, textX - textXOffset, textY, 0);
             }
             Scissors.disableScissors(graphics);
         }
     }
 
     private void renderIconOrFirstLetter(GuiGraphics graphics, PageEntry entry, float x, float y, float width, float height) {
-        Component title = entry.getTitle();
+        AbstractComponent title = entry.getTitle();
         if (!entry.renderIcon(graphics, x, y, width, height)) {
-            FormattedCharSequence seq = substr(title.getVisualOrderText(), 0, 1);
-            float scale = height / (lineHeight() - 1);
-            float w = textWidth(seq, scale);
+            FWLCharSequence seq = substr(title::visit, 0, 1);
+            float w = textWidth(seq);
             float xOffset = (width - w) / 2;
-            renderText(graphics, seq, x + xOffset, y, 0, scale, false);
+            renderText(graphics, seq, x + xOffset, y, 0);
         }
     }
 

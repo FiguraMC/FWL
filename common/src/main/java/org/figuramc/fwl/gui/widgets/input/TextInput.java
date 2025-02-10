@@ -9,6 +9,7 @@ import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.Update;
 import org.figuramc.fwl.gui.widgets.descriptors.input.TextInputDescriptor;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.RenderUtils;
 import org.figuramc.fwl.utils.Scissors;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static org.figuramc.fwl.FWL.fwl;
+import static org.figuramc.fwl.text.components.LiteralComponent.literal;
 import static org.figuramc.fwl.utils.RenderUtils.textWidth;
 import static org.figuramc.fwl.utils.MathUtils.clamp;
 import static org.figuramc.fwl.utils.TextUtils.findCursorJumpAfter;
@@ -29,7 +31,7 @@ public class TextInput implements FWLWidget, Update {
 
     private int startCursorPos, endCursorPos;
     private String value;
-    protected Component bakedText;
+    protected AbstractComponent bakedText;
     private boolean immutable;
 
     private Callback changeCallback;
@@ -53,7 +55,7 @@ public class TextInput implements FWLWidget, Update {
         boolean valueIsDifferent = !value.equals(this.value);
         this.value = Objects.requireNonNull(value, "Initial input value has to be not null");
         if (changeCallback != null && valueIsDifferent && useCallback) changeCallback.onValueChange(this.value);
-        bakedText = textBaker != null ? textBaker.getBakedText(value) : Component.literal(value);
+        bakedText = textBaker != null ? textBaker.getBakedText(value) : literal(value);
         return this;
     }
 
@@ -201,10 +203,10 @@ public class TextInput implements FWLWidget, Update {
                 RenderUtils.fill(graphics, cursorX, cursorY1, cursorX + 1, cursorY2, 0, cursorColor);
             }
         }
-        RenderUtils.renderText(graphics, bakedText, textX1 + textOffset, textYPos, 0, 1, false);
+        RenderUtils.renderText(graphics, bakedText, textX1 + textOffset, textYPos, 0);
         Scissors.disableScissors(graphics);
         if (desc.boundaries().pointIn(mouseX, mouseY)) {
-            RenderUtils.renderTextTooltip(graphics, bakedText.getVisualOrderText(), textX1 + textOffset, textYPos, 1, mouseX, mouseY);
+            RenderUtils.renderTextTooltip(graphics, bakedText::visit, textX1 + textOffset, textYPos, mouseX, mouseY);
         }
     }
 
@@ -357,6 +359,6 @@ public class TextInput implements FWLWidget, Update {
     }
 
     public interface TextBaker {
-        Component getBakedText(String value);
+        AbstractComponent getBakedText(String value);
     }
 }

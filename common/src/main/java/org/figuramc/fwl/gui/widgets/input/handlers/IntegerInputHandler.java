@@ -5,13 +5,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import org.figuramc.fwl.gui.widgets.input.TextInput;
+import org.figuramc.fwl.text.FWLStyle;
+import org.figuramc.fwl.text.components.AbstractComponent;
 
 import java.util.function.Consumer;
+
+import static org.figuramc.fwl.text.components.LiteralComponent.literal;
 
 public class IntegerInputHandler implements TextInput.Callback, TextInput.TextBaker {
 
     private Consumer<Integer> valueConsumer;
-    private Component errorText;
+    private AbstractComponent errorText;
     private boolean unsigned = false;
     private int radix = 10;
 
@@ -52,21 +56,21 @@ public class IntegerInputHandler implements TextInput.Callback, TextInput.TextBa
             else iValue = Integer.parseInt(value, radix);
             valueConsumer.accept(iValue);
         } catch (NumberFormatException exception) {
-            errorText = Component.literal("Unable to parse an integer");
+            errorText = literal("Unable to parse an integer");
         } catch (Exception e) {
-            errorText = Component.literal("Unexpected exception: " + e.getMessage());
+            errorText = literal("Unexpected exception: " + e.getMessage());
         }
     }
 
     @Override
-    public Component getBakedText(String value) {
+    public AbstractComponent getBakedText(String value) {
         if (errorText != null) {
-            Style textStyle = Style.EMPTY
-                    .withColor(ChatFormatting.RED)
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, errorText));
-            return Component.literal(value).setStyle(textStyle);
+            FWLStyle textStyle = FWLStyle.EMPTY
+                    .withColor(1f, 0.5f, 0.5f, 1)
+                    .withTooltip(errorText);
+            return literal(value).setStyle(textStyle);
         }
-        else return Component.literal(value);
+        else return literal(value);
     }
 
 }

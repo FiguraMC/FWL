@@ -7,6 +7,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import org.figuramc.fwl.gui.themes.FWLTheme;
 import org.figuramc.fwl.gui.widgets.descriptors.button.ButtonTypes;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.utils.RenderUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +16,8 @@ import static org.figuramc.fwl.utils.RenderUtils.textHeight;
 import static org.figuramc.fwl.utils.RenderUtils.textWidth;
 
 public class TextButton extends Button implements NarratableEntry {
-    private Component message;
-    public TextButton(float x, float y, float width, float height, Component message) {
+    private AbstractComponent message;
+    public TextButton(float x, float y, float width, float height, AbstractComponent message) {
         super(x, y, width, height);
         this.message = message;
     }
@@ -24,10 +25,10 @@ public class TextButton extends Button implements NarratableEntry {
     @Override
     public void renderButton(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
         if (message != null) {
-            float textWidth = textWidth(message, 1);
+            float textWidth = textWidth(message);
             float x = desc.x() + (desc.width() / 2) - (textWidth / 2);
-            float y = desc.y() + (desc.height() / 2) - (textHeight(message, 1, desc.width() - 2) / 2);
-            RenderUtils.renderText(graphics, message, x, y, 0, 1, false);
+            float y = desc.y() + (desc.height() / 2) - (textHeight(message) / 2);
+            RenderUtils.renderText(graphics, message, x, y, 0);
         }
     }
 
@@ -45,7 +46,7 @@ public class TextButton extends Button implements NarratableEntry {
         return theme.getColorOrDefault(fallback, "text", type);
     }
 
-    public Component message() {
+    public AbstractComponent message() {
         return message;
     }
 
@@ -55,13 +56,13 @@ public class TextButton extends Button implements NarratableEntry {
         return this;
     }
 
-    public TextButton setMessage(Component message) {
+    public TextButton setMessage(AbstractComponent message) {
         this.message = message;
         return this;
     }
 
     @Override
-    public TextButton setTooltip(@Nullable Component tooltip) {
+    public TextButton setTooltip(@Nullable AbstractComponent tooltip) {
         super.setTooltip(tooltip);
         return this;
     }
@@ -98,6 +99,6 @@ public class TextButton extends Button implements NarratableEntry {
     @Override
     public void updateNarration(NarrationElementOutput builder) {
         if (message != null)
-            builder.add(NarratedElementType.TITLE, message);
+            builder.add(NarratedElementType.TITLE, message.toString());
     }
 }

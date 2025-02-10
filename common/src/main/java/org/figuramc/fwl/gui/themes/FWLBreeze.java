@@ -22,6 +22,7 @@ import org.figuramc.fwl.gui.widgets.input.TextInput;
 import org.figuramc.fwl.gui.widgets.input.handlers.IntegerInputHandler;
 import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
 import org.figuramc.fwl.gui.widgets.misc.Label;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.utils.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +33,8 @@ import java.util.function.Function;
 
 import static net.minecraft.network.chat.Component.translatable;
 import static net.minecraft.util.FastColor.ARGB32;
+import static org.figuramc.fwl.text.components.LiteralComponent.literal;
+import static org.figuramc.fwl.text.components.TranslatableComponent.translation;
 import static org.figuramc.fwl.utils.ColorUtils.argb;
 import static org.figuramc.fwl.utils.JsonUtils.intOrDefault;
 import static org.figuramc.fwl.gui.widgets.descriptors.BoundsDescriptor.Side;
@@ -57,18 +60,18 @@ public class FWLBreeze extends FWLTheme {
 
     private int borderRadius;
 
-    private final Pair<Component, FWLAbstractConfig.FieldConstructor<FWLBreeze>>[] CONSTRUCTORS = new Pair[] {
-            of(translatable("fwl.breeze.color.primary"), colorPickerField(b -> b.primaryColor, (b, v) -> b.primaryColor = v, false)),
-            of(translatable("fwl.breeze.color.accent"), colorPickerField(b -> b.accentColor, (b, v) -> b.accentColor = v, false)),
-            of(translatable("fwl.breeze.color.success"), colorPickerField(b -> b.successColor, (b, v) -> b.successColor = v, false)),
+    private final Pair<AbstractComponent, FWLAbstractConfig.FieldConstructor<FWLBreeze>>[] CONSTRUCTORS = new Pair[] {
+            of(translation("fwl.breeze.color.primary"), colorPickerField(b -> b.primaryColor, (b, v) -> b.primaryColor = v, false)),
+            of(translation("fwl.breeze.color.accent"), colorPickerField(b -> b.accentColor, (b, v) -> b.accentColor = v, false)),
+            of(translation("fwl.breeze.color.success"), colorPickerField(b -> b.successColor, (b, v) -> b.successColor = v, false)),
 
-            of(translatable("fwl.breeze.color.border"), colorPickerField(b -> b.borderColor, (b, v) -> b.borderColor = v, false)),
+            of(translation("fwl.breeze.color.border"), colorPickerField(b -> b.borderColor, (b, v) -> b.borderColor = v, false)),
 
-            of(translatable("fwl.breeze.color.text"), colorPickerField(b -> b.textColor, (b, v) -> b.textColor = v, false)),
-            of(translatable("fwl.breeze.color.text.hint"), colorPickerField(b -> b.textHintColor, (b, v) -> b.textHintColor = v, false)),
-            of(translatable("fwl.breeze.color.text.disabled"), colorPickerField(b -> b.disabledTextColor, (b, v) -> b.disabledTextColor = v, false)),
+            of(translation("fwl.breeze.color.text"), colorPickerField(b -> b.textColor, (b, v) -> b.textColor = v, false)),
+            of(translation("fwl.breeze.color.text.hint"), colorPickerField(b -> b.textHintColor, (b, v) -> b.textHintColor = v, false)),
+            of(translation("fwl.breeze.color.text.disabled"), colorPickerField(b -> b.disabledTextColor, (b, v) -> b.disabledTextColor = v, false)),
 
-            of(translatable("fwl.breeze.border.radius"), sliderField(b -> (float) b.borderRadius, (b, v) -> b.borderRadius = (int) (float) v, 0, 10, 10))
+            of(translation("fwl.breeze.border.radius"), sliderField(b -> (float) b.borderRadius, (b, v) -> b.borderRadius = (int) (float) v, 0, 10, 10))
     };
 
     public FWLBreeze() {
@@ -557,7 +560,7 @@ public class FWLBreeze extends FWLTheme {
             SimpleContainer container = new SimpleContainer();
 
             for (int i = 0; i < availableComponents; i++) {
-                Label cLabel = new Label(x, cY, Component.literal(COLOR_COMPONENT_NAMES[i]));
+                Label cLabel = new Label(x, cY, literal(COLOR_COMPONENT_NAMES[i]));
                 Slider cSlider = new Slider(cLabel.boundaries().right() + 10, cY, 100, 10, components[i] / 255f).setUpdateOnMove(true);
                 TextInput cInput = new TextInput(cSlider.boundaries().right() + 10, cY, 50, 10, Integer.toString(components[i]));
                 int componentIndex = i;

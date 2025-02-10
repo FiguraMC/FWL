@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.Resizeable;
+import org.figuramc.fwl.text.components.AbstractComponent;
 import org.jetbrains.annotations.Nullable;
 
 import static org.figuramc.fwl.utils.RenderUtils.fill;
@@ -17,8 +18,8 @@ public interface PageEntry {
 
     FWLWidget getPage(float width, float height);
 
-    Component getTitle();
-    default @Nullable Component getTooltip() {
+    AbstractComponent getTitle();
+    default @Nullable AbstractComponent getTooltip() {
         return null;
     }
 }

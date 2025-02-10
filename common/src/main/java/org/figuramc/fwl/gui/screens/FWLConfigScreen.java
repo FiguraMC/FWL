@@ -22,9 +22,11 @@ import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
 import org.figuramc.fwl.gui.widgets.misc.Label;
 import org.figuramc.fwl.gui.widgets.tabs.SideViewSwitcher;
 import org.figuramc.fwl.gui.widgets.tabs.pages.PageEntry;
+import org.figuramc.fwl.text.FWLStyle;
 import org.figuramc.fwl.text.TextRenderer;
 import org.figuramc.fwl.text.components.AbstractComponent;
 import org.figuramc.fwl.text.components.LiteralComponent;
+import org.figuramc.fwl.text.components.TranslatableComponent;
 import org.figuramc.fwl.text.serialization.FWLSerializer;
 import org.figuramc.fwl.utils.Rectangle;
 import org.figuramc.fwl.utils.RenderUtils;
@@ -77,13 +79,13 @@ public class FWLConfigScreen extends FWLScreen {
         }
 
         @Override
-        public Component getTitle() {
-            return Component.translatable("fwl.config.settings");
+        public AbstractComponent getTitle() {
+            return translation("fwl.config.settings");
         }
 
         @Override
-        public @Nullable Component getTooltip() {
-            return Component.translatable("fwl.config.settings.tooltip");
+        public @Nullable AbstractComponent getTooltip() {
+            return translation("fwl.config.settings.tooltip");
         }
     }
 
@@ -96,13 +98,13 @@ public class FWLConfigScreen extends FWLScreen {
         }
 
         @Override
-        public Component getTitle() {
-            return Component.translatable("fwl.config.theme_settings");
+        public AbstractComponent getTitle() {
+            return translation("fwl.config.theme_settings");
         }
 
         @Override
-        public @Nullable Component getTooltip() {
-            return Component.translatable("fwl.config.theme_settings.tooltip");
+        public @Nullable AbstractComponent getTooltip() {
+            return translation("fwl.config.theme_settings.tooltip");
         }
 
         @Override
@@ -119,8 +121,8 @@ public class FWLConfigScreen extends FWLScreen {
         }
 
         @Override
-        public Component getTitle() {
-            return Component.literal("Test page");
+        public AbstractComponent getTitle() {
+            return literal("Test page");
         }
     }
 
@@ -149,10 +151,10 @@ public class FWLConfigScreen extends FWLScreen {
 
         private float createThemeDropdown(float x, float y) {
             FWLConfig config = fwl().config();
-            Style labelStyle = Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("fwl.config.settings.selected_theme.tooltip")));
-            Label buttonLabel = new Label(x, y, Component.translatable("fwl.config.settings.selected_theme").withStyle(labelStyle));
+            FWLStyle labelStyle = FWLStyle.EMPTY.withTooltip(translation("fwl.config.settings.selected_theme.tooltip"));
+            Label buttonLabel = new Label(x, y, translation("fwl.config.settings.selected_theme").setStyle(labelStyle));
             changeThemeButton =
-                    new TextButton(buttonLabel.boundaries().right() + 10, y, 100, 20, Component.translatable(themeToTranslationString(config.selectedTheme())));
+                    new TextButton(buttonLabel.boundaries().right() + 10, y, 100, 20, translation(themeToTranslationString(config.selectedTheme())));
             changeThemeButton.setCallback(this::changeThemeCallback);
             addWidget(buttonLabel);
             addWidget(changeThemeButton);
@@ -176,16 +178,16 @@ public class FWLConfigScreen extends FWLScreen {
         private static class ThemeSwitchEntry implements ContextMenu.Entry {
             private final ResourceLocation theme;
             private final TextButton parentButton;
-            private final Component text;
+            private final AbstractComponent text;
 
             private ThemeSwitchEntry(ResourceLocation theme, TextButton parentButton) {
                 this.theme = theme;
                 this.parentButton = parentButton;
-                text = Component.translatable(themeToTranslationString(theme));
+                text = translation(themeToTranslationString(theme));
             }
 
             @Override
-            public Component text() {
+            public AbstractComponent text() {
                 return text;
             }
 
@@ -200,12 +202,12 @@ public class FWLConfigScreen extends FWLScreen {
     }
 
     private static class ThemeSettingsPage extends AbstractFWLContainerWidget implements Resizeable {
-        private static final Component RESET_BUTTON_COMPONENT = Component.translatable("fwl.config.theme_settings.reset");
-        private static final Component RESET_BUTTON_COMPONENT_TOOLTIP = Component.translatable("fwl.config.theme_settings.reset.tooltip");
-        private static final Component CANCEL_BUTTON_COMPONENT = Component.translatable("fwl.config.theme_settings.cancel");
-        private static final Component CANCEL_BUTTON_COMPONENT_TOOLTIP = Component.translatable("fwl.config.theme_settings.cancel.tooltip");
-        private static final Component SAVE_BUTTON_COMPONENT = Component.translatable("fwl.config.theme_settings.save");
-        private static final Component SAVE_BUTTON_COMPONENT_TOOLTIP = Component.translatable("fwl.config.theme_settings.save.tooltip");
+        private static final TranslatableComponent RESET_BUTTON_COMPONENT = translation("fwl.config.theme_settings.reset");
+        private static final TranslatableComponent RESET_BUTTON_COMPONENT_TOOLTIP = translation("fwl.config.theme_settings.reset.tooltip");
+        private static final TranslatableComponent CANCEL_BUTTON_COMPONENT = translation("fwl.config.theme_settings.cancel");
+        private static final TranslatableComponent CANCEL_BUTTON_COMPONENT_TOOLTIP = translation("fwl.config.theme_settings.cancel.tooltip");
+        private static final TranslatableComponent SAVE_BUTTON_COMPONENT = translation("fwl.config.theme_settings.save");
+        private static final TranslatableComponent SAVE_BUTTON_COMPONENT_TOOLTIP = translation("fwl.config.theme_settings.save.tooltip");
         private final float BUTTONS_ROW_SIZE = 30;
         private float width, height;
         private final FWLWidget themeSettings;
