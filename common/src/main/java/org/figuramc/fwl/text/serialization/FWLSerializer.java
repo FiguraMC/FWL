@@ -114,7 +114,7 @@ public class FWLSerializer {
 
     @SuppressWarnings("unchecked")
     public static EffectProvider parseStyleProvider(JsonObject styleObject) {
-        FWLStyle style = FWLStyle.empty();
+        FWLStyle style = FWLStyle.EMPTY;
         ProviderBuilder builder = new ProviderBuilder(style);
         for (FWLStyle.Property<?> property: FWLStyle.PROPERTIES) {
             FWLStyle.Property<Object> prop = (FWLStyle.Property<Object>) property;

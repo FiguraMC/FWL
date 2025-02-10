@@ -32,21 +32,23 @@ public abstract class AbstractComponent {
         styleProvider = provider;
     }
 
-    public FWLStyle getStyle(int index) {
+    public @Nullable FWLStyle getStyle(int index) {
         FWLStyle parentStyle = getSelfStyle(index);
-        return parentStyle.applyFrom(getSiblingStyle(index));
+        FWLStyle siblingStyle = getSiblingStyle(index);
+        if (parentStyle == null) return siblingStyle;
+        return parentStyle.applyFrom(siblingStyle);
     }
 
     public EffectProvider getStyle() {
         return styleProvider;
     }
 
-    protected FWLStyle getSelfStyle(int index) {
-        return styleProvider != null ? styleProvider.get(index, length()) : FWLStyle.EMPTY;
+    protected @Nullable FWLStyle getSelfStyle(int index) {
+        return styleProvider != null ? styleProvider.get(index, length()) : null;
     }
 
-    protected FWLStyle getSiblingStyle(int index) {
-        if (index < 0 || index >= length()) return FWLStyle.empty();
+    protected @Nullable FWLStyle getSiblingStyle(int index) {
+        if (index < 0 || index >= length()) return null;
         int offset = 0;
         Iterator<AbstractComponent> siblings = siblings().iterator();
         while (siblings.hasNext() && index - offset >= 0) {
@@ -56,7 +58,7 @@ public abstract class AbstractComponent {
             if (i < len) return component.getStyle(i);
             else offset += len;
         }
-        return FWLStyle.empty();
+        return null;
     }
 
     public AbstractComponent setStyle(FWLStyle style) {

@@ -15,7 +15,7 @@ import java.util.Objects;
 
 
 public class FWLStyle {
-    public static final FWLStyle EMPTY = empty().lock();
+    public static final FWLStyle EMPTY = new FWLStyle().lock();
     public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
     private @Nullable Boolean bold, italic, obfuscated;
     private @Nullable Vector4f color, backgroundColor, shadowColor, strikethroughColor, underlineColor, outlineColor;
@@ -521,7 +521,10 @@ public class FWLStyle {
         }
     }
 
-    public static FWLStyle merge(FWLStyle a, FWLStyle b) {
+    public static FWLStyle merge(@Nullable FWLStyle a, @Nullable FWLStyle b) {
+        if (a == null && b == null) return FWLStyle.EMPTY;
+        if (a == null) a = FWLStyle.EMPTY;
+        else if (b == null) b = FWLStyle.EMPTY;
         return new FWLStyle(
                 b.bold == null ? a.bold : b.bold,
                 b.italic == null ? a.italic : b.italic,
@@ -586,10 +589,6 @@ public class FWLStyle {
         float blue = FastColor.ARGB32.blue(argb) / 255f;
         float alpha = FastColor.ARGB32.alpha(argb) / 255f;
         return new Vector4f(red, green, blue, alpha);
-    }
-
-    public static FWLStyle empty() {
-        return new FWLStyle();
     }
 
     private static <V> Property<V> property(PropertyGetter<V> getter, PropertySetter<V> setter, PropertyWith<V> with, PropertyHas has, Class<? extends V> clazz, String fieldName) {

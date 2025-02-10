@@ -96,7 +96,7 @@ public class TextUtils {
         AtomicReference<Float> currentY = new AtomicReference<>((float) 0);
         AtomicReference<FWLStyle> returnStyle = new AtomicReference<>(FWLStyle.EMPTY);
         sequence.accept((index, provider, codepoint) -> {
-            FWLStyle style = provider.get(index);
+            FWLStyle style = provider.getOrEmpty(index);
             if (codepoint == '\n') {
                 currentX.set(0f);
                 currentY.updateAndGet(v -> v + font.lineHeight);
@@ -163,10 +163,11 @@ public class TextUtils {
                 currentLine[0] = 0;
             }
             else {
-                FWLStyle style = provider.get(index);
+                FWLStyle style = provider.getOrEmpty(index);
                 FontSet set = font.getFontSet(style.getFont());
                 GlyphInfo info = set.getGlyphInfo(codepoint, font.filterFishyGlyphs);
-                currentLine[0] += info.getAdvance(style.isBold()) * style.getScale().x;
+                float advance = info.getAdvance(style.isBold());
+                currentLine[0] += style.hasScale() ? advance * style.getScale().x : advance;
             }
             return true;
         });
@@ -180,8 +181,8 @@ public class TextUtils {
         float[] height = new float[1];
 
         component.accept((index, provider, codepoint) -> {
-            FWLStyle style = provider.get(index);
-            currentLine[0] = Math.max(currentLine[0], font.lineHeight * style.getScale().y);
+            FWLStyle style = provider.getOrEmpty(index);
+            currentLine[0] = Math.max(currentLine[0], style.hasScale() ? font.lineHeight * style.getScale().y : font.lineHeight);
             if (codepoint == '\n') {
                 height[0] += currentLine[0];
                 currentLine[0] = 0;

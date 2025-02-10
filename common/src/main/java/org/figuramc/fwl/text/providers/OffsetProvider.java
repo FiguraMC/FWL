@@ -15,6 +15,6 @@ public class OffsetProvider implements StyleProvider {
 
     @Override
     public FWLStyle get(int index) {
-        return parentProvider.get(index).applyFrom(thisProvider.get(index - offset));
+        return parentProvider.getOrEmpty(index).applyFrom(thisProvider.get(index - offset));
     }
 }

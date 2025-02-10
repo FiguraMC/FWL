@@ -3,19 +3,22 @@ package org.figuramc.fwl.text;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.figuramc.fwl.text.providers.StyleProvider;
+import org.figuramc.fwl.utils.Watch;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 public class TextRenderer {
+    public static final int FLOAT_1 = Float.floatToRawIntBits(1f);
+
     private final ArrayList<GlyphData> lineGlyphs = new ArrayList<>();
     private final Font font;
     private final MultiBufferSource.BufferSource bufferSource;
@@ -37,7 +40,7 @@ public class TextRenderer {
     }
 
     public boolean accept(int index, StyleProvider provider, int codepoint) {
-        FWLStyle style = provider.get(index);
+        FWLStyle style = provider.getOrEmpty(index);
         Vector2f scale = style.getScale();
         float glyphHeight = font.lineHeight * scale.y;
         lineHeight = Math.max(lineHeight, glyphHeight);
@@ -98,31 +101,37 @@ public class TextRenderer {
                 y += offset.y;
             }
 
-            Vector2f scale = style.getScale();
-
-            width *= scale.x;
-            height *= scale.y;
-
-            float alignment = style.getVerticalAlignment();
-
-            y += (lineHeight - height) * alignment;
+            Vector2f scale;
+            if (style.hasScale()) {
+                scale = style.getScale();
+                width *= scale.x;
+                height *= scale.y;
+            }
+            else {
+                scale = null;
+            }
+            y += (lineHeight - height) * style.getVerticalAlignment();
 
             float skewX = 0, skewY = 0;
+
+            boolean applySkew = false;
+
             if (style.isItalic()) {
-                skewX += scale.x;
+                skewX += scale == null ? 1 : scale.x;
+                applySkew = true;
             }
 
             if (style.hasSkew()) {
                 Vector2f skew = style.getSkew();
                 skewX += skew.x;
                 skewY = skew.y;
+                applySkew = true;
             }
 
 
             float x1 = x + glyph.left;
             float x2 = x + glyph.right;
 
-            float xDiff = x2 - x1;
 
             float rY1 = glyph.up - 3;
             float rY2 = glyph.down - 3;
@@ -130,15 +139,18 @@ public class TextRenderer {
             float y1 = y + rY1;
             float y2 = y + rY2;
 
-            float yDiff = y2 - y1;
 
-            x2 += xDiff * (scale.x - 1);
-            y2 += yDiff * (scale.y - 1);
+            if (scale != null) {
+                float xDiff = x2 - x1;
+                float yDiff = y2 - y1;
+                x2 += xDiff * (scale.x - 1);
+                y2 += yDiff * (scale.y - 1);
+            }
 
             if (style.hasShadow()) {
                 Vector4f shadowColor = style.getShadowColor();
                 Vector2f shadowOffset = style.getShadowOffset();
-                if (!style.hasShadowOffset()) {
+                if (!style.hasShadowOffset() && scale != null) {
                     shadowOffset.mul(scale.x, scale.y);
                 }
                 float oX = shadowOffset.x, oY = shadowOffset.y;
@@ -146,7 +158,8 @@ public class TextRenderer {
                 float cG = shadowColor.y;
                 float cB = shadowColor.z;
                 float cA = shadowColor.w;
-                renderCharInternal(consumer, matrix, x1 + oX, y1 + oY, x2 + oX, y2 + oY, u0, v0, u1, v1, skewX, skewY, cR, cG, cB, cA, light);
+                if (applySkew) renderCharInternal(consumer, matrix, x1 + oX, y1 + oY, x2 + oX, y2 + oY, u0, v0, u1, v1, skewX, skewY, cR, cG, cB, cA, light);
+                else renderCharInternalSkewless(consumer, matrix, x1 + oX, y1 + oY, x2 + oX, y2 + oY, u0, v0, u1, v1, cR, cG, cB, cA, light);
             }
 
             if (style.hasOutline()) {
@@ -156,22 +169,36 @@ public class TextRenderer {
                 float cG = outlineColor.y;
                 float cB = outlineColor.z;
                 float cA = outlineColor.w;
-                for (int oY = -1; oY <= 1; oY++) {
-                    for (int oX = -1; oX <= 1; oX++) {
-                        if (oY == 0 && oX == 0) continue;
-                        float cX = oX * outlineScale.x;
-                        float cY = oY * outlineScale.y;
-                        renderCharInternal(consumer, matrix, x1 + cX, y1 + cY, x2 + cX, y2 + cY, u0, v0, u1, v1, skewX, skewY, cR, cG, cB, cA, light);
+                if (applySkew) {
+                    for (int oY = -1; oY <= 1; oY++) {
+                        for (int oX = -1; oX <= 1; oX++) {
+                            if (oY == 0 && oX == 0) continue;
+                            float cX = oX * outlineScale.x;
+                            float cY = oY * outlineScale.y;
+                            renderCharInternal(consumer, matrix, x1 + cX, y1 + cY, x2 + cX, y2 + cY, u0, v0, u1, v1, skewX, skewY, cR, cG, cB, cA, light);
+                        }
+                    }
+                }
+                else {
+                    for (int oY = -1; oY <= 1; oY++) {
+                        for (int oX = -1; oX <= 1; oX++) {
+                            if (oY == 0 && oX == 0) continue;
+                            float cX = oX * outlineScale.x;
+                            float cY = oY * outlineScale.y;
+                            renderCharInternalSkewless(consumer, matrix, x1 + cX, y1 + cY, x2 + cX, y2 + cY, u0, v0, u1, v1, cR, cG, cB, cA, light);
+                        }
                     }
                 }
             }
 
             if (style.isBold()) {
-                float weight = info.getBoldOffset() * scale.x;
-                renderCharInternal(consumer, matrix, x1 + weight, y1, x2 + weight, y2, u0, v0, u1, v1, skewX, skewY, r, g, b, a, light);
+                float weight = scale == null ? info.getBoldOffset() : (info.getBoldOffset() * scale.x);
+                if (applySkew) renderCharInternal(consumer, matrix, x1 + weight, y1, x2 + weight, y2, u0, v0, u1, v1, skewX, skewY, r, g, b, a, light);
+                else renderCharInternalSkewless(consumer, matrix, x1 + weight, y1, x2 + weight, y2, u0, v0, u1, v1, r, g, b, a, light);
             }
 
-            renderCharInternal(consumer, matrix, x1, y1, x2, y2, u0, v0, u1, v1, skewX, skewY, r, g, b, a, light);
+            if (applySkew) renderCharInternal(consumer, matrix, x1, y1, x2, y2, u0, v0, u1, v1, skewX, skewY, r, g, b, a, light);
+            else renderCharInternalSkewless(consumer, matrix, x1, y1, x2, y2, u0, v0, u1, v1, r, g, b, a, light);
         }
 
         if (style.hasStrikethrough()) {
@@ -205,6 +232,13 @@ public class TextRenderer {
         consumer.vertex(matrix, x1 - skewX, y2 - skewY, 0).color(r, g, b, a).uv(u0, v1).uv2(light).endVertex();
         consumer.vertex(matrix, x2 - skewX, y2 + skewY, 0).color(r, g, b, a).uv(u1, v1).uv2(light).endVertex();
         consumer.vertex(matrix, x2 + skewX, y1 + skewY, 0).color(r, g, b, a).uv(u1, v0).uv2(light).endVertex();
+    }
+
+    private static void renderCharInternalSkewless(VertexConsumer consumer, Matrix4f matrix, float x1, float y1, float x2, float y2, float u0, float v0, float u1, float v1, float r, float g, float b, float a, int light) {
+        consumer.vertex(matrix, x1, y1, 0).color(r, g, b, a).uv(u0, v0).uv2(light).endVertex();
+        consumer.vertex(matrix, x1, y2, 0).color(r, g, b, a).uv(u0, v1).uv2(light).endVertex();
+        consumer.vertex(matrix, x2, y2, 0).color(r, g, b, a).uv(u1, v1).uv2(light).endVertex();
+        consumer.vertex(matrix, x2, y1, 0).color(r, g, b, a).uv(u1, v0).uv2(light).endVertex();
     }
 
     private static void renderEffect(MultiBufferSource.BufferSource source, Font renderer, Font.DisplayMode layerType, Matrix4f matrix, float x1, float y1, float x2, float y2, float r, float g, float b, float a, int light) {

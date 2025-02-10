@@ -15,7 +15,7 @@ public class ProviderBuilder {
     }
 
     public ProviderBuilder() {
-        this.style = FWLStyle.empty();
+        this.style = FWLStyle.EMPTY;
     }
 
     public <V> ProviderBuilder with(FWLStyle.Property<V> property, V value) {
