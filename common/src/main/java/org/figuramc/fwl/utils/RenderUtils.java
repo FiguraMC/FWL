@@ -374,11 +374,11 @@ public class RenderUtils {
     }
 
     public static void renderTooltip(GuiGraphics graphics, AbstractComponent tooltip, float x, float y) {
-        renderTooltip(graphics, tooltip::visit, x, y, 0);
+        renderTooltip(graphics, tooltip::visit, x, y, 1);
     }
 
     public static void renderTooltip(GuiGraphics graphics, FWLCharSequence tooltip, float x, float y) {
-        renderTooltip(graphics, tooltip, x, y, 0);
+        renderTooltip(graphics, tooltip, x, y, 1);
     }
 
     public static void renderTooltip(GuiGraphics graphics, FWLCharSequence tooltip, float x, float y, float z) {

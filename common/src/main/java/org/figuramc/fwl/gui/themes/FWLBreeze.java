@@ -417,17 +417,6 @@ public class FWLBreeze extends FWLTheme {
         return color;
     }
 
-    public int applyStateModifier(int color, CheckboxDescriptor state) {
-        int r = ARGB32.red(color);
-        int g = ARGB32.green(color);
-        int b = ARGB32.blue(color);
-        int a = ARGB32.alpha(color);
-        if (state.disabled()) return argb(a, r - 30, g - 30, b - 30);
-        if (state.clicked()) return argb(a, r - 20, g - 20, b - 20);
-        if (state.hovered()) return argb(a, r - 10, g - 10, b - 10);
-        return color;
-    }
-
     private BreezeGradient getBreezeColorGradient(int baseColor, float x0, float y0, float x1, float y1) {
         int r = ARGB32.red(baseColor);
         int g = ARGB32.green(baseColor);

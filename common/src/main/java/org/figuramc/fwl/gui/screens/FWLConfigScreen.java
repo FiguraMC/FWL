@@ -16,12 +16,21 @@ import org.figuramc.fwl.gui.themes.FWLThemeRepository;
 import org.figuramc.fwl.gui.widgets.FWLWidget;
 import org.figuramc.fwl.gui.widgets.Resizeable;
 import org.figuramc.fwl.gui.widgets.Update;
+import org.figuramc.fwl.gui.widgets.button.Checkbox;
+import org.figuramc.fwl.gui.widgets.button.RadioButton;
 import org.figuramc.fwl.gui.widgets.button.TextButton;
+import org.figuramc.fwl.gui.widgets.button.radio_button.RadioButtonGroupHandler;
 import org.figuramc.fwl.gui.widgets.containers.AbstractFWLContainerWidget;
+import org.figuramc.fwl.gui.widgets.descriptors.Orientation;
+import org.figuramc.fwl.gui.widgets.input.TextInput;
+import org.figuramc.fwl.gui.widgets.input.handlers.IntegerInputHandler;
 import org.figuramc.fwl.gui.widgets.misc.ContextMenu;
 import org.figuramc.fwl.gui.widgets.misc.Label;
+import org.figuramc.fwl.gui.widgets.scrollable.ScrollBar;
+import org.figuramc.fwl.gui.widgets.scrollable.ScrollableArea;
 import org.figuramc.fwl.gui.widgets.tabs.SideViewSwitcher;
 import org.figuramc.fwl.gui.widgets.tabs.pages.PageEntry;
+import org.figuramc.fwl.gui.widgets.tabs.pages.SimplePage;
 import org.figuramc.fwl.text.FWLStyle;
 import org.figuramc.fwl.text.TextRenderer;
 import org.figuramc.fwl.text.components.AbstractComponent;
@@ -288,44 +297,91 @@ public class FWLConfigScreen extends FWLScreen {
     }
 
     private static class TestPage extends AbstractFWLContainerWidget implements Resizeable {
-        private final AbstractComponent component;
         private float width, height;
 
         private final Watch watch = new Watch();
 
+        private TextButton button1, button2, contextTestButton;
+        private Checkbox checkbox1, checkbox2, checkbox3, checkbox4;
+        private RadioButton radio1, radio2, radio3, radio4;
+        private ScrollBar scrollBar1, scrollBar2;
+        private ScrollableArea area1;
+        private TextInput input1;
+        private IntegerInputHandler inputHandler1;
+        private SideViewSwitcher sideViewSwitcher;
+
         public TestPage(float width, float height) {
             this.width = width;
             this.height = height;
-            LiteralComponent text = literal("");
-            LiteralComponent mainText = literal("\nThis is a text made for showcase of the features of FWL's custom components.\n");
-            text.append(literal("Hi!\n").setStyle(EMPTY.withScale(2, 2)));
-            text.append(mainText);
 
-            mainText.append(literal("Main purpose of custom components is extension of minecraft's text styling capabilities.\n"))
-                    .append(literal("Apart from default "))
-                    .append(literal("color", EMPTY.withColor(0.25f, 1.0f, 0.25f, 1))).append(literal(", "))
-                    .append(literal("bold", EMPTY.withBold(true))).append(literal(", "))
-                    .append(literal("italic", EMPTY.withItalic(true))).append(literal(", "))
-                    .append(literal("underline", EMPTY.withUnderlineColor(1, 1, 1, 1))).append(literal(", "))
-                    .append(literal("strikethrough", EMPTY.withStrikethroughColor(1, 1, 1, 1))).append(literal(", "))
-                    .append(literal("and, of course")).append(literal(", "))
-                    .append(literal("obfuscated", EMPTY.withObfuscated(true))).append(literal(",\n"))
-                    .append(literal("there's also "))
-                    .append(literal("scale", EMPTY.withScale(1.5f, 1.5f))).append(literal(", "))
-                    .append(literal("offset", EMPTY.withOffset(0f, 4f))).append(literal(", "))
-                    .append(literal("skew", EMPTY.withSkew(1f, 1f))).append(literal(", "))
-                    .append(literal("background", EMPTY.withBackgroundColor(1f, 1f, 0.5f, 0.5f))).append(literal(", "))
-                    .append(literal("and also some little things like ability to set the color of\n"))
-                    .append(literal("shadow", EMPTY.withShadowColor(0.5f, 0, 0, 1))).append(literal(", "))
-                    .append(literal("underline", EMPTY.withUnderlineColor(1f, 0.5f, 0.5f, 1))).append(literal(", and "))
-                    .append(literal("strikethrough", EMPTY.withStrikethroughColor(1f, 0.5f, 0.5f, 1))).append(literal(".\n"))
-                    .append(literal("Oh and also there's text outline :3.\n"));
+            addWidget(button1 = new TextButton(10, 10, 125, 20, literal("Button")));
+            addWidget(button2 = new TextButton(10, 35, 125, 20, literal("Disabled button")));
 
-            String key = "fwl.theme.breeze";
+            addWidget(checkbox1 = new Checkbox(145, 15, 10, 10, false));
+            addWidget(checkbox2 = new Checkbox(165, 15, 10, 10, true));
+            addWidget(checkbox3 = new Checkbox(145, 40, 10, 10, false));
+            addWidget(checkbox4 = new Checkbox(165, 40, 10, 10, true));
 
-            mainText.append(translation(key));
+            addWidget(radio1 = new RadioButton(185, 15, 10, 10, false));
+            addWidget(radio2 = new RadioButton(205, 15, 10, 10, true));
+            addWidget(radio3 = new RadioButton(185, 40, 10, 10, false));
+            addWidget(radio4 = new RadioButton(205, 40, 10, 10, true));
 
-            component = text;
+            addWidget(contextTestButton = new TextButton(225, 10, 125, 20, literal("Entry 1")).setCallback(
+                    (x, y, b) -> {
+                        Rectangle bounds = contextTestButton.boundaries();
+                        ContextMenu menu = new ContextMenu(TestPage.this, bounds.left(), bounds.bottom())
+                                .addEntry(new ContextMenu.StandardEntry(literal("Entry 1"), (m) -> {
+                                    contextTestButton.setMessage(literal("Entry 1"));
+                                    return false;
+                                }))
+                                .addEntry(new ContextMenu.StandardEntry(literal("Entry 2"), (m) -> {
+                                    contextTestButton.setMessage(literal("Entry 2"));
+                                    return false;
+                                }))
+                                .addEntry(new ContextMenu.StandardEntry(literal("Entry 3"), (m) -> {
+                                    contextTestButton.setMessage(literal("Entry 3"));
+                                    return false;
+                                }))
+                                .setInteractionPriority(100);
+                        addWidget(menu);
+                        setFocused(menu);
+                    }
+            ));
+            addWidget(
+                    input1 = new TextInput(225, 40, 125, 20, "128")
+                            .setChangeCallback(inputHandler1 = new IntegerInputHandler().setValueConsumer(System.out::println))
+                            .setTextBaker(inputHandler1)
+            );
+
+            addWidget(area1 = new ScrollableArea(10, 80, 100, 100));
+            addWidget(scrollBar1 = new ScrollBar(110, 80, 10, 100, 100, 200, 0, Orientation.VERTICAL).setScrollStep(10));
+            addWidget(scrollBar2 = new ScrollBar(10, 180, 100, 10, 100, 200, 0, Orientation.HORIZONTAL).setScrollStep(10));
+            scrollBar1.setCallback(area1::setOffsetY);
+            scrollBar2.setCallback(area1::setOffsetX);
+
+            for (int i = 0; i < 20; i++) {
+                float bX = 100 * (i % 2);
+                float bY = 20 * (float)(i / 2);
+                TextButton button = new TextButton(area1.x() + bX, area1.y() + bY, 100, 20, literal("Button %s".formatted(i)));
+                area1.addWidget(button);
+            }
+
+            addWidget(sideViewSwitcher = new SideViewSwitcher(145, 70, 200, 100)
+                    .addEntry(new SimplePage(literal("Page 1"), new TextButton(0, 0, 100, 20, literal("Button"))))
+                    .addEntry(new SimplePage(literal("Page 2"), new Checkbox(0, 0, 10, 10, true)))
+                    .addEntry(new SimplePage(literal("Page 3"), new TextInput(0, 0, 150, 20)))
+                    .addEntry(new SimplePage(literal("Page 4"), null))
+                    .setCollapsed(true)
+            );
+
+            button2.setEnabled(false);
+            checkbox3.setEnabled(false);
+            checkbox4.setEnabled(false);
+            radio3.setEnabled(false);
+            radio4.setEnabled(false);
+
+            RadioButtonGroupHandler.createHandlersAndApply((i) -> System.out.printf("Current active radio button: %s%n", i), radio1, radio2);
         }
 
         @Override
@@ -337,11 +393,6 @@ public class FWLConfigScreen extends FWLScreen {
         public void resize(float width, float height) {
             this.width = width;
             this.height = height;
-        }
-
-        @Override
-        public void render(GuiGraphics graphics, float mouseX, float mouseY, float delta) {
-            RenderUtils.renderText(graphics, component, 10, 10, 0);
         }
     }
 }

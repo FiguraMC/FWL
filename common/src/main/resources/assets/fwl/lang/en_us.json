@@ -16,7 +16,7 @@
   "fwl.config.theme_settings.save": "Save",
   "fwl.config.theme_settings.save.tooltip": "Saves current config",
 
-  "fwl.theme.breeze": "Breeze",
+  "fwl.theme.breeze": "Breeze-Like",
 
   "fwl.breeze.color.primary": "Primary Color",
   "fwl.breeze.color.accent": "Accent Color",
@@ -25,5 +25,7 @@
   "fwl.breeze.color.text": "Text Color",
   "fwl.breeze.color.text.hint": "Text Hint Color",
   "fwl.breeze.color.text.disabled": "Disabled Text Color",
-  "fwl.breeze.border.radius": "Border Radius"
+  "fwl.breeze.border.radius": "Border Radius",
+
+  "fwl.theme.adwaita": "Adwaita-Like"
 }

@@ -77,6 +77,7 @@ public abstract class AbstractFWLContainerWidget implements FWLContainerWidget {
     }
 
     public void addWidget(FWLWidget widget) {
+        if (widget == null) return;
         if (lock) {
             awaitingAdd.add(widget);
             return;
@@ -86,6 +87,7 @@ public abstract class AbstractFWLContainerWidget implements FWLContainerWidget {
     }
 
     public void removeWidget(FWLWidget widget) {
+        if (widget == null) return;
         if (lock) {
             awaitingRemove.add(widget);
             return;
